@@ -137,6 +137,19 @@ QByteArray playTone(int frequencyHz, int durationMs)
     return direct(DirectOp::PlayTone, false, payload);
 }
 
+QByteArray playSoundFile(const QString &name, bool loop)
+{
+    // Filename: 15.3 characters plus a terminating zero, padded to 20 bytes.
+    QByteArray file = name.toLatin1().left(19);
+    file.append(QByteArray(20 - file.size(), char(0)));
+    QByteArray payload;
+    payload.append(static_cast<char>(loop ? 1 : 0));
+    payload.append(file);
+    return direct(DirectOp::PlaySoundFile, false, payload);
+}
+
+QByteArray stopSoundPlayback() { return direct(DirectOp::StopSoundPlayback, false); }
+
 QByteArray setInputMode(uint8_t port, uint8_t type, uint8_t mode)
 {
     return direct(DirectOp::SetInputMode, false, bytes({port, type, mode}));

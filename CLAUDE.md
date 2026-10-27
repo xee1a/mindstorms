@@ -31,6 +31,8 @@ The Brick (Kostka) tab explains this to users.
   - `Workspace` handles snapping, undo and variables
   - `Canvas` is the view
   - `Palette` holds the categories and flyout
+- `src/run/Runner.*`: runs a block program from the PC (one thread per stack), sending direct commands live;
+  degree moves are braked by `BrickWorker::pollMoves` on the USB thread
 - `src/views/`: Program, Drive and Brick screens. Drive shows the pad photo with every input and its action;
   drive setup lives in Settings.
 - `src/app/`: MainWindow, Theme (dark/light tokens plus accent hue shift), Prefs (live settings with a `changed` signal),
@@ -58,5 +60,5 @@ The Brick (Kostka) tab explains this to users.
 
 ## Milestones
 1. ✅ Block editor and gamepad Drive mode over direct commands (native Qt rewrite)
-2. Blocks → NXC generator → bundled `nbc.exe` → `.rxe` → download to the brick (system commands) and run
+2. ✅ Run from PC over USB (Program → Run). Still to do: blocks → NXC generator → bundled `nbc.exe` → `.rxe` → download to the brick (system commands) and run
 3. Bluetooth (serial COM) transport, installer

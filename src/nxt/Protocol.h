@@ -19,6 +19,7 @@ constexpr uint8_t NoReply = 0x80;
 namespace DirectOp {
 constexpr uint8_t StartProgram = 0x00;
 constexpr uint8_t StopProgram = 0x01;
+constexpr uint8_t PlaySoundFile = 0x02;
 constexpr uint8_t PlayTone = 0x03;
 constexpr uint8_t SetOutputState = 0x04;
 constexpr uint8_t SetInputMode = 0x05;
@@ -105,6 +106,9 @@ QByteArray setOutputState(const OutputState &s, bool reply = false);
 /** Spin a motor at `power`, or brake/coast when power is 0. */
 QByteArray motorPower(uint8_t port, int power, MotorOptions opts = {});
 QByteArray playTone(int frequencyHz, int durationMs);
+/** Plays a .rso file stored on the brick, e.g. "! Click.rso". */
+QByteArray playSoundFile(const QString &name, bool loop = false);
+QByteArray stopSoundPlayback();
 QByteArray setInputMode(uint8_t port, uint8_t type, uint8_t mode);
 QByteArray getInputValues(uint8_t port);
 QByteArray getOutputState(uint8_t port);

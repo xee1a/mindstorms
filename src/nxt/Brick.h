@@ -60,6 +60,8 @@ public slots:
     void setMotors(int a, int b, int c);
     void stopAll();
     void playTone(int hz, int ms);
+    void send(const QByteArray &packet);
+    void runMotorFor(int port, int power, int degrees);
     void resetRotation(int port);
     void setSensor(int port, int kind);
     void setBrakeOnStop(bool on);
@@ -76,6 +78,7 @@ private:
     QByteArray request(const QByteArray &packet);
     void flushMotors(bool force = false);
     void pollTelemetry();
+    void pollMoves();
     void tryAutoConnect();
     void applySensorModes();
     void publish();
@@ -84,16 +87,22 @@ private:
     BrickState m_state;
     QTimer *m_telemetry = nullptr;
     QTimer *m_autoConnect = nullptr;
+    QTimer *m_moveTimer = nullptr;
     QElapsedTimer m_clock;
     qint64 m_lastBattery = 0;
     qint64 m_lastKeepAlive = 0;
     qint64 m_lastMotorSend = 0;
+    qint64 m_lastMovePublish = 0;
     int m_failures = 0;
     bool m_autoConnectEnabled = true;
     bool m_brakeOnStop = true;
     bool m_regulated = false;
     std::array<int, 3> m_desired{};
     std::array<std::optional<int>, 3> m_sent{};
+    /** Ports running a move to a rotation count: the periodic resend must not restart them. */
+    std::array<bool, 3> m_limited{};
+    /** Rotation count each moving port stops at, checked every few milliseconds. */
+    std::array<std::optional<int>, 3> m_moveTarget{};
 };
 
 /** UI-thread facade: forwards calls to the worker thread and caches the latest state. */
@@ -113,6 +122,10 @@ public:
     void setMotors(const std::array<int, 3> &power);
     void stopAll();
     void playTone(int hz, int ms);
+    /** Sends any direct command; its reply, if any, is read and dropped. */
+    void send(const QByteArray &packet);
+    /** Runs one motor and brakes it after `degrees` (checked every few ms on the USB thread). A later setMotors() for that port takes over. */
+    void runMotorFor(int port, int power, int degrees);
     void resetRotation(int port);
     void setSensor(int port, SensorKind kind);
     void setBrakeOnStop(bool on);

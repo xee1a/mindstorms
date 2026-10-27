@@ -35,6 +35,7 @@ qt_add_executable(NXTStudio WIN32
     src/nxt/Brick.cpp src/nxt/Brick.h
     src/nxt/Transport.h
     src/nxt/WinUsbTransport.cpp src/nxt/WinUsbTransport.h
+    src/run/Runner.cpp src/run/Runner.h
     src/views/BrickView.cpp src/views/BrickView.h
     src/views/DriveView.cpp src/views/DriveView.h
     src/views/ProgramView.cpp src/views/ProgramView.h

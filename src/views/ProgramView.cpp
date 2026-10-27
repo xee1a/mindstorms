@@ -1,6 +1,7 @@
 #include "ProgramView.h"
 
 #include "app/Prefs.h"
+#include "run/Runner.h"
 #include "app/Theme.h"
 #include "app/Widgets.h"
 #include "blocks/Canvas.h"
@@ -99,9 +100,28 @@ ProgramView::ProgramView(QWidget *parent) : QWidget(parent)
     auto *divider = new QFrame(bar);
     divider->setFrameShape(QFrame::VLine);
     divider->setStyleSheet(QStringLiteral("color:%1").arg(theme::Border.name()));
-    auto *run = ui::button(tr("Download && run"), "primary", "play", bar);
-    run->setEnabled(false);
-    run->setToolTip(tr("Compiling and downloading to the NXT arrives in the next milestone"));
+    auto *run = ui::button(tr("Run"), "primary", "play", bar);
+    run->setToolTip(tr("Runs the program from this PC over USB. Keep the cable connected."));
+    m_runButton = run;
+    m_runner = new run::Runner(this);
+    connect(run, &QPushButton::clicked, this, [this] {
+        if (m_runner->running()) return m_runner->stop();
+        const QString error = m_runner->start(m_ws->toJson());
+        if (!error.isEmpty()) emit message(error, "error");
+    });
+    connect(m_runner, &run::Runner::runningChanged, this, [this](bool on) {
+        m_runButton->setText(on ? tr("Stop") : tr("Run"));
+        m_runButton->setProperty("kind", on ? "danger" : "primary");
+        m_runButton->setIcon(ui::icon(on ? "square" : "play", on ? theme::DangerText : QColor(Qt::white)));
+        theme::repolish(m_runButton);
+    });
+    connect(m_runner, &run::Runner::finished, this, [this](const QString &error) {
+        if (error.isEmpty()) emit message(tr("Program finished"), "success");
+        else emit message(error, "error");
+    });
+    connect(m_runner, &run::Runner::screenText, this, [this](const QString &text) {
+        if (!text.isEmpty()) emit message(tr("NXT screen: %1").arg(text), "info");
+    });
     for (QWidget *w : {static_cast<QWidget *>(undo), static_cast<QWidget *>(redo), static_cast<QWidget *>(newBtn),
                        static_cast<QWidget *>(openBtn), static_cast<QWidget *>(saveBtn), static_cast<QWidget *>(divider),
                        static_cast<QWidget *>(run)})

@@ -6,7 +6,12 @@
 
 class QLabel;
 class QLineEdit;
+class QPushButton;
 class QUndoStack;
+
+namespace run {
+class Runner;
+}
 
 namespace blocks {
 class Canvas;
@@ -44,6 +49,8 @@ private:
     QUndoStack *m_undo;
     QJsonObject m_snapshot;
     QTimer m_autosave;
+    run::Runner *m_runner = nullptr;
+    QPushButton *m_runButton = nullptr;
     bool m_restoring = false;
     bool m_firstShow = true;
 };

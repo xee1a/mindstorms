@@ -10,6 +10,8 @@ namespace nxt {
 
 namespace {
 
+constexpr int MovePollMs = 4;
+
 constexpr int TelemetryIntervalMs = 120;
 constexpr int AutoConnectIntervalMs = 2000;
 constexpr int BatteryIntervalMs = 10'000;
@@ -59,6 +61,10 @@ void BrickWorker::start()
     m_telemetry = new QTimer(this);
     m_telemetry->setInterval(TelemetryIntervalMs);
     connect(m_telemetry, &QTimer::timeout, this, &BrickWorker::pollTelemetry);
+    m_moveTimer = new QTimer(this);
+    m_moveTimer->setTimerType(Qt::PreciseTimer);
+    m_moveTimer->setInterval(MovePollMs);
+    connect(m_moveTimer, &QTimer::timeout, this, &BrickWorker::pollMoves);
     m_autoConnect = new QTimer(this);
     m_autoConnect->setInterval(AutoConnectIntervalMs);
     connect(m_autoConnect, &QTimer::timeout, this, &BrickWorker::tryAutoConnect);
@@ -178,6 +184,11 @@ void BrickWorker::setMotors(int a, int b, int c)
 {
     const std::array<int, 3> next{std::clamp(a, -100, 100), std::clamp(b, -100, 100), std::clamp(c, -100, 100)};
     if (next == m_desired && next == m_state.motorPower) return;
+    for (int i = 0; i < 3; ++i)
+        if (next[i] != m_desired[i]) {
+            m_limited[i] = false;
+            m_moveTarget[i].reset();
+        }
     m_desired = next;
     m_state.motorPower = next;
     try {
@@ -198,6 +209,7 @@ void BrickWorker::flushMotors(bool force)
     // Resend everything now and then, in case a no-reply packet was lost.
     const bool refresh = force || now - m_lastMotorSend > MotorRefreshMs;
     for (int i = 0; i < 3; ++i) {
+        if (m_limited[i]) continue;
         if (!refresh && m_sent[i] == m_desired[i]) continue;
         m_transport->write(motorPower(uint8_t(i), m_desired[i], {m_brakeOnStop, m_regulated}));
         m_sent[i] = m_desired[i];
@@ -225,6 +237,78 @@ void BrickWorker::playTone(int hz, int ms)
     try {
         request(nxt::playTone(hz, ms));
     } catch (const std::exception &) {
+    }
+}
+
+void BrickWorker::send(const QByteArray &packet)
+{
+    if (!m_transport) return;
+    try {
+        request(packet);
+    } catch (const std::exception &) {
+    }
+}
+
+void BrickWorker::runMotorFor(int port, int power, int degrees)
+{
+    if (!m_transport || port < 0 || port > 2) return;
+    try {
+        flushMotors();
+        const int start = parseOutputState(request(getOutputState(uint8_t(port)))).rotationCount;
+        m_state.motorRotation[port] = start;
+        m_transport->write(motorPower(uint8_t(port), power, {m_brakeOnStop, m_regulated}));
+        m_desired[port] = power;
+        m_sent[port] = power;
+        m_limited[port] = true;
+        m_moveTarget[port] = start + (power < 0 ? -1 : 1) * std::max(0, degrees);
+        m_state.motorPower[port] = power;
+        m_moveTimer->start();
+    } catch (const DisconnectedError &e) {
+        linkLost(errorText(e));
+        return;
+    } catch (const std::exception &) {
+        ++m_failures;
+    }
+    publish();
+}
+
+void BrickWorker::pollMoves()
+{
+    bool any = false;
+    if (m_transport && m_state.status == LinkStatus::Connected) {
+        try {
+            for (int port = 0; port < 3; ++port) {
+                if (!m_moveTarget[port]) continue;
+                const int now = parseOutputState(request(getOutputState(uint8_t(port)))).rotationCount;
+                m_state.motorRotation[port] = now;
+                const bool forward = m_desired[port] >= 0;
+                if (forward ? now < *m_moveTarget[port] : now > *m_moveTarget[port]) {
+                    any = true;
+                    // Keep the UI (and a running program) up to date while the move lasts.
+                    if (m_clock.elapsed() - m_lastMovePublish > 40) {
+                        m_lastMovePublish = m_clock.elapsed();
+                        publish();
+                    }
+                    continue;
+                }
+                // Reached: brake right away; the caller's own stop follows shortly.
+                m_transport->write(motorPower(uint8_t(port), 0, {true, false}));
+                m_desired[port] = 0;
+                m_sent[port] = 0;
+                m_state.motorPower[port] = 0;
+                m_moveTarget[port].reset();
+                m_limited[port] = false;
+                publish();
+            }
+        } catch (const DisconnectedError &e) {
+            linkLost(errorText(e));
+        } catch (const std::exception &) {
+            ++m_failures;
+        }
+    }
+    if (!any) {
+        m_moveTimer->stop();
+        m_moveTarget = {};
     }
 }
 
@@ -393,6 +477,18 @@ void Brick::playTone(int hz, int ms)
 void Brick::resetRotation(int port)
 {
     QMetaObject::invokeMethod(m_worker, [w = m_worker, port] { w->resetRotation(port); });
+}
+
+void Brick::send(const QByteArray &packet)
+{
+    QMetaObject::invokeMethod(m_worker, [w = m_worker, packet] { w->send(packet); });
+}
+
+void Brick::runMotorFor(int port, int power, int degrees)
+{
+    if (port < 0 || port > 2) return;
+    m_lastMotors[port] = power;
+    QMetaObject::invokeMethod(m_worker, [w = m_worker, port, power, degrees] { w->runMotorFor(port, power, degrees); });
 }
 
 void Brick::setSensor(int port, SensorKind kind)
