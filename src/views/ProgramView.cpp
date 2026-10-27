@@ -1,5 +1,7 @@
 #include "ProgramView.h"
 
+#include "app/Prefs.h"
+#include "app/Theme.h"
 #include "app/Widgets.h"
 #include "blocks/Canvas.h"
 #include "blocks/Palette.h"
@@ -96,7 +98,7 @@ ProgramView::ProgramView(QWidget *parent) : QWidget(parent)
     auto *saveBtn = ui::button(tr("Save"), "ghost", "save", bar);
     auto *divider = new QFrame(bar);
     divider->setFrameShape(QFrame::VLine);
-    divider->setStyleSheet(QStringLiteral("color:#2b3647"));
+    divider->setStyleSheet(QStringLiteral("color:%1").arg(theme::Border.name()));
     auto *run = ui::button(tr("Download && run"), "primary", "play", bar);
     run->setEnabled(false);
     run->setToolTip(tr("Compiling and downloading to the NXT arrives in the next milestone"));
@@ -114,6 +116,8 @@ ProgramView::ProgramView(QWidget *parent) : QWidget(parent)
     body->addWidget(m_palette);
     body->addWidget(m_canvas, 1);
     root->addLayout(body, 1);
+    m_canvas->setShowGrid(Prefs::instance().showGrid());
+    connect(&Prefs::instance(), &Prefs::changed, this, [this] { m_canvas->setShowGrid(Prefs::instance().showGrid()); });
 
     // Dropping a block back on the palette deletes it.
     m_ws->isOverDeleteArea = [this](const QPoint &global) { return m_palette->rect().contains(m_palette->mapFromGlobal(global)); };
@@ -226,6 +230,7 @@ void ProgramView::updateCount()
 
 void ProgramView::autosave()
 {
+    if (!Prefs::instance().autosave()) return;
     const QJsonObject doc{{"format", FileFormat}, {"version", FileVersion}, {"name", m_name->text()}, {"workspace", m_snapshot}};
     QFile f(autosavePath());
     if (f.open(QIODevice::WriteOnly | QIODevice::Truncate)) f.write(QJsonDocument(doc).toJson(QJsonDocument::Compact));

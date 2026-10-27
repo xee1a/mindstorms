@@ -1,89 +1,168 @@
 #include "DriveView.h"
 
+#include "app/Prefs.h"
 #include "app/Theme.h"
 #include "app/Widgets.h"
 
 #include <QApplication>
-#include <QButtonGroup>
 #include <QComboBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
-#include <QProgressBar>
 #include <QPushButton>
-#include <QSettings>
 #include <QSlider>
 #include <QVBoxLayout>
+#include <cmath>
 
 using drive::DriveMode;
 using drive::PadButton;
+using drive::PadSnapshot;
 
 namespace {
 
 constexpr int TickMs = 20;
-const char *const MotorLetters[] = {"A", "B", "C"};
 
-QString modeHint(DriveMode m)
+QString modeName(DriveMode m)
 {
     switch (m) {
-    case DriveMode::Arcade: return DriveView::tr("Left stick throttle · either stick sideways to steer");
-    case DriveMode::Tank: return DriveView::tr("Left stick drives the left motor, right stick the right");
-    case DriveMode::Racing: return DriveView::tr("RT forward · LT reverse · left stick steers");
+    case DriveMode::Arcade: return DriveView::tr("Arcade");
+    case DriveMode::Tank: return DriveView::tr("Tank");
+    case DriveMode::Racing: return DriveView::tr("Racing");
     }
     return {};
-}
-
-QComboBox *motorCombo(QWidget *parent, bool allowNone)
-{
-    auto *c = new QComboBox(parent);
-    if (allowNone) c->addItem(DriveView::tr("None"), -1);
-    for (int i = 0; i < 3; ++i) c->addItem(DriveView::tr("Motor %1").arg(QLatin1String(MotorLetters[i])), i);
-    return c;
-}
-
-void selectData(QComboBox *c, int value) { c->setCurrentIndex(std::max(0, c->findData(value))); }
-
-/** Slider with a caption and a live value readout. */
-QWidget *slider(QWidget *parent, const QString &caption, int min, int max, int value, const std::function<QString(int)> &fmt,
-                const std::function<void(int)> &onChange)
-{
-    auto *w = new QWidget(parent);
-    auto *v = new QVBoxLayout(w);
-    v->setContentsMargins(0, 0, 0, 0);
-    v->setSpacing(4);
-    auto *head = new QHBoxLayout;
-    auto *cap = ui::label(caption, "muted", w);
-    auto *val = ui::label(fmt(value), nullptr, w);
-    val->setStyleSheet(QStringLiteral("font-weight:600"));
-    head->addWidget(cap);
-    head->addStretch();
-    head->addWidget(val);
-    v->addLayout(head);
-    auto *s = new QSlider(Qt::Horizontal, w);
-    s->setRange(min, max);
-    s->setValue(value);
-    s->setCursor(Qt::PointingHandCursor);
-    QObject::connect(s, &QSlider::valueChanged, w, [val, fmt, onChange](int x) {
-        val->setText(fmt(x));
-        onChange(x);
-    });
-    v->addWidget(s);
-    return w;
 }
 
 } // namespace
 
 DriveView::DriveView(QWidget *parent) : QWidget(parent)
 {
-    loadConfig();
-    auto *lay = new QHBoxLayout(this);
+    m_cfg = Prefs::instance().driveConfig();
+    auto *lay = new QVBoxLayout(this);
     lay->setContentsMargins(14, 14, 14, 14);
-    lay->setSpacing(14);
-    lay->addWidget(buildControllerCard(), 10);
-    lay->addWidget(buildMotorsCard(), 13);
-    lay->addWidget(buildSetupCard(), 10);
+
+    auto *card = ui::card(this);
+    auto *v = new QVBoxLayout(card);
+    v->setContentsMargins(24, 20, 24, 20);
+    v->setSpacing(10);
+    lay->addWidget(card);
+
+    // ── Header: controller name and live status ─────────
+    auto *head = new QHBoxLayout;
+    head->setSpacing(10);
+    auto *titles = new QVBoxLayout;
+    titles->setSpacing(2);
+    titles->addWidget(ui::label(tr("Controller"), "h1", card));
+    m_padName = ui::label({}, "muted", card);
+    titles->addWidget(m_padName);
+    head->addLayout(titles, 1);
+    m_padPick = new QComboBox(card);
+    m_padPick->setProperty("compact", true);
+    m_padPick->hide();
+    connect(m_padPick, &QComboBox::activated, this, [this] { drive::Gamepad::instance().setPreferredSlot(m_padPick->currentData().toInt()); });
+    head->addWidget(m_padPick, 0, Qt::AlignVCenter);
+    m_modeNote = ui::label({}, "pill", card);
+    head->addWidget(m_modeNote, 0, Qt::AlignVCenter);
+    m_brickNote = ui::label({}, "pill", card);
+    head->addWidget(m_brickNote, 0, Qt::AlignVCenter);
+    v->addLayout(head);
+
+    // ── Inputs | photo | inputs ─────────────────────────
+    auto *middle = new QHBoxLayout;
+    middle->setSpacing(18);
+    auto *leftBox = new QWidget(card);
+    auto *left = new QGridLayout(leftBox);
+    auto *rightBox = new QWidget(card);
+    auto *right = new QGridLayout(rightBox);
+    for (QGridLayout *g : {left, right}) {
+        g->setContentsMargins(0, 0, 0, 0);
+        g->setHorizontalSpacing(10);
+        g->setVerticalSpacing(9);
+    }
+    m_pad = new ui::PadView(card);
+    middle->addStretch(1);
+    middle->addWidget(leftBox, 0, Qt::AlignVCenter);
+    middle->addWidget(m_pad, 4);
+    middle->addWidget(rightBox, 0, Qt::AlignVCenter);
+    middle->addStretch(1);
+    v->addLayout(middle, 1);
+
+    const auto pressed = [](PadButton b) { return [b](const PadSnapshot &s) { return s.pressed(b); }; };
+    const auto aux = [this](const char *dir) {
+        return [this, dir] {
+            if (!m_cfg.auxMotor) return tr("No extra motor set");
+            return QLatin1String(dir) == QLatin1String("back") ? tr("Motor %1 backwards").arg(motorName(m_cfg.auxMotor))
+                                                               : tr("Motor %1 forwards").arg(motorName(m_cfg.auxMotor));
+        };
+    };
+    const auto unused = [] { return tr("Not used in this style"); };
+
+    addInput(left, true, QStringLiteral("LT"), [](const PadSnapshot &s) { return s.input.leftTrigger > 0.05; },
+             [this, unused] { return m_cfg.mode == DriveMode::Racing ? tr("Reverse") : unused(); });
+    addInput(left, true, QStringLiteral("LB"), [](const PadSnapshot &s) { return s.input.leftBumper; }, aux("back"));
+    addInput(left, true, tr("Left stick"), [this](const PadSnapshot &s) { return std::hypot(s.input.leftX, s.input.leftY) > m_cfg.deadzone; },
+             [this] {
+                 switch (m_cfg.mode) {
+                 case DriveMode::Arcade: return tr("Drive forward/back and steer");
+                 case DriveMode::Tank: return tr("Left side (motor %1)").arg(motorName(m_cfg.leftMotor));
+                 case DriveMode::Racing: return tr("Steer");
+                 }
+                 return QString();
+             });
+    addInput(left, true, QStringLiteral("L3"), pressed(PadButton::LS), [] { return tr("Turbo: full power while held"); });
+    addInput(left, true, QStringLiteral("↑ ↓"), [](const PadSnapshot &s) { return s.pressed(PadButton::Up) || s.pressed(PadButton::Down); },
+             [this] { return tr("Top speed ±10% (now %1%)").arg(m_cfg.maxPower); });
+    addInput(left, true, QStringLiteral("← →"), [](const PadSnapshot &s) { return s.pressed(PadButton::Left) || s.pressed(PadButton::Right); },
+             [this] { return tr("Extra motor power ±10% (now %1%)").arg(m_cfg.auxPower); });
+    addInput(left, true, QStringLiteral("SELECT"), pressed(PadButton::Back), [] { return tr("Switch control style"); });
+    addInput(left, true, QStringLiteral("START"), pressed(PadButton::Start), [] { return tr("Start / pause driving"); });
+
+    addInput(right, false, QStringLiteral("RT"), [](const PadSnapshot &s) { return s.input.rightTrigger > 0.05; },
+             [this, unused] { return m_cfg.mode == DriveMode::Racing ? tr("Accelerate") : unused(); });
+    addInput(right, false, QStringLiteral("RB"), [](const PadSnapshot &s) { return s.input.rightBumper; }, aux("forward"));
+    addInput(right, false, tr("Right stick"), [this](const PadSnapshot &s) { return std::hypot(s.input.rightX, s.input.rightY) > m_cfg.deadzone; },
+             [this, unused] {
+                 switch (m_cfg.mode) {
+                 case DriveMode::Arcade: return tr("Steer");
+                 case DriveMode::Tank: return tr("Right side (motor %1)").arg(motorName(m_cfg.rightMotor));
+                 case DriveMode::Racing: return unused();
+                 }
+                 return QString();
+             });
+    addInput(right, false, QStringLiteral("R3"), pressed(PadButton::RS),
+             [this] { return m_precision ? tr("Precision mode: on (half power)") : tr("Precision mode: off"); });
+    addInput(right, false, QStringLiteral("Y"), pressed(PadButton::Y),
+             [] { return nxt::Brick::instance().brakeOnStop() ? tr("Brake when stopped: on") : tr("Brake when stopped: off"); });
+    addInput(right, false, QStringLiteral("X"), pressed(PadButton::X), [] { return tr("Reset rotation counters"); });
+    addInput(right, false, QStringLiteral("B"), pressed(PadButton::B), [] { return tr("Emergency stop"); });
+    addInput(right, false, QStringLiteral("A"), pressed(PadButton::A), [] { return tr("Horn"); });
+
+    // ── Drive controls ──────────────────────────────────
+    auto *actions = new QHBoxLayout;
+    actions->setSpacing(10);
+    actions->addStretch();
+    m_arm = new QPushButton(card);
+    m_arm->setObjectName(QStringLiteral("armButton"));
+    m_arm->setCheckable(true);
+    m_arm->setCursor(Qt::PointingHandCursor);
+    m_arm->setMinimumSize(240, 52);
+    connect(m_arm, &QPushButton::clicked, this, [this](bool on) { setArmed(on); });
+    auto *stop = ui::button(tr("Stop"), "danger", "square", card);
+    stop->setObjectName(QStringLiteral("estop"));
+    stop->setMinimumHeight(52);
+    stop->setToolTip(tr("Stop all motors (B or Space)"));
+    connect(stop, &QPushButton::clicked, this, &DriveView::emergencyStop);
+    actions->addWidget(m_arm);
+    actions->addWidget(stop);
+    actions->addStretch();
+    v->addLayout(actions);
+    auto *keys = ui::label(tr("No controller? Drive with <b>W A S D</b> or the arrows, <b>Q</b> / <b>E</b> for the extra motor, "
+                              "<b>Space</b> stops. Change ports and feel in Settings → Drive."),
+                           "faint", card);
+    keys->setAlignment(Qt::AlignCenter);
+    keys->setWordWrap(true);
+    v->addWidget(keys);
 
     m_tick.setInterval(TickMs);
     m_tick.setTimerType(Qt::PreciseTimer);
@@ -93,297 +172,57 @@ DriveView::DriveView(QWidget *parent) : QWidget(parent)
     connect(&pad, &drive::Gamepad::buttonPressed, this, &DriveView::onPadButton);
     connect(&pad, &drive::Gamepad::connectionChanged, this, &DriveView::onPadConnection);
     connect(&nxt::Brick::instance(), &nxt::Brick::stateChanged, this, &DriveView::onBrick);
+    connect(&Prefs::instance(), &Prefs::driveConfigChanged, this, &DriveView::setConfig);
     connect(qApp, &QApplication::applicationStateChanged, this, [this](Qt::ApplicationState s) {
         // Key releases aren't delivered while unfocused; drop held keys so the robot doesn't run away.
         if (s != Qt::ApplicationActive) m_keys.clear();
     });
+    setArmed(false);
     onBrick(nxt::Brick::instance().state());
     onPadConnection(pad.snapshot().connected);
-    updateRoles();
+    refreshDescriptions();
 }
 
-QWidget *DriveView::buildControllerCard()
+void DriveView::addInput(QGridLayout *grid, bool chipOnRight, const QString &name, std::function<bool(const PadSnapshot &)> active,
+                         std::function<QString()> describe)
 {
-    auto *c = ui::card(this);
-    auto *v = new QVBoxLayout(c);
-    v->setContentsMargins(18, 18, 18, 18);
-    v->setSpacing(14);
-
-    auto *head = new QHBoxLayout;
-    auto *titles = new QVBoxLayout;
-    titles->setSpacing(2);
-    titles->addWidget(ui::label(tr("Controller"), "h2", c));
-    m_padName = ui::label({}, "muted", c);
-    m_padName->setWordWrap(true);
-    titles->addWidget(m_padName);
-    head->addLayout(titles, 1);
-    m_padPick = new QComboBox(c);
-    m_padPick->setProperty("compact", true);
-    m_padPick->hide();
-    connect(m_padPick, &QComboBox::activated, this, [this] { drive::Gamepad::instance().setPreferredSlot(m_padPick->currentData().toInt()); });
-    head->addWidget(m_padPick, 0, Qt::AlignTop);
-    v->addLayout(head);
-
-    auto *stage = ui::inset(c);
-    auto *sv = new QVBoxLayout(stage);
-    sv->setContentsMargins(10, 16, 10, 8);
-    m_controller = new ui::ControllerWidget(stage);
-    sv->addWidget(m_controller);
-    v->addWidget(stage);
-
-    auto *armRow = new QHBoxLayout;
-    armRow->setSpacing(10);
-    m_arm = new QPushButton(c);
-    m_arm->setObjectName(QStringLiteral("armButton"));
-    m_arm->setCheckable(true);
-    m_arm->setCursor(Qt::PointingHandCursor);
-    m_arm->setMinimumHeight(58);
-    connect(m_arm, &QPushButton::clicked, this, [this](bool on) { setArmed(on); });
-    auto *stop = ui::button(tr("Stop"), "danger", "square", c);
-    stop->setObjectName(QStringLiteral("estop"));
-    stop->setMinimumHeight(58);
-    stop->setToolTip(tr("Stop all motors (B button or Space)"));
-    connect(stop, &QPushButton::clicked, this, &DriveView::emergencyStop);
-    armRow->addWidget(m_arm, 1);
-    armRow->addWidget(stop);
-    v->addLayout(armRow);
-
-    auto *hints = ui::label(tr("<b>A</b> beep &nbsp;·&nbsp; <b>B</b> / <b>Space</b> emergency stop &nbsp;·&nbsp; <b>LB</b> <b>RB</b> aux motor"
-                               "<br><b>W A S D</b> or arrows drive without a controller, <b>Q</b> / <b>E</b> aux"),
-                            "faint", c);
-    hints->setWordWrap(true);
-    v->addWidget(hints);
-    v->addStretch();
-    setArmed(false);
-    return c;
+    auto *parent = grid->parentWidget();
+    InputRow r{ui::label(name, "key", parent), ui::label({}, "muted", parent), std::move(active), std::move(describe)};
+    r.chip->setAlignment(Qt::AlignCenter);
+    r.action->setAlignment((chipOnRight ? Qt::AlignRight : Qt::AlignLeft) | Qt::AlignVCenter);
+    const int row = grid->rowCount();
+    grid->addWidget(r.chip, row, chipOnRight ? 1 : 0);
+    grid->addWidget(r.action, row, chipOnRight ? 0 : 1);
+    m_rows.append(r);
 }
 
-QWidget *DriveView::buildMotorsCard()
+void DriveView::refreshDescriptions()
 {
-    auto *c = ui::card(this);
-    auto *v = new QVBoxLayout(c);
-    v->setContentsMargins(18, 18, 18, 18);
-    v->setSpacing(14);
-
-    auto *head = new QHBoxLayout;
-    head->addWidget(ui::label(tr("Motors"), "h2", c));
-    head->addStretch();
-    m_linkNote = ui::label({}, "faint", c);
-    head->addWidget(m_linkNote);
-    v->addLayout(head);
-
-    auto *motors = new QHBoxLayout;
-    motors->setSpacing(12);
-    for (int i = 0; i < 3; ++i) {
-        auto *tile = ui::inset(c);
-        m_motorTiles[i] = tile;
-        auto *tv = new QVBoxLayout(tile);
-        tv->setContentsMargins(10, 10, 10, 10);
-        tv->setSpacing(4);
-        m_gauges[i] = new ui::MotorGauge(tile);
-        m_gauges[i]->setCaption(tr("power"));
-        tv->addWidget(m_gauges[i], 1);
-        tv->addWidget(ui::label(QLatin1String(MotorLetters[i]), "badge", tile), 0, Qt::AlignHCenter);
-        m_roles[i] = ui::label({}, "muted", tile);
-        m_roles[i]->setAlignment(Qt::AlignCenter);
-        m_roles[i]->setWordWrap(true);
-        tv->addWidget(m_roles[i]);
-        auto *rot = new QHBoxLayout;
-        rot->addStretch();
-        m_rotation[i] = ui::label(QStringLiteral("–"), "faint", tile);
-        rot->addWidget(m_rotation[i]);
-        auto *reset = ui::button({}, "ghost", "reset", tile);
-        reset->setToolTip(tr("Reset rotation"));
-        reset->setFixedSize(28, 26);
-        connect(reset, &QPushButton::clicked, this, [i] { nxt::Brick::instance().resetRotation(i); });
-        rot->addWidget(reset);
-        rot->addStretch();
-        tv->addLayout(rot);
-        motors->addWidget(tile, 1);
-    }
-    v->addLayout(motors, 3);
-
-    v->addWidget(ui::label(tr("Sensors"), "h2", c));
-    auto *grid = new QGridLayout;
-    grid->setSpacing(10);
-    for (int p = 0; p < 4; ++p) {
-        auto *tile = ui::inset(c);
-        auto *tv = new QVBoxLayout(tile);
-        tv->setContentsMargins(12, 12, 12, 12);
-        tv->setSpacing(8);
-        auto *top = new QHBoxLayout;
-        top->addWidget(ui::label(QString::number(p + 1), "badge", tile));
-        m_sensorKind[p] = new QComboBox(tile);
-        m_sensorKind[p]->setProperty("compact", true);
-        for (auto k : {nxt::SensorKind::None, nxt::SensorKind::Touch, nxt::SensorKind::Light, nxt::SensorKind::Ambient, nxt::SensorKind::Sound})
-            m_sensorKind[p]->addItem(nxt::sensorLabel(k), int(k));
-        selectData(m_sensorKind[p], int(nxt::Brick::instance().state().sensors[p]));
-        connect(m_sensorKind[p], &QComboBox::activated, this,
-                [this, p] { nxt::Brick::instance().setSensor(p, nxt::SensorKind(m_sensorKind[p]->currentData().toInt())); });
-        top->addWidget(m_sensorKind[p], 1);
-        tv->addLayout(top);
-        m_sensorValue[p] = ui::label(QStringLiteral("–"), "value", tile);
-        tv->addWidget(m_sensorValue[p]);
-        m_sensorBar[p] = new QProgressBar(tile);
-        m_sensorBar[p]->setRange(0, 100);
-        m_sensorBar[p]->setTextVisible(false);
-        tv->addWidget(m_sensorBar[p]);
-        grid->addWidget(tile, p / 2, p % 2);
-    }
-    v->addLayout(grid, 2);
-    return c;
+    for (InputRow &r : m_rows) r.action->setText(r.describe());
+    QString mode = tr("Style: %1").arg(modeName(m_cfg.mode));
+    if (m_precision) mode += tr(" · precision");
+    m_modeNote->setText(mode);
 }
 
-QWidget *DriveView::buildSetupCard()
+void DriveView::setConfig(const drive::DriveConfig &cfg)
 {
-    auto *c = ui::card(this);
-    auto *v = new QVBoxLayout(c);
-    v->setContentsMargins(18, 18, 18, 18);
-    v->setSpacing(14);
-    v->addWidget(ui::label(tr("Drive setup"), "h2", c));
-
-    auto *seg = new QFrame(c);
-    seg->setObjectName(QStringLiteral("segmented"));
-    auto *sl = new QHBoxLayout(seg);
-    sl->setContentsMargins(3, 3, 3, 3);
-    sl->setSpacing(2);
-    m_modeGroup = new QButtonGroup(this);
-    const std::pair<DriveMode, QString> modes[] = {{DriveMode::Arcade, tr("Arcade")}, {DriveMode::Tank, tr("Tank")}, {DriveMode::Racing, tr("Racing")}};
-    for (const auto &[mode, name] : modes) {
-        auto *b = new QPushButton(name, seg);
-        b->setCheckable(true);
-        b->setCursor(Qt::PointingHandCursor);
-        b->setChecked(mode == m_cfg.mode);
-        m_modeGroup->addButton(b, int(mode));
-        sl->addWidget(b);
-    }
-    v->addWidget(seg);
-    m_modeHint = ui::label(modeHint(m_cfg.mode), "faint", c);
-    m_modeHint->setWordWrap(true);
-    v->addWidget(m_modeHint);
-    connect(m_modeGroup, &QButtonGroup::idClicked, this, [this](int id) {
-        m_cfg.mode = DriveMode(id);
-        m_modeHint->setText(modeHint(m_cfg.mode));
-        saveConfig();
-    });
-
-    auto *ports = new QGridLayout;
-    ports->setHorizontalSpacing(10);
-    ports->setVerticalSpacing(6);
-    m_left = motorCombo(c, false);
-    m_right = motorCombo(c, false);
-    m_aux = motorCombo(c, true);
-    selectData(m_left, m_cfg.leftMotor);
-    selectData(m_right, m_cfg.rightMotor);
-    selectData(m_aux, m_cfg.auxMotor.value_or(-1));
-    ports->addWidget(ui::label(tr("Left side"), "muted", c), 0, 0);
-    ports->addWidget(ui::label(tr("Right side"), "muted", c), 0, 1);
-    ports->addWidget(ui::label(tr("Aux (LB/RB)"), "muted", c), 0, 2);
-    ports->addWidget(m_left, 1, 0);
-    ports->addWidget(m_right, 1, 1);
-    ports->addWidget(m_aux, 1, 2);
-    v->addLayout(ports);
-    const auto onPorts = [this] {
-        m_cfg.leftMotor = m_left->currentData().toInt();
-        m_cfg.rightMotor = m_right->currentData().toInt();
-        const int aux = m_aux->currentData().toInt();
-        m_cfg.auxMotor = aux < 0 ? std::nullopt : std::optional<int>(aux);
-        saveConfig();
-        updateRoles();
-    };
-    for (QComboBox *cb : {m_left, m_right, m_aux}) connect(cb, &QComboBox::activated, this, onPorts);
-
-    const auto makeToggle = [&](const QString &text, bool checked, std::function<void(bool)> set) {
-        auto *t = new ui::ToggleSwitch(text, c);
-        t->setChecked(checked);
-        connect(t, &ui::ToggleSwitch::toggled, this, [this, set](bool on) {
-            set(on);
-            saveConfig();
-        });
-        return t;
-    };
-    const auto addToggle = [&](QBoxLayout *l, const QString &text, bool checked, std::function<void(bool)> set) {
-        l->addWidget(makeToggle(text, checked, std::move(set)));
-    };
-    // One "reverse" switch under each port picker; the column header says which side.
-    ports->addWidget(makeToggle(tr("Reverse"), m_cfg.invertLeft, [this](bool on) { m_cfg.invertLeft = on; }), 2, 0);
-    ports->addWidget(makeToggle(tr("Reverse"), m_cfg.invertRight, [this](bool on) { m_cfg.invertRight = on; }), 2, 1);
-    ports->addWidget(makeToggle(tr("Reverse"), m_cfg.invertAux, [this](bool on) { m_cfg.invertAux = on; }), 2, 2);
-    ports->setRowMinimumHeight(2, 30);
-
-    const auto pct = [](int x) { return QStringLiteral("%1%").arg(x); };
-    const auto frac = [](int x) { return QString::number(x / 100.0, 'f', 2); };
-    v->addWidget(slider(c, tr("Top speed"), 10, 100, m_cfg.maxPower, pct, [this](int x) { m_cfg.maxPower = x; saveConfig(); }));
-    v->addWidget(slider(c, tr("Aux power"), 10, 100, m_cfg.auxPower, pct, [this](int x) { m_cfg.auxPower = x; saveConfig(); }));
-    v->addWidget(slider(c, tr("Stick deadzone"), 0, 40, int(m_cfg.deadzone * 100), frac,
-                        [this](int x) { m_cfg.deadzone = x / 100.0; saveConfig(); }));
-    v->addWidget(slider(c, tr("Fine control (expo)"), 0, 100, int(m_cfg.expo * 100), frac,
-                        [this](int x) { m_cfg.expo = x / 100.0; saveConfig(); }));
-
-    auto *motorOpts = new QHBoxLayout;
-    motorOpts->setSpacing(16);
-    auto &brick = nxt::Brick::instance();
-    addToggle(motorOpts, tr("Brake when stopped"), brick.brakeOnStop(), [](bool on) { nxt::Brick::instance().setBrakeOnStop(on); });
-    addToggle(motorOpts, tr("Speed regulation"), brick.speedRegulation(), [](bool on) { nxt::Brick::instance().setSpeedRegulation(on); });
-    motorOpts->addStretch();
-    v->addLayout(motorOpts);
-    v->addStretch();
-    return c;
+    m_cfg = cfg;
+    refreshDescriptions();
 }
 
-void DriveView::loadConfig()
+QString DriveView::motorName(std::optional<int> port) const
 {
-    QSettings s;
-    s.beginGroup(QStringLiteral("drive"));
-    m_cfg.mode = DriveMode(std::clamp(s.value("mode", int(m_cfg.mode)).toInt(), 0, 2));
-    m_cfg.leftMotor = std::clamp(s.value("leftMotor", m_cfg.leftMotor).toInt(), 0, 2);
-    m_cfg.rightMotor = std::clamp(s.value("rightMotor", m_cfg.rightMotor).toInt(), 0, 2);
-    const int aux = s.value("auxMotor", m_cfg.auxMotor.value_or(-1)).toInt();
-    m_cfg.auxMotor = aux < 0 || aux > 2 ? std::nullopt : std::optional<int>(aux);
-    m_cfg.invertLeft = s.value("invertLeft", false).toBool();
-    m_cfg.invertRight = s.value("invertRight", false).toBool();
-    m_cfg.invertAux = s.value("invertAux", false).toBool();
-    m_cfg.maxPower = s.value("maxPower", m_cfg.maxPower).toInt();
-    m_cfg.auxPower = s.value("auxPower", m_cfg.auxPower).toInt();
-    m_cfg.deadzone = s.value("deadzone", m_cfg.deadzone).toDouble();
-    m_cfg.expo = s.value("expo", m_cfg.expo).toDouble();
+    static const char *const letters[] = {"A", "B", "C"};
+    return port && *port >= 0 && *port < 3 ? QLatin1String(letters[*port]) : QStringLiteral("–");
 }
 
-void DriveView::saveConfig()
-{
-    QSettings s;
-    s.beginGroup(QStringLiteral("drive"));
-    s.setValue("mode", int(m_cfg.mode));
-    s.setValue("leftMotor", m_cfg.leftMotor);
-    s.setValue("rightMotor", m_cfg.rightMotor);
-    s.setValue("auxMotor", m_cfg.auxMotor.value_or(-1));
-    s.setValue("invertLeft", m_cfg.invertLeft);
-    s.setValue("invertRight", m_cfg.invertRight);
-    s.setValue("invertAux", m_cfg.invertAux);
-    s.setValue("maxPower", m_cfg.maxPower);
-    s.setValue("auxPower", m_cfg.auxPower);
-    s.setValue("deadzone", m_cfg.deadzone);
-    s.setValue("expo", m_cfg.expo);
-}
-
-void DriveView::updateRoles()
-{
-    for (int i = 0; i < 3; ++i) {
-        QStringList roles;
-        if (m_cfg.leftMotor == i) roles << tr("Left drive");
-        if (m_cfg.rightMotor == i && m_cfg.rightMotor != m_cfg.leftMotor) roles << tr("Right drive");
-        if (m_cfg.auxMotor == i && i != m_cfg.leftMotor && i != m_cfg.rightMotor) roles << tr("Aux");
-        m_roles[i]->setText(roles.isEmpty() ? tr("Unused") : roles.join(QStringLiteral(" · ")));
-        auto *fx = m_motorTiles[i];
-        fx->setEnabled(!roles.isEmpty());
-    }
-}
+void DriveView::announce(const QString &text) { emit message(text, "info"); }
 
 void DriveView::setArmed(bool on)
 {
     m_armed = on;
     m_arm->setChecked(on);
-    m_arm->setText(on ? tr("●  Driving\n     Start or B to stop") : tr("○  Start driving\n     Start button or click"));
+    m_arm->setText(on ? tr("●  Driving · START to pause") : tr("○  Start driving · START"));
     if (!on) nxt::Brick::instance().setMotors({0, 0, 0});
 }
 
@@ -413,25 +252,72 @@ drive::ControlInput DriveView::keyboardInput() const
 
 void DriveView::tick()
 {
-    const auto &pad = drive::Gamepad::instance().snapshot();
-    const drive::ControlInput input = pad.connected ? pad.input : keyboardInput();
-    m_controller->setState(input, pad.buttons, pad.connected || !m_keys.isEmpty());
-    if (m_armed) nxt::Brick::instance().setMotors(drive::mix(input, m_cfg));
+    PadSnapshot snap = drive::Gamepad::instance().snapshot();
+    if (!snap.connected) snap.input = keyboardInput();
+    m_pad->setOnline(snap.connected);
+    m_pad->setState(snap.input, snap.buttons);
+    for (InputRow &r : m_rows) {
+        const bool lit = r.active(snap);
+        if (lit == r.lit) continue;
+        r.lit = lit;
+        r.chip->setProperty("active", lit);
+        theme::repolish(r.chip);
+    }
+    if (!m_armed) return;
+    drive::DriveConfig cfg = m_cfg;
+    if (snap.pressed(PadButton::LS)) cfg.maxPower = 100;
+    else if (m_precision) cfg.maxPower = std::max(10, cfg.maxPower / 2);
+    nxt::Brick::instance().setMotors(drive::mix(snap.input, cfg));
 }
 
 void DriveView::onPadButton(PadButton b)
 {
     if (!isVisible()) return;
-    if (b == PadButton::Start) setArmed(!m_armed);
-    else if (b == PadButton::B) emergencyStop();
-    else if (b == PadButton::A) nxt::Brick::instance().playTone(880, 120);
+    auto &brick = nxt::Brick::instance();
+    auto &prefs = Prefs::instance();
+    drive::DriveConfig cfg = m_cfg;
+    switch (b) {
+    case PadButton::Start: setArmed(!m_armed); return;
+    case PadButton::B: emergencyStop(); return;
+    case PadButton::A: brick.playTone(880, 150); return;
+    case PadButton::X:
+        for (int i = 0; i < 3; ++i) brick.resetRotation(i);
+        announce(tr("Rotation counters reset"));
+        return;
+    case PadButton::Y:
+        brick.setBrakeOnStop(!brick.brakeOnStop());
+        announce(brick.brakeOnStop() ? tr("Brake when stopped: on") : tr("Brake when stopped: off"));
+        refreshDescriptions();
+        return;
+    case PadButton::RS:
+        m_precision = !m_precision;
+        announce(m_precision ? tr("Precision mode: on (half power)") : tr("Precision mode: off"));
+        refreshDescriptions();
+        return;
+    case PadButton::Back:
+        cfg.mode = DriveMode((int(cfg.mode) + 1) % 3);
+        announce(tr("Control style: %1").arg(modeName(cfg.mode)));
+        break;
+    case PadButton::Up:
+    case PadButton::Down:
+        cfg.maxPower = std::clamp(cfg.maxPower + (b == PadButton::Up ? 10 : -10), 10, 100);
+        announce(tr("Top speed: %1%").arg(cfg.maxPower));
+        break;
+    case PadButton::Left:
+    case PadButton::Right:
+        cfg.auxPower = std::clamp(cfg.auxPower + (b == PadButton::Right ? 10 : -10), 10, 100);
+        announce(tr("Extra motor power: %1%").arg(cfg.auxPower));
+        break;
+    default: return;
+    }
+    prefs.setDriveConfig(cfg); // comes back through driveConfigChanged
 }
 
 void DriveView::onPadConnection(bool connected)
 {
     auto &pad = drive::Gamepad::instance();
-    m_padName->setText(connected ? tr("Xbox-compatible controller (XInput #%1)").arg(pad.snapshot().slot + 1)
-                                 : tr("Plug in a USB controller and press any button"));
+    m_padName->setText(connected ? tr("Controller %1 connected. Press START to drive.").arg(pad.snapshot().slot + 1)
+                                 : tr("Plug in a USB controller and press any button. Its MODE light should be off (XInput)."));
     const auto padSlots = pad.connectedSlots();
     m_padPick->clear();
     for (int s : padSlots) m_padPick->addItem(tr("Controller %1").arg(s + 1), s);
@@ -445,29 +331,9 @@ void DriveView::onPadConnection(bool connected)
 void DriveView::onBrick(const nxt::BrickState &s)
 {
     const bool connected = s.status == nxt::LinkStatus::Connected;
-    for (int i = 0; i < 3; ++i) {
-        m_gauges[i]->setPower(s.motorPower[i]);
-        m_rotation[i]->setText(connected ? QStringLiteral("%1°").arg(s.motorRotation[i]) : QStringLiteral("–"));
-    }
-    m_linkNote->setText(connected ? (s.demo ? tr("Demo brick (simulated)") : tr("Live on %1").arg(s.name))
-                                  : tr("Preview only, no brick connected"));
-    for (int p = 0; p < 4; ++p) {
-        selectData(m_sensorKind[p], int(s.sensors[p]));
-        const auto v = s.sensorValues[p];
-        const bool idle = s.sensors[p] == nxt::SensorKind::None || !v;
-        m_sensorValue[p]->setEnabled(!idle);
-        if (idle) {
-            m_sensorValue[p]->setText(QStringLiteral("–"));
-            m_sensorBar[p]->setValue(0);
-        } else if (s.sensors[p] == nxt::SensorKind::Touch) {
-            m_sensorValue[p]->setText(*v ? tr("Pressed") : tr("Released"));
-            m_sensorBar[p]->setValue(*v ? 100 : 0);
-        } else {
-            const QString unit = QString::fromLatin1(nxt::sensorInfo(s.sensors[p]).unit);
-            m_sensorValue[p]->setText(unit.isEmpty() ? QString::number(*v) : QStringLiteral("%1 %2").arg(*v).arg(unit));
-            m_sensorBar[p]->setValue(std::clamp(*v, 0, 100));
-        }
-    }
+    m_brickNote->setText(connected ? tr("Brick: %1").arg(s.name) : tr("No brick: preview only"));
+    m_brickNote->setProperty("ok", connected);
+    theme::repolish(m_brickNote);
 }
 
 void DriveView::showEvent(QShowEvent *e)

@@ -8,8 +8,8 @@
 
 namespace blocks {
 
-enum class Category { Events, Motors, Sensors, Control, Sound, Display, Logic, Math, Variables };
-constexpr int CategoryCount = 9;
+enum class Category { Events, Motors, Movement, Sensors, Control, Sound, Display, Logic, Math, Variables };
+constexpr int CategoryCount = 10;
 
 QColor categoryColor(Category c);
 QString categoryName(Category c);

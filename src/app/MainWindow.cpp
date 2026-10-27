@@ -1,5 +1,7 @@
 #include "MainWindow.h"
 
+#include "Prefs.h"
+#include "SettingsDialog.h"
 #include "Theme.h"
 #include "Widgets.h"
 #include "drive/Gamepad.h"
@@ -7,14 +9,11 @@
 #include "views/DriveView.h"
 #include "views/ProgramView.h"
 
-#include <QActionGroup>
 #include <QApplication>
 #include <QButtonGroup>
 #include <QCloseEvent>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QMenu>
-#include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
 #include <QSettings>
@@ -57,12 +56,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         m_padChip->setProperty("ok", on);
         theme::repolish(m_padChip);
     });
-    connect(&nxt::Brick::instance(), &nxt::Brick::stateChanged, this, &MainWindow::onBrick);
-    onBrick(nxt::Brick::instance().state());
+    auto &nxtBrick = nxt::Brick::instance();
+    connect(&nxtBrick, &nxt::Brick::stateChanged, this, &MainWindow::onBrick);
+    onBrick(nxtBrick.state());
+    nxtBrick.setAutoConnect(Prefs::instance().autoConnect());
+    connect(&Prefs::instance(), &Prefs::changed, this, [] { nxt::Brick::instance().setAutoConnect(Prefs::instance().autoConnect()); });
 
     QSettings s;
     restoreGeometry(s.value(QStringLiteral("window/geometry")).toByteArray());
-    showView(std::clamp(s.value(QStringLiteral("window/view"), 0).toInt(), 0, 2));
+    const int start = Prefs::instance().startTab();
+    showView(start >= 0 ? start : std::clamp(s.value(QStringLiteral("window/view"), 0).toInt(), 0, 2));
 }
 
 QWidget *MainWindow::buildHeader()
@@ -102,8 +105,9 @@ QWidget *MainWindow::buildHeader()
         tl->addWidget(b);
     }
     connect(m_tabs, &QButtonGroup::idClicked, this, &MainWindow::showView);
-    l->addWidget(tabs);
-    l->addStretch(1);
+    // The tabs float over the header so they stay centred on the window, whatever sits left and right.
+    m_tabBar = tabs;
+    h->installEventFilter(this);
 
     m_padChip = new QLabel(tr("●  No controller"), h);
     m_padChip->setObjectName(QStringLiteral("chip"));
@@ -121,26 +125,33 @@ QWidget *MainWindow::buildHeader()
     settings->setIcon(ui::icon("gear"));
     settings->setIconSize(QSize(18, 18));
     settings->setToolTip(tr("Settings"));
-    settings->setPopupMode(QToolButton::InstantPopup);
     settings->setCursor(Qt::PointingHandCursor);
-    auto *menu = new QMenu(settings);
-    auto *lang = menu->addMenu(tr("Language"));
-    auto *group = new QActionGroup(lang);
-    const QString current = QSettings().value(QStringLiteral("language"), QStringLiteral("pl")).toString();
-    for (const auto &[code, label] : {std::pair{QStringLiteral("pl"), QStringLiteral("Polski")}, std::pair{QStringLiteral("en"), QStringLiteral("English")}}) {
-        QAction *a = lang->addAction(label);
-        a->setCheckable(true);
-        a->setChecked(code == current);
-        group->addAction(a);
-        connect(a, &QAction::triggered, this, [this, code] { switchLanguage(code); });
-    }
-    settings->setMenu(menu);
+    connect(settings, &QToolButton::clicked, this, &MainWindow::openSettings);
     l->addWidget(settings);
     return h;
 }
 
+bool MainWindow::eventFilter(QObject *o, QEvent *e)
+{
+    if (e->type() == QEvent::Resize && m_tabBar && o == m_tabBar->parentWidget()) {
+        const QSize hint = m_tabBar->sizeHint();
+        auto *header = m_tabBar->parentWidget();
+        m_tabBar->setGeometry((header->width() - hint.width()) / 2, (header->height() - hint.height()) / 2, hint.width(), hint.height());
+    }
+    return QMainWindow::eventFilter(o, e);
+}
+
+void MainWindow::openSettings()
+{
+    SettingsDialog dlg(this);
+    theme::styleTitleBar(&dlg);
+    connect(&dlg, &SettingsDialog::restartRequested, this, &MainWindow::restart, Qt::QueuedConnection);
+    dlg.exec();
+}
+
 void MainWindow::showView(int index)
-{    m_stack->setCurrentIndex(index);
+{
+    m_stack->setCurrentIndex(index);
     if (auto *b = m_tabs->button(index)) b->setChecked(true);
     QSettings().setValue(QStringLiteral("window/view"), index);
 }
@@ -156,6 +167,11 @@ void MainWindow::onBrick(const nxt::BrickState &s)
         text = tr("●  Not connected");
     }
     m_brickChip->setText(text);
+    if (s.status == nxt::LinkStatus::Connected && m_lastStatus != nxt::LinkStatus::Connected && Prefs::instance().beepOnConnect()) {
+        nxt::Brick::instance().playTone(523, 90);
+        nxt::Brick::instance().playTone(784, 140);
+    }
+    m_lastStatus = s.status;
     m_brickChip->setProperty("ok", s.status == nxt::LinkStatus::Connected);
     theme::repolish(m_brickChip);
 
@@ -165,14 +181,8 @@ void MainWindow::onBrick(const nxt::BrickState &s)
     }
 }
 
-void MainWindow::switchLanguage(const QString &code)
+void MainWindow::restart()
 {
-    QSettings s;
-    if (s.value(QStringLiteral("language"), QStringLiteral("pl")).toString() == code) return;
-    s.setValue(QStringLiteral("language"), code);
-    const auto answer = QMessageBox::question(this, tr("Change language"),
-                                              tr("NXT Studio needs to restart to change the language. Restart now?"));
-    if (answer != QMessageBox::Yes) return;
     close();
     QProcess::startDetached(QApplication::applicationFilePath(), {});
 }

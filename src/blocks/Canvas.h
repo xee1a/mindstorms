@@ -22,6 +22,7 @@ public:
     void zoomBy(qreal factor);
     void resetZoom();
     void scrollToContent();
+    void setShowGrid(bool on);
 
 signals:
     void undoRequested();
@@ -46,6 +47,7 @@ private:
     Block *blockAt(const QPoint &viewPos) const;
 
     Workspace *m_ws;
+    bool m_grid = true;
     QPointer<QLineEdit> m_editor;
     QPointer<Block> m_editBlock;
     QString m_editField;

@@ -10,6 +10,7 @@
 #include <QPainterPath>
 #include <QPropertyAnimation>
 #include <QSvgRenderer>
+#include <cmath>
 #include <algorithm>
 #include <vector>
 
@@ -36,9 +37,10 @@ QFrame *inset(QWidget *parent)
     return f;
 }
 
-QIcon icon(const char *name, const QColor &color)
+QIcon icon(const char *name, const QColor &tint)
 {
     static QHash<QString, QIcon> cache;
+    const QColor color = tint.isValid() ? tint : theme::Icon;
     const QString key = QStringLiteral("%1/%2").arg(QLatin1String(name), color.name());
     if (auto it = cache.constFind(key); it != cache.constEnd()) return *it;
     QSvgRenderer svg(QStringLiteral(":/icons/%1.svg").arg(QLatin1String(name)));
@@ -63,7 +65,7 @@ QPushButton *button(const QString &text, const char *kind, const char *iconName,
     if (kind) b->setProperty("kind", QString::fromLatin1(kind));
     if (iconName) {
         const bool onColour = kind && (qstrcmp(kind, "primary") == 0);
-        const QColor c = onColour ? Qt::white : (kind && qstrcmp(kind, "danger") == 0 ? QColor(0xff, 0x8a, 0x96) : QColor(0xc9, 0xd4, 0xe3));
+        const QColor c = onColour ? Qt::white : (kind && qstrcmp(kind, "danger") == 0 ? theme::DangerText : theme::Icon);
         b->setIcon(icon(iconName, c));
         b->setIconSize(QSize(16, 16));
     }
@@ -86,7 +88,7 @@ void ToggleSwitch::paintEvent(QPaintEvent *)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
     const QRectF track(1, (height() - 20) / 2.0, 34, 20);
-    p.setPen(isChecked() ? Qt::NoPen : QPen(QColor(0x2b, 0x36, 0x47), 1));
+    p.setPen(isChecked() ? Qt::NoPen : QPen(theme::Border, 1));
     p.setBrush(isChecked() ? theme::Accent : theme::Surface3);
     p.drawRoundedRect(track, 10, 10);
     const qreal x = isChecked() ? track.right() - 17 : track.left() + 3;
@@ -95,181 +97,6 @@ void ToggleSwitch::paintEvent(QPaintEvent *)
     p.drawEllipse(QRectF(x, track.top() + 3, 14, 14));
     p.setPen(underMouse() ? theme::Text : theme::Text2);
     p.drawText(QRectF(track.right() + 9, 0, width(), height()), Qt::AlignVCenter | Qt::AlignLeft, text());
-}
-
-// ── MotorGauge ────────────────────────────────────────────
-
-MotorGauge::MotorGauge(QWidget *parent) : QWidget(parent) { setMinimumSize(110, 100); }
-
-void MotorGauge::setPower(int power)
-{
-    if (power == m_power) return;
-    m_power = power;
-    update();
-}
-
-void MotorGauge::setCaption(const QString &caption)
-{
-    m_caption = caption;
-    update();
-}
-
-void MotorGauge::paintEvent(QPaintEvent *)
-{
-    QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
-    const qreal side = std::min<qreal>(std::min(width(), height()) - 16.0, 150);
-    const QRectF r((width() - side) / 2, (height() - side) / 2 + 6, side, side);
-
-    QPen track(theme::Surface3, 9, Qt::SolidLine, Qt::RoundCap);
-    p.setPen(track);
-    p.drawArc(r, 225 * 16, -270 * 16);
-
-    if (m_power != 0) {
-        const QColor c = m_power > 0 ? theme::Accent : theme::Warm;
-        QColor glow = c;
-        glow.setAlpha(60);
-        const int span = int(-m_power / 100.0 * 135 * 16);
-        p.setPen(QPen(glow, 15, Qt::SolidLine, Qt::RoundCap));
-        p.drawArc(r, 90 * 16, span);
-        p.setPen(QPen(c, 9, Qt::SolidLine, Qt::RoundCap));
-        p.drawArc(r, 90 * 16, span);
-    }
-
-    QFont big(QStringLiteral("Segoe UI Variable Display"));
-    big.setPixelSize(int(side * 0.24));
-    big.setWeight(QFont::DemiBold);
-    p.setFont(big);
-    p.setPen(theme::Text);
-    const QFontMetricsF fm(big);
-    const QRectF number(r.left(), r.center().y() - fm.height() * 0.62, r.width(), fm.height());
-    p.drawText(number, Qt::AlignCenter, QString::number(m_power));
-    QFont small(QStringLiteral("Segoe UI"));
-    small.setPixelSize(10);
-    small.setWeight(QFont::Bold);
-    p.setFont(small);
-    p.setPen(theme::Text3);
-    p.drawText(QRectF(r.left(), number.bottom() - 2, r.width(), 14), Qt::AlignHCenter | Qt::AlignTop, m_caption.toUpper());
-}
-
-// ── ControllerWidget ──────────────────────────────────────
-
-ControllerWidget::ControllerWidget(QWidget *parent) : QWidget(parent)
-{
-    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    sp.setHeightForWidth(true);
-    setSizePolicy(sp);
-    setMinimumHeight(150);
-}
-
-void ControllerWidget::setState(const drive::ControlInput &input, const std::array<bool, int(drive::PadButton::Count)> &buttons, bool live)
-{
-    m_input = input;
-    m_buttons = buttons;
-    m_live = live;
-    update();
-}
-
-void ControllerWidget::paintEvent(QPaintEvent *)
-{
-    using drive::PadButton;
-    QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
-    const qreal s = std::min(width() / 340.0, height() / 210.0);
-    p.translate((width() - 340 * s) / 2, (height() - 210 * s) / 2);
-    p.scale(s, s);
-
-    const QColor key(0x2a, 0x37, 0x4b);
-    const QColor hot = theme::Warm;
-    const auto on = [&](PadButton b) { return m_buttons[int(b)]; };
-
-    // Triggers and bumpers
-    for (int side = 0; side < 2; ++side) {
-        const qreal x = side ? 232 : 52;
-        const double v = side ? m_input.rightTrigger : m_input.leftTrigger;
-        p.setPen(Qt::NoPen);
-        p.setBrush(QColor(0x0d, 0x12, 0x1a));
-        p.drawRoundedRect(QRectF(x, 6, 56, 10), 5, 5);
-        if (v > 0.01) {
-            p.setBrush(hot);
-            p.drawRoundedRect(QRectF(x, 6, 56 * v, 10), 5, 5);
-        }
-        const bool bumper = side ? m_input.rightBumper : m_input.leftBumper;
-        p.setBrush(bumper ? hot : key);
-        p.drawRoundedRect(QRectF(side ? 224 : 46, 22, 70, 12), 6, 6);
-    }
-
-    QPainterPath body;
-    body.moveTo(70, 40);
-    body.lineTo(270, 40);
-    body.cubicTo(302, 40, 322, 62, 328, 98);
-    body.lineTo(338, 160);
-    body.cubicTo(342, 186, 324, 204, 302, 204);
-    body.cubicTo(286, 204, 276, 195, 268, 182);
-    body.lineTo(254, 158);
-    body.lineTo(86, 158);
-    body.lineTo(72, 182);
-    body.cubicTo(64, 195, 54, 204, 38, 204);
-    body.cubicTo(16, 204, -2, 186, 2, 160);
-    body.lineTo(12, 98);
-    body.cubicTo(18, 62, 38, 40, 70, 40);
-    QLinearGradient grad(0, 40, 0, 204);
-    grad.setColorAt(0, QColor(0x25, 0x31, 0x44));
-    grad.setColorAt(1, QColor(0x17, 0x1f, 0x2c));
-    p.setPen(QPen(QColor(255, 255, 255, 20), 1.5));
-    p.setBrush(grad);
-    p.drawPath(body);
-
-    // Sticks
-    const auto drawStick = [&](QPointF c, double x, double y) {
-        p.setPen(QPen(QColor(255, 255, 255, 15), 1));
-        p.setBrush(QColor(0x0d, 0x12, 0x1a));
-        p.drawEllipse(c, 27, 27);
-        p.setPen(QPen(m_live ? QColor(0x8b, 0xbc, 0xff) : QColor(0x4d, 0x60, 0x80), 1.5));
-        p.setBrush(m_live ? theme::Accent : QColor(0x33, 0x42, 0x5a));
-        p.drawEllipse(c + QPointF(x * 13, -y * 13), 14, 14);
-    };
-    drawStick({92, 92}, m_input.leftX, m_input.leftY);
-    drawStick({214, 140}, m_input.rightX, m_input.rightY);
-
-    // D-pad
-    p.setPen(Qt::NoPen);
-    const struct {
-        QRectF r;
-        PadButton b;
-    } dpad[] = {{{119, 118, 14, 16}, PadButton::Up}, {{119, 146, 14, 16}, PadButton::Down},
-                {{103, 133, 16, 14}, PadButton::Left}, {{133, 133, 16, 14}, PadButton::Right}};
-    for (const auto &d : dpad) {
-        p.setBrush(on(d.b) ? hot : key);
-        p.drawRoundedRect(d.r, 3, 3);
-    }
-
-    // Face buttons
-    QFont f(QStringLiteral("Segoe UI"));
-    f.setPixelSize(10);
-    f.setBold(true);
-    p.setFont(f);
-    const struct {
-        QPointF c;
-        PadButton b;
-        const char *t;
-        QColor color;
-    } face[] = {{{250, 70}, PadButton::Y, "Y", hot},
-                {{228, 92}, PadButton::X, "X", theme::Accent},
-                {{272, 92}, PadButton::B, "B", theme::Bad},
-                {{250, 114}, PadButton::A, "A", theme::Good}};
-    for (const auto &b : face) {
-        p.setPen(Qt::NoPen);
-        p.setBrush(on(b.b) ? b.color : key);
-        p.drawEllipse(b.c, 11, 11);
-        p.setPen(on(b.b) ? QColor(0x0b, 0x0f, 0x15) : theme::Text2);
-        p.drawText(QRectF(b.c.x() - 11, b.c.y() - 11, 22, 22), Qt::AlignCenter, QLatin1String(b.t));
-    }
-    p.setPen(Qt::NoPen);
-    p.setBrush(on(PadButton::Back) ? hot : key);
-    p.drawRoundedRect(QRectF(146, 84, 16, 9), 4.5, 4.5);
-    p.setBrush(on(PadButton::Start) ? hot : key);
-    p.drawRoundedRect(QRectF(178, 84, 16, 9), 4.5, 4.5);
 }
 
 // ── BatteryWidget ─────────────────────────────────────────
@@ -296,13 +123,12 @@ void BatteryWidget::paintEvent(QPaintEvent *)
     p.drawRoundedRect(QRectF(5, 6, 54 * m_percent / 100.0, 12), 3, 3);
 }
 
-// ── BrickIllustration ─────────────────────────────────────
+// ── PhotoWidget ───────────────────────────────────────────
 
-BrickIllustration::BrickIllustration(QWidget *parent) : QWidget(parent)
+PhotoWidget::PhotoWidget(const QString &resource, QSize hint, QWidget *parent) : QWidget(parent), m_hint(hint)
 {
-    setFixedSize(300, 250);
-    // Transparent cut-out made by tools/cutout.cpp; nothing is drawn behind it.
-    m_photo = QImage(QStringLiteral(":/images/nxt.png")).convertToFormat(QImage::Format_ARGB32);
+    // Transparent cut-outs made by tools/cutout.cpp; nothing is drawn behind them.
+    m_photo = QImage(resource).convertToFormat(QImage::Format_ARGB32);
     m_dimmed = m_photo;
     for (int y = 0; y < m_dimmed.height(); ++y) {
         auto *line = reinterpret_cast<QRgb *>(m_dimmed.scanLine(y));
@@ -313,14 +139,14 @@ BrickIllustration::BrickIllustration(QWidget *parent) : QWidget(parent)
     }
 }
 
-void BrickIllustration::setOnline(bool on)
+void PhotoWidget::setOnline(bool on)
 {
     if (on == m_on) return;
     m_on = on;
     update();
 }
 
-void BrickIllustration::paintEvent(QPaintEvent *)
+void PhotoWidget::paintEvent(QPaintEvent *)
 {
     if (m_photo.isNull()) return;
     // Downscale with area averaging once per size; drawImage's bilinear filter aliases at 3x.
@@ -333,9 +159,106 @@ void BrickIllustration::paintEvent(QPaintEvent *)
         m_scaledOn = m_on;
     }
     QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
     const QSizeF logical = QSizeF(px) / dpr;
-    p.setOpacity(m_on ? 1.0 : 0.55);
-    p.drawImage(QPointF((width() - logical.width()) / 2, (height() - logical.height()) / 2), m_scaled);
+    const QRectF target(QPointF((width() - logical.width()) / 2, (height() - logical.height()) / 2), logical);
+    p.setOpacity(m_on ? 1.0 : theme::isLight() ? 0.8 : 0.55);
+    p.drawImage(target.topLeft(), m_scaled);
+    p.setOpacity(1.0);
+    paintOverlay(p, target);
+}
+
+// ── PadView ───────────────────────────────────────────────
+
+namespace {
+
+/** Button centres on resources/images/pad.png, as fractions of its width and height. */
+struct Hotspot {
+    drive::PadButton button;
+    qreal x, y, r; // r is a fraction of the width
+};
+
+constexpr Hotspot PadHotspots[] = {
+    {drive::PadButton::Y, 0.782, 0.294, 0.034},    {drive::PadButton::X, 0.704, 0.385, 0.034},
+    {drive::PadButton::B, 0.854, 0.385, 0.034},    {drive::PadButton::A, 0.780, 0.483, 0.034},
+    {drive::PadButton::Up, 0.222, 0.318, 0.028},   {drive::PadButton::Down, 0.222, 0.450, 0.028},
+    {drive::PadButton::Left, 0.170, 0.383, 0.028}, {drive::PadButton::Right, 0.276, 0.383, 0.028},
+    {drive::PadButton::Back, 0.501, 0.411, 0.026}, {drive::PadButton::Start, 0.501, 0.473, 0.026},
+    {drive::PadButton::LB, 0.229, 0.150, 0.050},   {drive::PadButton::RB, 0.767, 0.150, 0.050},
+    {drive::PadButton::LS, 0.361, 0.594, 0.066},   {drive::PadButton::RS, 0.638, 0.594, 0.066},
+};
+
+void glow(QPainter &p, QPointF c, qreal r, QColor color, qreal strength = 1.0)
+{
+    QRadialGradient g(c, r * 1.9);
+    QColor inner = color;
+    inner.setAlphaF(float(0.85 * strength));
+    QColor mid = color;
+    mid.setAlphaF(float(0.35 * strength));
+    QColor outer = color;
+    outer.setAlpha(0);
+    g.setColorAt(0, inner);
+    g.setColorAt(0.5, mid);
+    g.setColorAt(1, outer);
+    p.setPen(Qt::NoPen);
+    p.setBrush(g);
+    p.drawEllipse(c, r * 1.9, r * 1.9);
+}
+
+} // namespace
+
+PadView::PadView(QWidget *parent) : PhotoWidget(QStringLiteral(":/images/pad.png"), {520, 405}, parent)
+{
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    setMinimumSize(300, 234);
+}
+
+void PadView::setState(const drive::ControlInput &input, const std::array<bool, int(drive::PadButton::Count)> &buttons)
+{
+    if (buttons == m_buttons && input.leftX == m_input.leftX && input.leftY == m_input.leftY && input.rightX == m_input.rightX &&
+        input.rightY == m_input.rightY && input.leftTrigger == m_input.leftTrigger && input.rightTrigger == m_input.rightTrigger)
+        return;
+    m_input = input;
+    m_buttons = buttons;
+    update();
+}
+
+void PadView::paintOverlay(QPainter &p, const QRectF &photo)
+{
+    using drive::PadButton;
+    const auto at = [&](qreal x, qreal y) { return QPointF(photo.left() + x * photo.width(), photo.top() + y * photo.height()); };
+    for (const Hotspot &h : PadHotspots) {
+        const QPointF c = at(h.x, h.y);
+        const qreal r = h.r * photo.width();
+        if (h.button == PadButton::LS || h.button == PadButton::RS) {
+            const bool left = h.button == PadButton::LS;
+            const double sx = left ? m_input.leftX : m_input.rightX;
+            const double sy = left ? m_input.leftY : m_input.rightY;
+            const double mag = std::min(1.0, std::hypot(sx, sy));
+            if (m_buttons[int(h.button)]) glow(p, c, r * 0.9, theme::Warm);
+            if (mag > 0.08) {
+                // Where the stick points: a ring that slides out from the centre.
+                const QPointF tip = c + QPointF(sx, -sy) * r * 0.75;
+                glow(p, tip, r * 0.42, theme::Accent, 0.4 + 0.6 * mag);
+                p.setPen(QPen(Qt::white, std::max(1.5, r * 0.06)));
+                p.setBrush(Qt::NoBrush);
+                p.drawEllipse(tip, r * 0.22, r * 0.22);
+            }
+            continue;
+        }
+        if (!m_buttons[int(h.button)]) continue;
+        QColor color = theme::Accent;
+        if (h.button == PadButton::A) color = QColor(0x4f, 0x7c, 0xff);
+        else if (h.button == PadButton::B) color = theme::Bad;
+        else if (h.button == PadButton::Y) color = theme::Good;
+        else if (h.button == PadButton::X) color = QColor(0x8e, 0x5b, 0xf5);
+        glow(p, c, r, color);
+    }
+    // Triggers sit behind the bumpers; show how far they're pulled.
+    for (int side = 0; side < 2; ++side) {
+        const double v = side ? m_input.rightTrigger : m_input.leftTrigger;
+        if (v > 0.03) glow(p, at(side ? 0.80 : 0.196, 0.105), 0.05 * photo.width(), theme::Warm, v);
+    }
 }
 
 // ── Toast ─────────────────────────────────────────────────

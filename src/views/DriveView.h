@@ -4,22 +4,25 @@
 #include "drive/Mixer.h"
 #include "nxt/Brick.h"
 
+#include <QList>
 #include <QSet>
 #include <QTimer>
 #include <QWidget>
-#include <array>
+#include <functional>
 
-class QButtonGroup;
 class QComboBox;
+class QGridLayout;
 class QLabel;
-class QProgressBar;
 class QPushButton;
 
 namespace ui {
-class ControllerWidget;
-class MotorGauge;
-} // namespace ui
+class PadView;
+}
 
+/**
+ * Live driving: a photo of the controller in the middle, and every input with
+ * what it does on both sides. Drive setup itself lives in Settings → Drive.
+ */
 class DriveView : public QWidget {
     Q_OBJECT
 public:
@@ -34,40 +37,40 @@ protected:
     bool eventFilter(QObject *o, QEvent *e) override;
 
 private:
-    QWidget *buildControllerCard();
-    QWidget *buildMotorsCard();
-    QWidget *buildSetupCard();
-    void loadConfig();
-    void saveConfig();
+    /** One line in an input list: a chip naming the input and what it does. */
+    struct InputRow {
+        QLabel *chip;
+        QLabel *action;
+        std::function<bool(const drive::PadSnapshot &)> active;
+        std::function<QString()> describe;
+        bool lit = false;
+    };
+
+    void addInput(QGridLayout *grid, bool chipOnRight, const QString &name, std::function<bool(const drive::PadSnapshot &)> active,
+                  std::function<QString()> describe);
+    void refreshDescriptions();
+    void setConfig(const drive::DriveConfig &cfg);
     void setArmed(bool on);
     void emergencyStop();
     void tick();
     void onPadButton(drive::PadButton b);
     void onPadConnection(bool connected);
     void onBrick(const nxt::BrickState &s);
-    void updateRoles();
+    void announce(const QString &text);
+    QString motorName(std::optional<int> port) const;
     drive::ControlInput keyboardInput() const;
 
     drive::DriveConfig m_cfg;
     bool m_armed = false;
+    bool m_precision = false;
     QSet<int> m_keys;
     QTimer m_tick;
+    QList<InputRow> m_rows;
 
-    ui::ControllerWidget *m_controller = nullptr;
+    ui::PadView *m_pad = nullptr;
     QLabel *m_padName = nullptr;
     QComboBox *m_padPick = nullptr;
+    QLabel *m_brickNote = nullptr;
+    QLabel *m_modeNote = nullptr;
     QPushButton *m_arm = nullptr;
-    QLabel *m_linkNote = nullptr;
-    std::array<ui::MotorGauge *, 3> m_gauges{};
-    std::array<QLabel *, 3> m_roles{};
-    std::array<QLabel *, 3> m_rotation{};
-    std::array<QWidget *, 3> m_motorTiles{};
-    std::array<QComboBox *, 4> m_sensorKind{};
-    std::array<QLabel *, 4> m_sensorValue{};
-    std::array<QProgressBar *, 4> m_sensorBar{};
-    QButtonGroup *m_modeGroup = nullptr;
-    QLabel *m_modeHint = nullptr;
-    QComboBox *m_left = nullptr;
-    QComboBox *m_right = nullptr;
-    QComboBox *m_aux = nullptr;
 };

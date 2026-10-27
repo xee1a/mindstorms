@@ -1,6 +1,12 @@
 #include "Theme.h"
 
 #include <QApplication>
+#include <QGuiApplication>
+#include <QHash>
+#include <QSettings>
+#include <QStyleHints>
+#include <cmath>
+#include <iterator>
 #include <QFont>
 #include <QPalette>
 #include <QStyle>
@@ -121,13 +127,120 @@ QScrollArea > QWidget > QWidget { background: transparent; }
 #zoomBar QToolButton { background: transparent; border: none; border-radius: 7px; min-width: 28px; min-height: 28px; font-size: 16px; font-weight: 700; color: #c9d4e3; }
 #zoomBar QToolButton:hover { background: #2a3a52; }
 
+/* Drive view */
+QLabel[role="key"] { background: #1a2331; border: 1px solid #2b3647; border-radius: 8px; padding: 4px 9px; min-width: 30px; font-size: 12px; font-weight: 700; color: #c9d4e3; }
+QLabel[role="key"][active="true"] { background: #3d8bfd; border-color: #8bbcff; color: white; }
+QLabel[role="pill"] { background: #141b26; border: 1px solid #222c3a; border-radius: 12px; padding: 4px 12px; color: #a7b4c6; font-size: 12px; font-weight: 600; }
+QLabel[role="pill"][ok="true"] { color: #e6edf6; border-color: #275c45; }
+
+/* Settings */
+QDialog#settings { background: #0b0f15; }
+QListWidget#settingsNav { background: transparent; border: none; outline: 0; }
+QListWidget#settingsNav::item { padding: 0 12px; border-radius: 9px; color: #a7b4c6; font-weight: 600; }
+QListWidget#settingsNav::item:hover { background: #1a2331; color: #e6edf6; }
+QListWidget#settingsNav::item:selected { background: #212c3d; color: #ffffff; }
+#restartBanner { background: #1a2c4a; border: 1px solid #3d6fc0; border-radius: 12px; }
+
 /* Toast */
 #toast { background: #212c3d; border: 1px solid #33425a; border-radius: 12px; padding: 11px 16px; font-weight: 600; }
 #toast[kind="error"] { background: #2a1a20; border-color: #6b2f3a; }
 #toast[kind="success"] { background: #15271f; border-color: #2a6b4a; }
 )QSS";
 
+/** Dark-theme colours in the stylesheet and their light-theme counterparts. */
+const std::pair<const char *, const char *> LightColours[] = {
+    {"#e6edf6", "#1b2430"}, {"#0b0f15", "#eef1f5"}, {"#212c3d", "#e3e8ef"}, {"#33425a", "#c3ccd8"},
+    {"#0e131b", "#ffffff"}, {"#1d2633", "#dde3ea"}, {"#141b26", "#ffffff"}, {"#222c3a", "#d9e0e8"},
+    {"#a7b4c6", "#4d5b6e"}, {"#1a2331", "#eef2f7"}, {"#2a3a52", "#dbe7fb"}, {"#223047", "#cfdff8"},
+    {"#ffffff", "#0f1722"}, {"#275c45", "#8fd1ae"}, {"#151c27", "#ffffff"}, {"#121822", "#fbfcfe"},
+    {"#1f2836", "#dfe5ec"}, {"#0f141c", "#f4f6f9"}, {"#6f7f95", "#7a879a"}, {"#2a2414", "#fff6e0"},
+    {"#5c4a1d", "#f0d48a"}, {"#ffd27a", "#7a5200"}, {"#1a2c4a", "#dce9ff"}, {"#8bbcff", "#1f5fc4"},
+    {"#2b3647", "#d3dae4"}, {"#18202c", "#e4e9f0"}, {"#5b6878", "#9aa5b4"}, {"#151b25", "#f1f3f6"},
+    {"#2a1820", "#ffe9ec"}, {"#5c2a33", "#f3b4bd"}, {"#ff8a96", "#c62f42"}, {"#3a1d27", "#ffdbe0"},
+    {"#173827", "#e3f7ec"}, {"#12261d", "#d5f2e2"}, {"#3a4a60", "#b9c4d2"}, {"#c9d4e3", "#3c4a5e"},
+    {"#7f93ad", "#6d7f97"}, {"#131a24", "#f7f9fb"}, {"#2a1a20", "#ffe9ec"}, {"#6b2f3a", "#f3b4bd"},
+    {"#15271f", "#e3f7ec"}, {"#2a6b4a", "#8fd1ae"}, {"#22324a", "#c9d8ee"},
+};
+
+/** Colours in the blue accent family; the accent setting rotates their hue. */
+const char *const AccentFamily[] = {"#3d8bfd", "#4a96ff", "#2f78ea", "#5aa0ff", "#3a82f2", "#3d6fc0", "#8bbcff", "#1a2c4a",
+                                    "#2a3a52", "#223047", "#dbe7fb", "#cfdff8", "#dce9ff", "#1f5fc4", "#c9d8ee", "#22324a"};
+
+bool g_light = false;
+int g_hueShift = 0;
+
+QColor shifted(QColor c)
+{
+    if (g_hueShift == 0) return c;
+    float h, s, l, a;
+    c.getHslF(&h, &s, &l, &a);
+    if (h < 0) return c;
+    return QColor::fromHslF(std::fmod(h + g_hueShift / 360.0f + 1.0f, 1.0f), s, l, a);
+}
+
+QString themedStyleSheet()
+{
+    QString qss = QString::fromUtf8(styleSheet);
+    if (g_light) {
+        // Two passes through placeholders so a replacement is never replaced again.
+        for (size_t i = 0; i < std::size(LightColours); ++i)
+            qss.replace(QLatin1String(LightColours[i].first), QStringLiteral("@%1@").arg(i), Qt::CaseInsensitive);
+        for (size_t i = 0; i < std::size(LightColours); ++i)
+            qss.replace(QStringLiteral("@%1@").arg(i), QLatin1String(LightColours[i].second));
+        qss.replace(QStringLiteral(":/icons/chevron.svg"), QStringLiteral(":/icons/chevron-dark.svg"));
+    }
+    if (g_hueShift)
+        for (const char *hex : AccentFamily) qss.replace(QLatin1String(hex), shifted(QColor(QLatin1String(hex))).name(), Qt::CaseInsensitive);
+    return qss;
+}
+
 } // namespace
+
+QList<AccentChoice> accents()
+{
+    return {{QStringLiteral("blue"), QApplication::translate("Theme", "Blue"), QColor(0x3d, 0x8b, 0xfd)},
+            {QStringLiteral("green"), QApplication::translate("Theme", "Green"), QColor(0x22, 0xb8, 0x6b)},
+            {QStringLiteral("orange"), QApplication::translate("Theme", "Orange"), QColor(0xf5, 0x84, 0x1f)},
+            {QStringLiteral("purple"), QApplication::translate("Theme", "Purple"), QColor(0x8e, 0x5b, 0xf5)},
+            {QStringLiteral("pink"), QApplication::translate("Theme", "Pink"), QColor(0xe8, 0x4a, 0x9a)}};
+}
+
+void init()
+{
+    QSettings s;
+    const QString mode = s.value(QStringLiteral("appearance/theme"), QStringLiteral("dark")).toString();
+    g_light = mode == QLatin1String("light") ||
+              (mode == QLatin1String("system") && QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Light);
+    const QString accent = s.value(QStringLiteral("appearance/accent"), QStringLiteral("blue")).toString();
+    const QHash<QString, int> hues{{QStringLiteral("green"), -70}, {QStringLiteral("orange"), -188},
+                                   {QStringLiteral("purple"), 46}, {QStringLiteral("pink"), 112}};
+    g_hueShift = hues.value(accent, 0);
+
+    if (g_light) {
+        Bg = QColor(0xee, 0xf1, 0xf5);
+        Bg2 = QColor(0xf4, 0xf6, 0xf9);
+        Header = Qt::white;
+        Surface = Qt::white;
+        Surface2 = QColor(0xee, 0xf2, 0xf7);
+        Surface3 = QColor(0xe3, 0xe8, 0xef);
+        Line = QColor(0xdd, 0xe3, 0xea);
+        Border = QColor(0xd3, 0xda, 0xe4);
+        Text = QColor(0x1b, 0x24, 0x30);
+        Text2 = QColor(0x4d, 0x5b, 0x6e);
+        Text3 = QColor(0x7a, 0x87, 0x9a);
+        Icon = QColor(0x3c, 0x4a, 0x5e);
+        DangerText = QColor(0xc6, 0x2f, 0x42);
+        Canvas = QColor(0xf4, 0xf6, 0xf9);
+        CanvasDot = QColor(0xd2, 0xd9, 0xe3);
+        PaletteBg = QColor(0xee, 0xf2, 0xf6);
+        Warm = QColor(0xe8, 0x95, 0x00);
+        Good = QColor(0x1f, 0xa8, 0x62);
+        Bad = QColor(0xe5, 0x3e, 0x52);
+    }
+    Accent = shifted(Accent);
+}
+
+bool isLight() { return g_light; }
 
 void apply(QApplication &app)
 {
@@ -151,17 +264,17 @@ void apply(QApplication &app)
     QFont f(QStringLiteral("Segoe UI"));
     f.setPixelSize(13);
     app.setFont(f);
-    app.setStyleSheet(QString::fromUtf8(styleSheet));
+    app.setStyleSheet(themedStyleSheet());
 }
 
-void darkTitleBar(QWidget *window)
+void styleTitleBar(QWidget *window)
 {
 #ifdef Q_OS_WIN
     auto hwnd = reinterpret_cast<HWND>(window->winId());
-    const BOOL dark = TRUE;
+    const BOOL dark = g_light ? FALSE : TRUE;
     DwmSetWindowAttribute(hwnd, 20 /* DWMWA_USE_IMMERSIVE_DARK_MODE */, &dark, sizeof(dark));
     // Windows 11: tint the caption to match the header bar.
-    const COLORREF caption = RGB(0x0e, 0x13, 0x1b);
+    const COLORREF caption = RGB(Header.red(), Header.green(), Header.blue());
     DwmSetWindowAttribute(hwnd, 35 /* DWMWA_CAPTION_COLOR */, &caption, sizeof(caption));
 #else
     Q_UNUSED(window);

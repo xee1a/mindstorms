@@ -1,6 +1,7 @@
 #include "Palette.h"
 #include "Block.h"
 #include "Canvas.h"
+#include "app/Theme.h"
 
 #include <QApplication>
 #include <QDrag>
@@ -19,6 +20,7 @@
 #include <QPropertyAnimation>
 #include <QPushButton>
 #include <QScrollBar>
+#include <algorithm>
 
 namespace blocks {
 
@@ -50,7 +52,7 @@ PaletteView::PaletteView(QWidget *parent) : QGraphicsView(parent)
     setAlignment(Qt::AlignLeft | Qt::AlignTop);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameShape(QFrame::NoFrame);
-    setBackgroundBrush(QColor(0x18, 0x21, 0x2e));
+    setBackgroundBrush(theme::PaletteBg);
     scale(PaletteScale, PaletteScale);
 }
 
@@ -167,6 +169,7 @@ void Palette::rebuild(const QStringList &variables)
     headingFont.setWeight(QFont::Bold);
 
     qreal y = Margin;
+    qreal widest = 0;
     const auto addTemplate = [&](const QString &type, const QMap<QString, QString> &fields = {}) {
         const BlockDef *def = findDef(type);
         if (!def) return;
@@ -176,13 +179,14 @@ void Palette::rebuild(const QStringList &variables)
         b->setCursor(Qt::OpenHandCursor);
         m_scene->addItem(b);
         b->setPos(Margin, y);
+        widest = std::max(widest, b->sceneBoundingRect().right());
         y += b->chainHeight() + 14;
     };
 
     for (int i = 0; i < CategoryCount; ++i) {
         const auto cat = Category(i);
         auto *heading = m_scene->addSimpleText(categoryName(cat), headingFont);
-        heading->setBrush(QColor(0xc9, 0xd4, 0xe3));
+        heading->setBrush(theme::Icon);
         heading->setPos(Margin, y);
         m_headingY << y;
         y += 30;
@@ -199,6 +203,7 @@ void Palette::rebuild(const QStringList &variables)
             if (!variables.isEmpty()) {
                 addTemplate(QStringLiteral("data_set"), {{QStringLiteral("VAR"), variables.first()}});
                 addTemplate(QStringLiteral("data_change"), {{QStringLiteral("VAR"), variables.first()}});
+                addTemplate(QStringLiteral("data_show"), {{QStringLiteral("VAR"), variables.first()}});
             }
             continue;
         }
@@ -206,7 +211,10 @@ void Palette::rebuild(const QStringList &variables)
         y += 12;
     }
     // Room to scroll the last category to the top.
-    m_scene->setSceneRect(0, 0, 300 / PaletteScale - 4, y + 700);
+    // Wide enough for the longest block (Polish text runs long), within reason.
+    const int width = std::clamp(int((widest + Margin) * PaletteScale) + 16, 300, 460);
+    m_view->setFixedWidth(width);
+    m_scene->setSceneRect(0, 0, width / PaletteScale - 4, y + 700);
     m_view->verticalScrollBar()->setValue(keepScroll);
 }
 

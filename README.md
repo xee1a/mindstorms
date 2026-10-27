@@ -1,12 +1,12 @@
 # NXT Studio
 
 A native Windows app for programming LEGO MINDSTORMS **NXT** bricks. It has
-Scratch-style blocks and a live gamepad Drive mode. The interface is in Polish, with English
-available in the settings.
+Scratch-style blocks and a live gamepad Drive mode. The interface is in Polish, with English,
+a light theme and accent colours available in the settings.
 
 - **Program:** build programs from snap-together blocks (motors, sensors, sound, loops, variables)
-- **Drive (Jazda):** drive the robot in real time with a wired USB/XInput controller or the keyboard
-  (tank, arcade or racing control, plus live sensor readouts)
+- **Drive (Jazda):** drive the robot in real time with a wired USB/XInput controller or the keyboard.
+  The screen shows the pad and what every button does; ports and feel are in Settings → Drive.
 - **Brick (Kostka):** connection status, battery, firmware info and a driver setup guide
 
 Downloading block programs to the brick is the next milestone.
@@ -17,8 +17,6 @@ The app talks to the brick through the Windows **WinUSB** driver. Set it up once
 1. Connect the NXT over USB and turn it on.
 2. Run [Zadig](https://zadig.akeo.ie), then choose *Options → List All Devices* and **LEGO MINDSTORMS NXT**.
 3. Choose **WinUSB** and click *Install Driver*.
-
-To try the app without a brick, click "Wypróbuj kostkę demo" on the Kostka tab or start it with `--demo`.
 
 ## Building
 Requirements:

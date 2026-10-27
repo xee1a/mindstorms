@@ -1,5 +1,4 @@
 #include "Brick.h"
-#include "DemoTransport.h"
 #include "Protocol.h"
 #include "WinUsbTransport.h"
 
@@ -108,14 +107,11 @@ void BrickWorker::connectUsb()
     }
 }
 
-void BrickWorker::connectDemo() { attach(std::make_unique<DemoTransport>()); }
-
 void BrickWorker::attach(std::unique_ptr<Transport> transport)
 {
     disconnectBrick();
     m_transport = std::move(transport);
     m_state.status = LinkStatus::Connecting;
-    m_state.demo = m_transport->isDemo();
     publish();
     m_failures = 0;
     m_sent = {};
@@ -356,12 +352,17 @@ void Brick::onState(const BrickState &s)
 
 void Brick::connectUsb()
 {
-    QMetaObject::invokeMethod(m_worker, [w = m_worker] {
-        w->setAutoConnect(true);
+    QMetaObject::invokeMethod(m_worker, [w = m_worker, autoConnect = m_autoConnect] {
+        w->setAutoConnect(autoConnect);
         w->connectUsb();
     });
 }
-void Brick::connectDemo() { QMetaObject::invokeMethod(m_worker, &BrickWorker::connectDemo); }
+
+void Brick::setAutoConnect(bool on)
+{
+    m_autoConnect = on;
+    QMetaObject::invokeMethod(m_worker, [w = m_worker, on] { w->setAutoConnect(on); });
+}
 void Brick::disconnectBrick()
 {
     // Don't immediately reconnect a brick the user just disconnected.

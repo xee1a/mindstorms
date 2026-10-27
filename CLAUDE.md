@@ -21,7 +21,7 @@ The Brick (Kostka) tab explains this to users.
 
 ## Layout
 - `src/nxt/Protocol.*`: pure packet encoders/decoders for direct and system commands (unit tested)
-- `src/nxt/Transport.h`: `Transport` interface; `WinUsbTransport` is the real one, `DemoTransport` a simulated brick
+- `src/nxt/Transport.h`: `Transport` interface, implemented by `WinUsbTransport`
 - `src/nxt/Brick.*`: `BrickWorker` runs on its own thread and owns the transport, coalesces motor commands,
   polls telemetry and auto-reconnects. `Brick::instance()` is the UI-side facade.
 - `src/drive/Mixer.*`: pure tank/arcade/racing mixer (unit tested). `Gamepad.*` handles XInput polling.
@@ -31,15 +31,17 @@ The Brick (Kostka) tab explains this to users.
   - `Workspace` handles snapping, undo and variables
   - `Canvas` is the view
   - `Palette` holds the categories and flyout
-- `src/views/`: Program, Drive and Brick screens. `src/app/`: MainWindow, Theme, shared widgets.
+- `src/views/`: Program, Drive and Brick screens. Drive shows the pad photo with every input and its action;
+  drive setup lives in Settings.
+- `src/app/`: MainWindow, Theme (dark/light tokens plus accent hue shift), Prefs (live settings with a `changed` signal),
+  SettingsDialog, shared widgets (`PhotoWidget`, `PadView` with button hotspots on `pad.png`)
 - `i18n/nxtstudio_pl.ts`: Polish translation. Source strings are English.
-- `resources/`: SVG icons, app icon, `images/nxt.png` (the transparent brick photo)
-- `tools/cutout.cpp`: one-off tool that turns `tools/source/nxt.jpg` (on white) into `resources/images/nxt.png`
+- `resources/`: SVG icons, app icon, `images/nxt.png` and `images/pad.png` (transparent photos)
+- `tools/cutout.cpp`: one-off tool that turns a photo on white (`tools/source/*.jpg`) into a transparent PNG
 
 ## Commands
 - `.\build.ps1`: configure, build Release, run tests, then copy a runnable folder to `dist\` (windeployqt)
 - `.\build.ps1 -Debug`: Debug build
-- `dist\NXTStudio.exe --demo`: start connected to the simulated brick
 - `cmake --build build --target update_translations`: refresh the .ts file after changing UI strings
   (then translate the new entries)
 - `cmake --build build --config Release --target cutout`: build the image tool
@@ -48,6 +50,9 @@ The Brick (Kostka) tab explains this to users.
 - Never use `slots`/`signals` as identifiers, because they're Qt macros
 - `QString::arg(uint8_t)` formats a character, so cast to `int`
 - Wrap all user-visible text in `tr()`, and keep the Polish .ts with 0 unfinished entries
+- Colours come from `theme::` tokens or the dark-theme QSS (Theme.cpp maps each QSS colour to a light one), never new literals
+- Theme, accent and language apply on restart; other settings go through `Prefs` and apply live
+- Commit messages carry no Claude/AI co-author trailer
 - Settings are stored with QSettings (`HKCU\Software\NXT Studio\NXT Studio`)
 - The Electron prototype is preserved at git tag `electron-m1`
 

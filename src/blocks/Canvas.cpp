@@ -1,5 +1,6 @@
 #include "Canvas.h"
 #include "Workspace.h"
+#include "app/Theme.h"
 
 #include <QContextMenuEvent>
 #include <QHBoxLayout>
@@ -93,13 +94,21 @@ void Canvas::scrollToContent()
     centerOn(topLeft + QPointF(viewport()->width() / 2.0 / s, viewport()->height() / 2.0 / s));
 }
 
+void Canvas::setShowGrid(bool on)
+{
+    m_grid = on;
+    resetCachedContent();
+    viewport()->update();
+}
+
 void Canvas::drawBackground(QPainter *p, const QRectF &rect)
 {
-    p->fillRect(rect, QColor(0x0f, 0x14, 0x1c));
+    p->fillRect(rect, theme::Canvas);
+    if (!m_grid) return;
     const qreal step = transform().m11() < 0.6 ? GridStep * 2 : GridStep;
     const qreal left = std::floor(rect.left() / step) * step;
     const qreal top = std::floor(rect.top() / step) * step;
-    QPen pen(QColor(0x24, 0x32, 0x46), 2.6);
+    QPen pen(theme::CanvasDot, 2.6);
     pen.setCapStyle(Qt::RoundCap);
     p->setPen(pen);
     QVector<QPointF> dots;

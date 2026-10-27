@@ -26,7 +26,6 @@ public:
     static std::unique_ptr<WinUsbTransport> open();
 
     ~WinUsbTransport() override;
-    bool isDemo() const override { return false; }
     QString label() const override { return QStringLiteral("NXT (USB)"); }
     void write(const QByteArray &packet) override;
     QByteArray read(int timeoutMs) override;

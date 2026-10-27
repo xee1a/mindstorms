@@ -26,12 +26,11 @@ int main(int argc, char *argv[])
             QApplication::installTranslator(&qtTr);
     }
 
+    theme::init();
     theme::apply(app);
     MainWindow w;
-    theme::darkTitleBar(&w);
+    theme::styleTitleBar(&w);
     w.show();
-    // `NXTStudio.exe --demo` starts connected to the simulated brick.
-    if (QApplication::arguments().contains(QStringLiteral("--demo"))) nxt::Brick::instance().connectDemo();
     const int rc = app.exec();
     nxt::Brick::instance().shutdown();
     return rc;

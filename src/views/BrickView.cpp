@@ -1,5 +1,6 @@
 #include "BrickView.h"
 
+#include "app/Theme.h"
 #include "app/Widgets.h"
 
 #include <QGridLayout>
@@ -16,42 +17,45 @@ BrickView::BrickView(QWidget *parent) : QWidget(parent)
     lay->setContentsMargins(14, 14, 14, 14);
     lay->setSpacing(14);
 
-    // ── Connection card ───────────────────────────────
+    // ── Connection card: photo above, details below, all centred ──
     auto *conn = ui::card(this);
-    auto *cl = new QHBoxLayout(conn);
+    auto *cl = new QVBoxLayout(conn);
     cl->setContentsMargins(26, 26, 26, 26);
-    cl->setSpacing(28);
-    m_illustration = new ui::BrickIllustration(conn);
-    cl->addWidget(m_illustration, 0, Qt::AlignVCenter);
+    cl->setSpacing(10);
+    cl->addStretch(1);
+    m_illustration = new ui::PhotoWidget(QStringLiteral(":/images/nxt.png"), {320, 265}, conn);
+    m_illustration->setFixedSize(320, 265);
+    cl->addWidget(m_illustration, 0, Qt::AlignHCenter);
+    cl->addSpacing(8);
 
-    auto *info = new QVBoxLayout;
-    info->setSpacing(10);
-    info->addStretch();
-    m_title = ui::label({}, "h1", conn);
-    m_subtitle = ui::label({}, "muted", conn);
-    m_subtitle->setWordWrap(true);
-    info->addWidget(m_title);
-    info->addWidget(m_subtitle);
+    const auto centred = [&](QLabel *l) {
+        l->setAlignment(Qt::AlignHCenter);
+        l->setWordWrap(true);
+        cl->addWidget(l);
+        return l;
+    };
+    m_title = centred(ui::label({}, "h1", conn));
+    m_subtitle = centred(ui::label({}, "muted", conn));
     m_usbHint = ui::label({}, "warn", conn);
     m_usbHint->setWordWrap(true);
-    info->addWidget(m_usbHint);
+    m_usbHint->setMaximumWidth(460);
+    cl->addWidget(m_usbHint, 0, Qt::AlignHCenter);
 
     m_facts = new QWidget(conn);
     auto *fg = new QGridLayout(m_facts);
-    fg->setContentsMargins(0, 4, 0, 0);
-    fg->setHorizontalSpacing(26);
+    fg->setContentsMargins(0, 6, 0, 0);
+    fg->setHorizontalSpacing(30);
     fg->setVerticalSpacing(2);
     m_firmware = ui::label({}, "mono", m_facts);
     m_flash = ui::label({}, "mono", m_facts);
     m_bluetooth = ui::label({}, "mono", m_facts);
-    fg->addWidget(ui::label(tr("FIRMWARE"), "caps", m_facts), 0, 0);
-    fg->addWidget(ui::label(tr("FREE FLASH"), "caps", m_facts), 0, 1);
-    fg->addWidget(ui::label(tr("BLUETOOTH"), "caps", m_facts), 0, 2);
-    fg->addWidget(m_firmware, 1, 0);
-    fg->addWidget(m_flash, 1, 1);
-    fg->addWidget(m_bluetooth, 1, 2);
-    fg->setColumnStretch(3, 1);
-    info->addWidget(m_facts);
+    const QString heads[] = {tr("FIRMWARE"), tr("FREE FLASH"), tr("BLUETOOTH")};
+    QLabel *values[] = {m_firmware, m_flash, m_bluetooth};
+    for (int i = 0; i < 3; ++i) {
+        fg->addWidget(ui::label(heads[i], "caps", m_facts), 0, i, Qt::AlignHCenter);
+        fg->addWidget(values[i], 1, i, Qt::AlignHCenter);
+    }
+    cl->addWidget(m_facts, 0, Qt::AlignHCenter);
 
     m_batteryRow = new QWidget(conn);
     auto *bl = new QHBoxLayout(m_batteryRow);
@@ -61,18 +65,17 @@ BrickView::BrickView(QWidget *parent) : QWidget(parent)
     m_batteryText->setStyleSheet(QStringLiteral("font-weight:600"));
     bl->addWidget(m_battery);
     bl->addWidget(m_batteryText);
-    bl->addStretch();
-    info->addWidget(m_batteryRow);
+    cl->addWidget(m_batteryRow, 0, Qt::AlignHCenter);
 
     auto *actions = new QHBoxLayout;
+    actions->addStretch();
     m_connect = ui::button(tr("Connect USB"), "primary", "usb", conn);
-    m_demo = ui::button(tr("Try demo brick"), "ghost", "star", conn);
     m_disconnect = ui::button(tr("Disconnect"), "ghost", "unplug", conn);
     actions->addWidget(m_connect);
-    actions->addWidget(m_demo);
     actions->addWidget(m_disconnect);
     actions->addStretch();
-    info->addLayout(actions);
+    cl->addSpacing(4);
+    cl->addLayout(actions);
 
     m_quick = new QWidget(conn);
     auto *ql = new QHBoxLayout(m_quick);
@@ -81,17 +84,11 @@ BrickView::BrickView(QWidget *parent) : QWidget(parent)
     auto *stop = ui::button(tr("Stop motors"), "ghost", "square", m_quick);
     ql->addWidget(beep);
     ql->addWidget(stop);
-    ql->addStretch();
-    info->addWidget(m_quick);
-    info->addStretch();
-    cl->addLayout(info, 1);
+    cl->addWidget(m_quick, 0, Qt::AlignHCenter);
+    cl->addStretch(1);
     lay->addWidget(conn, 11);
 
     connect(m_connect, &QPushButton::clicked, this, [] { nxt::Brick::instance().connectUsb(); });
-    connect(m_demo, &QPushButton::clicked, this, [this] {
-        m_announcedDemo = false;
-        nxt::Brick::instance().connectDemo();
-    });
     connect(m_disconnect, &QPushButton::clicked, this, [] { nxt::Brick::instance().disconnectBrick(); });
     connect(beep, &QPushButton::clicked, this, [] {
         nxt::Brick::instance().playTone(659, 150);
@@ -104,7 +101,7 @@ BrickView::BrickView(QWidget *parent) : QWidget(parent)
     auto *gl = new QVBoxLayout(guide);
     gl->setContentsMargins(22, 22, 22, 22);
     gl->setSpacing(12);
-    gl->addWidget(ui::label(tr("Driver setup <span style='color:#6f7f95;font-size:12px;font-weight:600'>(one time)</span>"), "h2", guide));
+    gl->addWidget(ui::label(tr("Driver setup <span style='color:%1;font-size:12px;font-weight:600'>(one time)</span>").arg(theme::Text3.name()), "h2", guide));
     auto *intro = ui::label(tr("NXT Studio talks to the brick through Windows' built-in <b>WinUSB</b> driver. "
                                "The NXT doesn't install it automatically, so set it up once:"),
                             "muted", guide);
@@ -162,7 +159,7 @@ void BrickView::onBrick(const nxt::BrickState &s)
     const bool connecting = s.status == nxt::LinkStatus::Connecting;
     m_illustration->setOnline(connected);
     m_title->setText(connected ? s.name : connecting ? tr("Connecting…") : tr("No brick connected"));
-    m_subtitle->setText(connected ? (s.demo ? tr("Simulated brick. Everything works except real motors.") : tr("Connected over USB."))
+    m_subtitle->setText(connected ? tr("Connected over USB.")
                                   : tr("Connect your NXT with its USB cable and switch it on."));
 
     const bool needsDriver = !connected && s.usb == nxt::BrickState::Usb::NeedsDriver;
@@ -183,12 +180,6 @@ void BrickView::onBrick(const nxt::BrickState &s)
     }
     m_connect->setVisible(!connected);
     m_connect->setEnabled(!connecting);
-    m_demo->setVisible(!connected);
     m_disconnect->setVisible(connected);
     m_quick->setVisible(connected);
-
-    if (connected && s.demo && !m_announcedDemo) {
-        m_announcedDemo = true;
-        emit message(tr("Connected to the demo brick. Motors and sensors are simulated."), "success");
-    }
 }

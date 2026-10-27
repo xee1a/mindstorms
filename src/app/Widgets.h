@@ -15,7 +15,8 @@ QFrame *card(QWidget *parent = nullptr);
 QFrame *inset(QWidget *parent = nullptr);
 /** kind: "primary", "ghost", "danger" or nullptr. icon: resource name without extension. */
 QPushButton *button(const QString &text, const char *kind = nullptr, const char *icon = nullptr, QWidget *parent = nullptr);
-QIcon icon(const char *name, const QColor &color = QColor(0xc9, 0xd4, 0xe3));
+/** Tinted SVG icon; an invalid colour means the theme's icon colour. */
+QIcon icon(const char *name, const QColor &tint = QColor());
 
 /** iOS-style on/off switch with a label. */
 class ToggleSwitch : public QAbstractButton {
@@ -26,42 +27,6 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *) override;
-};
-
-/** Round power dial for one motor: -100..100. */
-class MotorGauge : public QWidget {
-    Q_OBJECT
-public:
-    explicit MotorGauge(QWidget *parent = nullptr);
-    void setPower(int power);
-    void setCaption(const QString &caption);
-    QSize sizeHint() const override { return {140, 128}; }
-
-protected:
-    void paintEvent(QPaintEvent *) override;
-
-private:
-    int m_power = 0;
-    QString m_caption;
-};
-
-/** Live drawing of an Xbox-style controller. */
-class ControllerWidget : public QWidget {
-    Q_OBJECT
-public:
-    explicit ControllerWidget(QWidget *parent = nullptr);
-    void setState(const drive::ControlInput &input, const std::array<bool, int(drive::PadButton::Count)> &buttons, bool live);
-    QSize sizeHint() const override { return {340, 210}; }
-    bool hasHeightForWidth() const override { return true; }
-    int heightForWidth(int w) const override { return w * 210 / 340; }
-
-protected:
-    void paintEvent(QPaintEvent *) override;
-
-private:
-    drive::ControlInput m_input;
-    std::array<bool, int(drive::PadButton::Count)> m_buttons{};
-    bool m_live = false;
 };
 
 class BatteryWidget : public QWidget {
@@ -78,24 +43,43 @@ private:
     int m_percent = 0;
 };
 
-/** Photo of the NXT brick; dimmed and greyed out while no brick is connected. */
-class BrickIllustration : public QWidget {
+/** A transparent photo scaled to fit, greyed out and faded while "offline". */
+class PhotoWidget : public QWidget {
     Q_OBJECT
 public:
-    explicit BrickIllustration(QWidget *parent = nullptr);
+    PhotoWidget(const QString &resource, QSize hint, QWidget *parent = nullptr);
     void setOnline(bool on);
-    QSize sizeHint() const override { return {300, 250}; }
+    bool online() const { return m_on; }
+    QSize sizeHint() const override { return m_hint; }
 
 protected:
     void paintEvent(QPaintEvent *) override;
+    /** Drawn over the photo; `photo` is where the photo landed, in widget coordinates. */
+    virtual void paintOverlay(QPainter &, const QRectF &) {}
 
 private:
     QImage m_photo;
     QImage m_dimmed;
     QImage m_scaled;
     QSize m_scaledFor;
+    QSize m_hint;
     bool m_scaledOn = false;
     bool m_on = false;
+};
+
+/** Photo of the user's gamepad with live highlights on the pressed buttons and moved sticks. */
+class PadView : public PhotoWidget {
+    Q_OBJECT
+public:
+    explicit PadView(QWidget *parent = nullptr);
+    void setState(const drive::ControlInput &input, const std::array<bool, int(drive::PadButton::Count)> &buttons);
+
+protected:
+    void paintOverlay(QPainter &p, const QRectF &photo) override;
+
+private:
+    drive::ControlInput m_input;
+    std::array<bool, int(drive::PadButton::Count)> m_buttons{};
 };
 
 /** A message that slides in at the bottom of its parent and fades away. */

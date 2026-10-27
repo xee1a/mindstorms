@@ -166,7 +166,10 @@ int main(int argc, char **argv)
         std::fprintf(stderr, "cannot write %s\n", argv[2]);
         return 1;
     }
-    std::printf("%s: %dx%d\n", argv[2], out.width(), out.height());
+    // Where the crop starts in the source image, for mapping hotspots onto the result.
+    const QRect crop(QPoint(minX - 2, minY - 2), QPoint(maxX + 2, maxY + 2));
+    std::printf("%s: %dx%d, origin in source px %.1f,%.1f, %dx scale\n", argv[2], out.width(), out.height(),
+                (std::max(crop.left(), 0) - pad) / double(Upscale), (std::max(crop.top(), 0) - pad) / double(Upscale), Upscale);
 
     if (argc > 3) {
         QImage preview(out.size() + QSize(80, 80), QImage::Format_ARGB32);

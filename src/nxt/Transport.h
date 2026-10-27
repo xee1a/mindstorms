@@ -25,7 +25,6 @@ public:
 class Transport {
 public:
     virtual ~Transport() = default;
-    virtual bool isDemo() const = 0;
     virtual QString label() const = 0;
     /** Throws DisconnectedError or std::runtime_error. */
     virtual void write(const QByteArray &packet) = 0;

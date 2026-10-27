@@ -26,7 +26,6 @@ enum class LinkStatus { Disconnected, Connecting, Connected };
 
 struct BrickState {
     LinkStatus status = LinkStatus::Disconnected;
-    bool demo = false;
     QString name;
     QString firmware;
     QString bluetoothAddress;
@@ -57,7 +56,6 @@ public:
 public slots:
     void start();
     void connectUsb();
-    void connectDemo();
     void disconnectBrick();
     void setMotors(int a, int b, int c);
     void stopAll();
@@ -109,8 +107,9 @@ public:
     bool connected() const { return m_state.status == LinkStatus::Connected; }
 
     void connectUsb();
-    void connectDemo();
     void disconnectBrick();
+    /** Connect on its own whenever a WinUSB brick is plugged in. */
+    void setAutoConnect(bool on);
     void setMotors(const std::array<int, 3> &power);
     void stopAll();
     void playTone(int hz, int ms);
@@ -136,6 +135,7 @@ private:
     std::array<int, 3> m_lastMotors{};
     bool m_brake = true;
     bool m_regulated = false;
+    bool m_autoConnect = true;
 };
 
 /** Six AA cells: ~9.0 V fresh, the NXT starts warning around 6.5 V. */

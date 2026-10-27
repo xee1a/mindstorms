@@ -9,7 +9,7 @@ class QPushButton;
 
 namespace ui {
 class BatteryWidget;
-class BrickIllustration;
+class PhotoWidget;
 } // namespace ui
 
 class BrickView : public QWidget {
@@ -23,7 +23,7 @@ signals:
 private:
     void onBrick(const nxt::BrickState &s);
 
-    ui::BrickIllustration *m_illustration;
+    ui::PhotoWidget *m_illustration;
     QLabel *m_title;
     QLabel *m_subtitle;
     QLabel *m_usbHint;
@@ -35,8 +35,6 @@ private:
     ui::BatteryWidget *m_battery;
     QLabel *m_batteryText;
     QPushButton *m_connect;
-    QPushButton *m_demo;
     QPushButton *m_disconnect;
     QWidget *m_quick;
-    bool m_announcedDemo = false;
 };
