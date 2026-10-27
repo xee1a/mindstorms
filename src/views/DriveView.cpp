@@ -316,8 +316,10 @@ void DriveView::onPadButton(PadButton b)
 void DriveView::onPadConnection(bool connected)
 {
     auto &pad = drive::Gamepad::instance();
-    m_padName->setText(connected ? tr("Controller %1 connected. Press START to drive.").arg(pad.snapshot().slot + 1)
-                                 : tr("Plug in a USB controller and press any button. Its MODE light should be off (XInput)."));
+    if (!connected) m_padName->setText(tr("Plug in a USB controller and press any button."));
+    else if (pad.snapshot().directInput)
+        m_padName->setText(tr("USB gamepad connected. Press START to drive. If the sticks move like the D-pad, press MODE."));
+    else m_padName->setText(tr("Controller %1 connected. Press START to drive.").arg(pad.snapshot().slot + 1));
     const auto padSlots = pad.connectedSlots();
     m_padPick->clear();
     for (int s : padSlots) m_padPick->addItem(tr("Controller %1").arg(s + 1), s);

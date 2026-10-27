@@ -41,7 +41,7 @@ qt_add_executable(NXTStudio WIN32
     resources/app.rc
 )
 target_compile_definitions(NXTStudio PRIVATE NXTSTUDIO_VERSION="${PROJECT_VERSION}" UNICODE _UNICODE NOMINMAX)
-target_link_libraries(NXTStudio PRIVATE nxtcore Qt6::Widgets Qt6::Svg Qt6::SvgWidgets setupapi winusb xinput dwmapi ole32)
+target_link_libraries(NXTStudio PRIVATE nxtcore Qt6::Widgets Qt6::Svg Qt6::SvgWidgets setupapi winusb xinput dinput8 dxguid dwmapi ole32)
 
 file(GLOB ICONS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS resources/icons/*.svg)
 qt_add_resources(NXTStudio icons PREFIX / BASE resources FILES ${ICONS} resources/images/nxt.png resources/images/pad.png)

@@ -1191,21 +1191,30 @@
     </message>
     <message>
         <location filename="../src/views/DriveView.cpp" line="319"/>
+        <source>Plug in a USB controller and press any button.</source>
+        <translation>Podłącz pad USB i naciśnij dowolny przycisk.</translation>
+    </message>
+    <message>
+        <location filename="../src/views/DriveView.cpp" line="321"/>
+        <source>USB gamepad connected. Press START to drive. If the sticks move like the D-pad, press MODE.</source>
+        <translation>Pad USB podłączony. Naciśnij START, by jechać. Jeśli gałki działają jak krzyżak, naciśnij MODE.</translation>
+    </message>
+    <message>
+        <location filename="../src/views/DriveView.cpp" line="322"/>
         <source>Controller %1 connected. Press START to drive.</source>
         <translation>Pad %1 podłączony. Naciśnij START, by jechać.</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="320"/>
         <source>Plug in a USB controller and press any button. Its MODE light should be off (XInput).</source>
-        <translation>Podłącz pad USB i naciśnij dowolny przycisk. Dioda MODE powinna być zgaszona (XInput).</translation>
+        <translation type="vanished">Podłącz pad USB i naciśnij dowolny przycisk. Dioda MODE powinna być zgaszona (XInput).</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="334"/>
+        <location filename="../src/views/DriveView.cpp" line="336"/>
         <source>Brick: %1</source>
         <translation>Kostka: %1</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="334"/>
+        <location filename="../src/views/DriveView.cpp" line="336"/>
         <source>No brick: preview only</source>
         <translation>Brak kostki: tylko podgląd</translation>
     </message>
@@ -1342,12 +1351,12 @@
         <translation type="vanished">Podłącz kontroler USB i naciśnij dowolny przycisk</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="323"/>
+        <location filename="../src/views/DriveView.cpp" line="325"/>
         <source>Controller %1</source>
         <translation>Kontroler %1</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="327"/>
+        <location filename="../src/views/DriveView.cpp" line="329"/>
         <source>Controller disconnected, so the motors were stopped.</source>
         <translation>Kontroler został odłączony, więc silniki zatrzymano.</translation>
     </message>
