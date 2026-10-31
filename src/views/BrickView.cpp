@@ -9,6 +9,8 @@
 #include <QSettings>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
+#include <QRegularExpressionValidator>
 #include <QPushButton>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -115,6 +117,24 @@ BrickView::BrickView(QWidget *parent) : QWidget(parent)
     ql->addWidget(beep);
     ql->addWidget(stop);
     cl->addWidget(m_quick, 0, Qt::AlignHCenter);
+
+    // Naming bricks helps tell a classroom's robots apart (also in Windows' Bluetooth list).
+    m_renameRow = new QWidget(conn);
+    auto *rl = new QHBoxLayout(m_renameRow);
+    rl->setContentsMargins(0, 4, 0, 0);
+    rl->setSpacing(6);
+    m_nameEdit = new QLineEdit(m_renameRow);
+    m_nameEdit->setMaxLength(15);
+    m_nameEdit->setMinimumWidth(170);
+    m_nameEdit->setPlaceholderText(tr("New name, e.g. Robot3"));
+    m_nameEdit->setToolTip(tr("Up to 15 characters: letters without accents, digits, spaces, - and _"));
+    m_nameEdit->setValidator(new QRegularExpressionValidator(QRegularExpression(QStringLiteral("[A-Za-z0-9 _-]{0,15}")), m_nameEdit));
+    m_renameButton = ui::button(tr("Rename brick"), "ghost", "pencil", m_renameRow);
+    rl->addWidget(m_nameEdit);
+    rl->addWidget(m_renameButton);
+    cl->addWidget(m_renameRow, 0, Qt::AlignHCenter);
+    connect(m_renameButton, &QPushButton::clicked, this, &BrickView::rename);
+    connect(m_nameEdit, &QLineEdit::returnPressed, this, &BrickView::rename);
     cl->addStretch(1);
     lay->addWidget(conn, 11);
 
@@ -237,6 +257,31 @@ void BrickView::onBrick(const nxt::BrickState &s)
     m_btConnect->setEnabled(!connecting);
     m_disconnect->setVisible(connected);
     m_quick->setVisible(connected);
+    m_renameRow->setVisible(connected);
+}
+
+void BrickView::rename()
+{
+    const QString name = m_nameEdit->text().trimmed();
+    if (name.isEmpty()) {
+        emit message(tr("Type the new name first."), "error");
+        return;
+    }
+    auto &brick = nxt::Brick::instance();
+    m_renameButton->setEnabled(false);
+    auto conn = std::make_shared<QMetaObject::Connection>();
+    *conn = connect(&brick, &nxt::Brick::jobFinished, this, [this, conn, name](const QString &error) {
+        disconnect(*conn);
+        m_renameButton->setEnabled(true);
+        if (!error.isEmpty()) return emit message(tr("Couldn't rename the brick: %1").arg(error), "error");
+        m_nameEdit->clear();
+        emit message(tr("The brick is now called “%1”").arg(name), "success");
+    });
+    if (!brick.renameBrick(name)) {
+        disconnect(*conn);
+        m_renameButton->setEnabled(true);
+        emit message(tr("The brick is busy with another task. Try again in a moment."), "error");
+    }
 }
 
 void BrickView::refreshPorts()

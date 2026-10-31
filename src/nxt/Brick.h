@@ -91,6 +91,10 @@ public slots:
     void factoryReset(bool everything, bool rename);
     /** Latest gamepad packet for programs that read the pad; empty stops streaming. */
     void setPadMessage(const QByteArray &message);
+    /** Sets the name shown on the brick's screen and in Bluetooth lists. */
+    void renameBrick(const QString &name);
+    /** Short program the brick runs right after a Bluetooth connection, to show it on its screen. */
+    void setBluetoothGreeting(const QByteArray &rxe);
 
 signals:
     void stateChanged(const nxt::BrickState &state);
@@ -108,6 +112,7 @@ private:
     /** Copies LEGO's files on the brick to the PC, once each, so a later reset can put them back. */
     void keepSystemFiles(const QList<BrickFile> &files);
     void backupSystemFiles(int serial);
+    void greetOverBluetooth(int serial);
     void stopRunningProgram();
     void streamPad();
     void linkLost(const QString &message);
@@ -132,6 +137,7 @@ private:
     qint64 m_lastProgramCheck = 0;
     /** Bumped on every connection, so a delayed backup can tell it still has the same brick. */
     int m_connectSerial = 0;
+    QByteArray m_greeting;
     QElapsedTimer m_clock;
     qint64 m_lastBattery = 0;
     qint64 m_lastKeepAlive = 0;
@@ -179,6 +185,9 @@ public:
     bool uploadProgram(const QString &name, const QByteArray &data, bool run);
     bool listFiles();
     bool factoryReset(bool everything, bool rename);
+    /** Renames the brick (up to 15 plain characters); false when the brick is busy. */
+    bool renameBrick(const QString &name);
+    void setBluetoothGreeting(const QByteArray &rxe);
     bool busy() const { return m_busy; }
     void setPadMessage(const QByteArray &message);
     /** Stops the motors and the I/O thread; call before QApplication goes away. */

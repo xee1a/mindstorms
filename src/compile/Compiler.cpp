@@ -39,8 +39,13 @@ CompileResult compileWorkspace(const QJsonObject &workspace, const QString &prog
         result.error = nxc.error;
         return result;
     }
-    result.source = nxc.source;
+    return compileSource(nxc.source);
+}
 
+CompileResult compileSource(const QString &source)
+{
+    CompileResult result;
+    result.source = source;
     const QString nbc = nbcPath();
     if (nbc.isEmpty()) {
         result.error = Text::tr("The NXC compiler (tools\\nbc.exe) is missing from the NXT Studio folder. Reinstall the app.");
@@ -54,7 +59,7 @@ CompileResult compileWorkspace(const QJsonObject &workspace, const QString &prog
     const QString src = dir.filePath(QStringLiteral("program.nxc"));
     const QString out = dir.filePath(QStringLiteral("program.rxe"));
     QFile f(src);
-    if (!f.open(QIODevice::WriteOnly) || f.write(nxc.source.toLatin1()) < 0) {
+    if (!f.open(QIODevice::WriteOnly) || f.write(source.toLatin1()) < 0) {
         result.error = Text::tr("Couldn't write the program for the compiler.");
         return result;
     }

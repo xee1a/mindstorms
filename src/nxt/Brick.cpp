@@ -27,6 +27,8 @@ constexpr int PadIntervalMs = 40;
 // Copy LEGO's files a little after connecting, once the UI has its first telemetry.
 constexpr int BackupDelayMs = 1'500;
 constexpr int PadRepeatMs = 250;
+// The program that shows "connected over Bluetooth" on the brick's screen.
+constexpr char GreetingFile[] = "NXT Studio.rxe";
 
 /** Translation context for this file's messages (lupdate reads Text::tr calls). */
 struct Text {
@@ -199,8 +201,10 @@ void BrickWorker::attach(std::unique_ptr<Transport> transport, const QString &li
         m_telemetry->start();
         m_padTimer->start();
         publish();
+        const int serial = ++m_connectSerial;
         // Reading files over Bluetooth is slow, so LEGO's files are only copied over USB.
-        if (!bluetooth) QTimer::singleShot(BackupDelayMs, this, [this, serial = ++m_connectSerial] { backupSystemFiles(serial); });
+        if (!bluetooth) QTimer::singleShot(BackupDelayMs, this, [this, serial] { backupSystemFiles(serial); });
+        else QTimer::singleShot(0, this, [this, serial] { greetOverBluetooth(serial); });
     } catch (const std::exception &e) {
         // Bluetooth bricks that are off or out of range never answer at all.
         linkLost(bluetooth && dynamic_cast<const TimeoutError *>(&e) ? Text::tr("The NXT didn't answer over Bluetooth. Is it switched on and nearby?")
@@ -572,7 +576,7 @@ void BrickWorker::writeFile(const QString &name, const QByteArray &data, int fro
             checkStatus(request(writeChunk(handle, data.mid(off, MaxWriteChunk))), SystemOp::Write);
             const qsizetype done = std::min<qsizetype>(data.size(), off + MaxWriteChunk);
             const int percent = from + int(done * (to - from) / std::max<qsizetype>(1, data.size()));
-            if (percent != lastPercent) emit jobProgress(lastPercent = percent);
+            if (from >= 0 && percent != lastPercent) emit jobProgress(lastPercent = percent);
         }
         checkStatus(request(closeHandle(handle)), SystemOp::Close);
     } catch (const DisconnectedError &) {
@@ -615,6 +619,46 @@ void BrickWorker::backupSystemFiles(int serial)
         linkLost(errorText(e));
     } catch (const std::exception &) {
         // Only a convenience; the next connection tries again.
+    }
+}
+
+void BrickWorker::setBluetoothGreeting(const QByteArray &rxe) { m_greeting = rxe; }
+
+void BrickWorker::greetOverBluetooth(int serial)
+{
+    if (m_greeting.isEmpty() || serial != m_connectSerial || !m_transport || m_state.status != LinkStatus::Connected) return;
+    try {
+        // Never interrupt a program the class started on the brick.
+        if (!parseCurrentProgramName(request(getCurrentProgramName())).isEmpty()) return;
+        const QString name = QString::fromLatin1(GreetingFile);
+        const uint8_t del = replyStatus(request(deleteFile(name)), SystemOp::Delete);
+        if (del != 0 && del != FileStatus::FileNotFound) return;
+        writeFile(name, m_greeting, -1, -1);
+        checkStatus(request(startProgram(name)), DirectOp::StartProgram);
+        m_state.runningProgram = name;
+        m_lastProgramCheck = m_clock.elapsed();
+        publish();
+    } catch (const DisconnectedError &e) {
+        linkLost(errorText(e));
+    } catch (const std::exception &) {
+        // Only a greeting (for example, no room on the brick): the connection itself is fine.
+    }
+}
+
+void BrickWorker::renameBrick(const QString &name)
+{
+    if (!m_transport || m_state.status != LinkStatus::Connected) return emit jobFinished(Text::tr("The NXT isn't connected."));
+    try {
+        checkStatus(request(setBrickName(name)), SystemOp::SetBrickName);
+        // DEVICE INFO still reports the old name for a moment, so take the one that was just accepted.
+        m_state.name = name;
+        publish();
+        emit jobFinished({});
+    } catch (const DisconnectedError &e) {
+        linkLost(errorText(e));
+        emit jobFinished(Text::tr("The NXT was disconnected."));
+    } catch (const std::exception &e) {
+        emit jobFinished(errorText(e));
     }
 }
 
@@ -784,6 +828,19 @@ bool Brick::listFiles()
     m_busy = true;
     QMetaObject::invokeMethod(m_worker, &BrickWorker::listFiles);
     return true;
+}
+
+bool Brick::renameBrick(const QString &name)
+{
+    if (m_busy) return false;
+    m_busy = true;
+    QMetaObject::invokeMethod(m_worker, [w = m_worker, name] { w->renameBrick(name); });
+    return true;
+}
+
+void Brick::setBluetoothGreeting(const QByteArray &rxe)
+{
+    QMetaObject::invokeMethod(m_worker, [w = m_worker, rxe] { w->setBluetoothGreeting(rxe); });
 }
 
 bool Brick::factoryReset(bool everything, bool rename)

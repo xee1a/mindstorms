@@ -5,6 +5,7 @@
 #include <QWidget>
 
 class QComboBox;
+class QLineEdit;
 class QLabel;
 class QPushButton;
 
@@ -24,6 +25,7 @@ signals:
 private:
     void onBrick(const nxt::BrickState &s);
     void refreshPorts();
+    void rename();
 
     ui::BrickArt *m_illustration;
     QLabel *m_title;
@@ -42,4 +44,7 @@ private:
     QComboBox *m_btPort;
     QPushButton *m_btConnect;
     QWidget *m_quick;
+    QWidget *m_renameRow;
+    QLineEdit *m_nameEdit;
+    QPushButton *m_renameButton;
 };

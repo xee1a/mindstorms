@@ -4,6 +4,8 @@
 #include "SettingsDialog.h"
 #include "Theme.h"
 #include "Widgets.h"
+#include "compile/Compiler.h"
+#include "compile/NxcGenerator.h"
 #include "drive/Gamepad.h"
 #include "drive/PadLink.h"
 #include "views/BrickView.h"
@@ -19,6 +21,7 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QStackedWidget>
+#include <QThread>
 #include <QSvgWidget>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -69,6 +72,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     onBrick(nxtBrick.state());
     nxtBrick.setAutoConnect(Prefs::instance().autoConnect());
     connect(&Prefs::instance(), &Prefs::changed, this, [] { nxt::Brick::instance().setAutoConnect(Prefs::instance().autoConnect()); });
+
+    // After a Bluetooth connection the brick briefly shows this on its screen, in the app's language.
+    const QString line1 = compile::toNxtText(tr("Connected", "on the brick's screen, line 1"));
+    const QString line2 = compile::toNxtText(tr("over Bluetooth", "on the brick's screen, line 2"));
+    QThread *greeting = QThread::create([line1, line2] {
+        const auto x = [](const QString &t) { return QString::number(std::max(0, (100 - 6 * int(t.size())) / 2)); };
+        const auto quoted = [](QString t) { return QLatin1Char('"') + t.remove(QLatin1Char('"')).remove(QLatin1Char('\\')).left(16) + QLatin1Char('"'); };
+        const QString source = QStringLiteral("task main()\n{\n    ClearScreen();\n    TextOut(%1, LCD_LINE3, %2);\n"
+                                              "    TextOut(%3, LCD_LINE5, %4);\n    Wait(2500);\n}\n")
+                                   .arg(x(line1), quoted(line1), x(line2), quoted(line2));
+        const compile::CompileResult r = compile::compileSource(source);
+        if (!r.rxe.isEmpty()) nxt::Brick::instance().setBluetoothGreeting(r.rxe);
+    });
+    connect(greeting, &QThread::finished, greeting, &QObject::deleteLater);
+    greeting->start();
 
     QSettings s;
     restoreGeometry(s.value(QStringLiteral("window/geometry")).toByteArray());

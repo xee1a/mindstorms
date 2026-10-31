@@ -24,7 +24,9 @@ The Brick (Kostka) tab explains this to users.
 - `src/nxt/Transport.h`: `Transport` interface, implemented by `WinUsbTransport` and `SerialTransport` (Bluetooth COM port)
 - `src/nxt/Brick.*`: `BrickWorker` runs on its own thread and owns the transport, coalesces motor commands,
   polls telemetry and auto-reconnects. It also uploads programs, lists files, does the factory reset and
-  streams the gamepad into inbox 10 while a program runs on the brick. `Brick::instance()` is the UI-side facade.
+  streams the gamepad into inbox 10 while a program runs on the brick. It also renames the brick, and after a Bluetooth
+  connection uploads and runs `NXT Studio.rxe`, a 2.5 s "connected over Bluetooth" screen that MainWindow compiles at startup
+  in the UI language (skipped while another program runs). `Brick::instance()` is the UI-side facade.
 - `src/nxt/SystemFiles.*`: copies of LEGO's own files (system sounds, Try Me programs), read from each brick over USB into
   `%APPDATA%\NXT Studio\NXT Studio\brick-files`; a normal factory reset writes back any that are missing. The three firmware
   sounds also have synthesised stand-ins (never bundle LEGO's files themselves)

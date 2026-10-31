@@ -944,64 +944,66 @@
 <context>
     <name>Brick</name>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="76" />
+        <location filename="../src/nxt/Brick.cpp" line="78" />
         <source>Battery full</source>
         <translation>Bateria pełna</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="77" />
+        <location filename="../src/nxt/Brick.cpp" line="79" />
         <source>Battery good</source>
         <translation>Bateria naładowana</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="78" />
+        <location filename="../src/nxt/Brick.cpp" line="80" />
         <source>Battery half empty</source>
         <translation>Bateria w połowie</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="79" />
+        <location filename="../src/nxt/Brick.cpp" line="81" />
         <source>Battery low</source>
         <translation>Bateria słaba</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="80" />
+        <location filename="../src/nxt/Brick.cpp" line="82" />
         <source>Replace the batteries</source>
         <translation>Wymień baterie</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="206" />
+        <location filename="../src/nxt/Brick.cpp" line="210" />
         <source>The NXT didn't answer over Bluetooth. Is it switched on and nearby?</source>
         <translation>Kostka NXT nie odpowiada przez Bluetooth. Czy jest włączona i znajduje się w pobliżu?</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="525" />
-        <location filename="../src/nxt/Brick.cpp" line="623" />
-        <location filename="../src/nxt/Brick.cpp" line="652" />
+        <location filename="../src/nxt/Brick.cpp" line="529" />
+        <location filename="../src/nxt/Brick.cpp" line="650" />
+        <location filename="../src/nxt/Brick.cpp" line="667" />
+        <location filename="../src/nxt/Brick.cpp" line="696" />
         <source>The NXT isn't connected.</source>
         <translation>Kostka NXT nie jest połączona.</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="532" />
+        <location filename="../src/nxt/Brick.cpp" line="536" />
+        <location filename="../src/nxt/Brick.cpp" line="659" />
         <source>The NXT was disconnected.</source>
         <translation>Kostka NXT została odłączona.</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="534" />
+        <location filename="../src/nxt/Brick.cpp" line="538" />
         <source>Couldn't read the list of files: %1</source>
         <translation>Nie udało się odczytać listy plików: %1</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="566" />
+        <location filename="../src/nxt/Brick.cpp" line="570" />
         <source>There isn't enough free memory on the NXT. Delete some files from the brick, or use Factory reset in Settings → Brick.</source>
         <translation>Na kostce NXT brakuje wolnej pamięci. Usuń z niej część plików albo przywróć ustawienia fabryczne (Ustawienia → Kostka).</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="643" />
+        <location filename="../src/nxt/Brick.cpp" line="687" />
         <source>The NXT was disconnected during the upload. Connect it again and retry.</source>
         <translation>Kostka NXT została odłączona podczas wgrywania. Podłącz ją ponownie i spróbuj jeszcze raz.</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="694" />
+        <location filename="../src/nxt/Brick.cpp" line="738" />
         <source>The NXT was disconnected during the reset. Connect it again and retry.</source>
         <translation>Kostka NXT została odłączona podczas przywracania ustawień. Podłącz ją ponownie i spróbuj jeszcze raz.</translation>
     </message>
@@ -1009,172 +1011,207 @@
 <context>
     <name>BrickView</name>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="54" />
+        <location filename="../src/views/BrickView.cpp" line="56" />
         <source>FIRMWARE</source>
         <translation>FIRMWARE</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="54" />
+        <location filename="../src/views/BrickView.cpp" line="56" />
         <source>FREE FLASH</source>
         <translation>WOLNA PAMIĘĆ</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="54" />
+        <location filename="../src/views/BrickView.cpp" line="56" />
         <source>BLUETOOTH</source>
         <translation>BLUETOOTH</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="75" />
+        <location filename="../src/views/BrickView.cpp" line="77" />
         <source>Connect USB</source>
         <translation>Połącz przez USB</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="76" />
+        <location filename="../src/views/BrickView.cpp" line="78" />
         <source>Disconnect</source>
         <translation>Rozłącz</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="90" />
+        <location filename="../src/views/BrickView.cpp" line="92" />
         <source>The outgoing Bluetooth COM port Windows created when you paired the NXT.</source>
         <translation>Wychodzący port COM Bluetooth, który Windows utworzył podczas parowania z kostką.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="92" />
+        <location filename="../src/views/BrickView.cpp" line="94" />
         <source>Look for ports again</source>
         <translation>Wyszukaj porty ponownie</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="93" />
+        <location filename="../src/views/BrickView.cpp" line="95" />
         <source>Connect over Bluetooth</source>
         <translation>Połącz przez Bluetooth</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="103" />
+        <location filename="../src/views/BrickView.cpp" line="105" />
         <source>No COM ports found. Pair the NXT with Windows first (steps on the right).</source>
         <translation>Nie znaleziono portów COM. Najpierw sparuj kostkę z Windows (instrukcja po prawej).</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="113" />
+        <location filename="../src/views/BrickView.cpp" line="115" />
         <source>Beep</source>
         <translation>Sygnał</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="114" />
+        <location filename="../src/views/BrickView.cpp" line="116" />
         <source>Stop motors</source>
         <translation>Zatrzymaj silniki</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="134" />
+        <location filename="../src/views/BrickView.cpp" line="129" />
+        <source>New name, e.g. Robot3</source>
+        <translation>Nowa nazwa, np. Robot3</translation>
+    </message>
+    <message>
+        <location filename="../src/views/BrickView.cpp" line="130" />
+        <source>Up to 15 characters: letters without accents, digits, spaces, - and _</source>
+        <translation>Do 15 znaków: litery bez polskich znaków, cyfry, spacje, - i _</translation>
+    </message>
+    <message>
+        <location filename="../src/views/BrickView.cpp" line="132" />
+        <source>Rename brick</source>
+        <translation>Zmień nazwę kostki</translation>
+    </message>
+    <message>
+        <location filename="../src/views/BrickView.cpp" line="154" />
         <source>Driver setup &lt;span style='color:%1;font-size:12px;font-weight:600'&gt;(one time)&lt;/span&gt;</source>
         <translation>Instalacja sterownika &lt;span style='color:%1;font-size:12px;font-weight:600'&gt;(jednorazowo)&lt;/span&gt;</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="135" />
+        <location filename="../src/views/BrickView.cpp" line="155" />
         <source>NXT Studio talks to the brick through Windows' built-in &lt;b&gt;WinUSB&lt;/b&gt; driver. The NXT doesn't install it automatically, so set it up once:</source>
         <translation>NXT Studio komunikuje się z kostką przez wbudowany w Windows sterownik &lt;b&gt;WinUSB&lt;/b&gt;. NXT nie instaluje go samodzielnie, dlatego trzeba to zrobić raz:</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="141" />
+        <location filename="../src/views/BrickView.cpp" line="161" />
         <source>Plug in the NXT and switch it on.</source>
         <translation>Podłącz kostkę NXT do komputera i ją włącz.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="142" />
+        <location filename="../src/views/BrickView.cpp" line="162" />
         <source>Download &lt;b&gt;Zadig&lt;/b&gt; from &lt;span style='font-family:Cascadia Mono'&gt;zadig.akeo.ie&lt;/span&gt; and run it.</source>
         <translation>Pobierz program &lt;b&gt;Zadig&lt;/b&gt; ze strony &lt;span style='font-family:Cascadia Mono'&gt;zadig.akeo.ie&lt;/span&gt; i uruchom go.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="143" />
+        <location filename="../src/views/BrickView.cpp" line="163" />
         <source>Choose &lt;i&gt;Options → List All Devices&lt;/i&gt;, then pick &lt;b&gt;LEGO MINDSTORMS NXT&lt;/b&gt; (USB ID &lt;span style='font-family:Cascadia Mono'&gt;0694 0002&lt;/span&gt;).</source>
         <translation>Wybierz &lt;i&gt;Options → List All Devices&lt;/i&gt;, a następnie &lt;b&gt;LEGO MINDSTORMS NXT&lt;/b&gt; (identyfikator USB &lt;span style='font-family:Cascadia Mono'&gt;0694 0002&lt;/span&gt;).</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="144" />
+        <location filename="../src/views/BrickView.cpp" line="164" />
         <source>Set the target driver to &lt;b&gt;WinUSB&lt;/b&gt; and click &lt;i&gt;Install Driver&lt;/i&gt;.</source>
         <translation>Jako sterownik docelowy ustaw &lt;b&gt;WinUSB&lt;/b&gt; i kliknij &lt;i&gt;Install Driver&lt;/i&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="145" />
+        <location filename="../src/views/BrickView.cpp" line="165" />
         <source>Come back here and press &lt;b&gt;Connect USB&lt;/b&gt;. After that the app connects automatically whenever the brick is plugged in.</source>
         <translation>Wróć tutaj i kliknij &lt;b&gt;Połącz przez USB&lt;/b&gt;. Od tej pory aplikacja będzie łączyć się sama, gdy tylko podłączysz kostkę.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="158" />
+        <location filename="../src/views/BrickView.cpp" line="178" />
         <source>Bluetooth &lt;span style='color:%1;font-size:12px;font-weight:600'&gt;(no cable)&lt;/span&gt;</source>
         <translation>Bluetooth &lt;span style='color:%1;font-size:12px;font-weight:600'&gt;(bez kabla)&lt;/span&gt;</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="160" />
+        <location filename="../src/views/BrickView.cpp" line="180" />
         <source>On the NXT, open &lt;i&gt;Bluetooth&lt;/i&gt;, switch it &lt;b&gt;On&lt;/b&gt; and set &lt;i&gt;Visibility&lt;/i&gt; to visible.</source>
         <translation>Na kostce otwórz menu &lt;i&gt;Bluetooth&lt;/i&gt;, włącz je (&lt;b&gt;On&lt;/b&gt;) i ustaw &lt;i&gt;Visibility&lt;/i&gt; na &lt;i&gt;Visible&lt;/i&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="161" />
+        <location filename="../src/views/BrickView.cpp" line="181" />
         <source>In Windows open &lt;i&gt;Settings → Bluetooth &amp; devices → Add device&lt;/i&gt;, choose the NXT and enter the code &lt;b&gt;1234&lt;/b&gt;. Confirm it on the brick too.</source>
         <translation>W Windows otwórz &lt;i&gt;Ustawienia → Bluetooth i urządzenia → Dodaj urządzenie&lt;/i&gt;, wybierz kostkę NXT i wpisz kod &lt;b&gt;1234&lt;/b&gt;. Potwierdź go również na kostce.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="162" />
+        <location filename="../src/views/BrickView.cpp" line="182" />
         <source>In &lt;i&gt;More Bluetooth settings → COM Ports&lt;/i&gt;, note the &lt;b&gt;outgoing&lt;/b&gt; port for the NXT, pick it on the left and press &lt;b&gt;Connect over Bluetooth&lt;/b&gt;.</source>
         <translation>W oknie &lt;i&gt;Więcej ustawień Bluetooth → Porty COM&lt;/i&gt; sprawdź, który port &lt;b&gt;wychodzący&lt;/b&gt; należy do kostki, wybierz go po lewej i kliknij &lt;b&gt;Połącz przez Bluetooth&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="175" />
+        <location filename="../src/views/BrickView.cpp" line="195" />
         <source>Troubleshooting</source>
         <translation>Rozwiązywanie problemów</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="182" />
+        <location filename="../src/views/BrickView.cpp" line="202" />
         <source>&lt;p&gt;&lt;b&gt;Nothing found:&lt;/b&gt; try another cable or USB port, and make sure the brick is switched on.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Access denied:&lt;/b&gt; another program (NXT-G, BricxCC) has the brick open. Close it and try again.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Using the old LEGO software too?&lt;/b&gt; NXT-G and BricxCC need the Fantom driver. Switch back with Zadig or Device Manager when you need them.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Brick only ticking:&lt;/b&gt; it's in firmware-update mode. Reflash the LEGO firmware.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Bluetooth is slow or drops:&lt;/b&gt; keep the brick within a few metres, and use the cable for uploading big programs.&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Nie znaleziono kostki:&lt;/b&gt; spróbuj innego kabla lub portu USB i upewnij się, że kostka jest włączona.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Odmowa dostępu:&lt;/b&gt; kostkę zajmuje inny program (NXT-G, BricxCC). Zamknij go i spróbuj ponownie.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Korzystasz też ze starego oprogramowania LEGO?&lt;/b&gt; NXT-G i BricxCC wymagają sterownika Fantom. Gdy ich potrzebujesz, przywróć go programem Zadig lub w Menedżerze urządzeń.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Kostka tylko cyka:&lt;/b&gt; jest w trybie aktualizacji firmware. Wgraj ponownie firmware LEGO.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Bluetooth działa wolno lub się rozłącza:&lt;/b&gt; trzymaj kostkę w odległości kilku metrów, a duże programy wgrywaj kablem.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="232" />
+        <location filename="../src/views/BrickView.cpp" line="252" />
         <source>%1 V</source>
         <translation>%1 V</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="209" />
+        <location filename="../src/views/BrickView.cpp" line="267" />
+        <source>Type the new name first.</source>
+        <translation>Najpierw wpisz nową nazwę.</translation>
+    </message>
+    <message>
+        <location filename="../src/views/BrickView.cpp" line="276" />
+        <source>Couldn't rename the brick: %1</source>
+        <translation>Nie udało się zmienić nazwy kostki: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/views/BrickView.cpp" line="278" />
+        <source>The brick is now called “%1”</source>
+        <translation>Kostka nazywa się teraz „%1”</translation>
+    </message>
+    <message>
+        <location filename="../src/views/BrickView.cpp" line="283" />
+        <source>The brick is busy with another task. Try again in a moment.</source>
+        <translation>Kostka jest zajęta innym zadaniem. Spróbuj ponownie za chwilę.</translation>
+    </message>
+    <message>
+        <location filename="../src/views/BrickView.cpp" line="229" />
         <source>Connecting…</source>
         <translation>Łączenie…</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="209" />
+        <location filename="../src/views/BrickView.cpp" line="229" />
         <source>No brick connected</source>
         <translation>Nie połączono z kostką</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="210" />
+        <location filename="../src/views/BrickView.cpp" line="230" />
         <source>Connect your NXT with its USB cable and switch it on.</source>
         <translation>Podłącz kostkę NXT kablem USB i ją włącz.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="212" />
+        <location filename="../src/views/BrickView.cpp" line="232" />
         <source>Connected over %1.</source>
         <translation>Połączono przez %1.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="212" />
+        <location filename="../src/views/BrickView.cpp" line="232" />
         <source>Connected with the USB cable.</source>
         <translation>Połączono kablem USB.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="213" />
+        <location filename="../src/views/BrickView.cpp" line="233" />
         <source>Running on the brick: %1</source>
         <translation>Na kostce działa program %1.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="220" />
+        <location filename="../src/views/BrickView.cpp" line="240" />
         <source>An NXT is plugged in, but it's using the “%1” driver. Install WinUSB for it with the steps on the right.</source>
         <translation>Kostka NXT jest podłączona, ale używa sterownika „%1”. Zainstaluj dla niej WinUSB zgodnie z instrukcją po prawej.</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="221" />
+        <location filename="../src/views/BrickView.cpp" line="241" />
         <source>none</source>
         <translation>brak</translation>
     </message>
     <message>
-        <location filename="../src/views/BrickView.cpp" line="225" />
+        <location filename="../src/views/BrickView.cpp" line="245" />
         <source>%1 KB</source>
         <translation>%1 KB</translation>
     </message>
@@ -1182,32 +1219,32 @@
 <context>
     <name>Compiler</name>
     <message>
-        <location filename="../src/compile/Compiler.cpp" line="46" />
+        <location filename="../src/compile/Compiler.cpp" line="51" />
         <source>The NXC compiler (tools\nbc.exe) is missing from the NXT Studio folder. Reinstall the app.</source>
         <translation>W folderze NXT Studio brakuje kompilatora NXC (tools\nbc.exe). Zainstaluj aplikację ponownie.</translation>
     </message>
     <message>
-        <location filename="../src/compile/Compiler.cpp" line="51" />
+        <location filename="../src/compile/Compiler.cpp" line="56" />
         <source>Couldn't create a temporary folder for compiling.</source>
         <translation>Nie udało się utworzyć folderu tymczasowego do kompilacji.</translation>
     </message>
     <message>
-        <location filename="../src/compile/Compiler.cpp" line="58" />
+        <location filename="../src/compile/Compiler.cpp" line="63" />
         <source>Couldn't write the program for the compiler.</source>
         <translation>Nie udało się zapisać programu dla kompilatora.</translation>
     </message>
     <message>
-        <location filename="../src/compile/Compiler.cpp" line="68" />
+        <location filename="../src/compile/Compiler.cpp" line="73" />
         <source>Couldn't start the NXC compiler.</source>
         <translation>Nie udało się uruchomić kompilatora NXC.</translation>
     </message>
     <message>
-        <location filename="../src/compile/Compiler.cpp" line="74" />
+        <location filename="../src/compile/Compiler.cpp" line="79" />
         <source>The NXC compiler took too long and was stopped.</source>
         <translation>Kompilator NXC działał zbyt długo i został zatrzymany.</translation>
     </message>
     <message>
-        <location filename="../src/compile/Compiler.cpp" line="86" />
+        <location filename="../src/compile/Compiler.cpp" line="91" />
         <source>The program couldn't be compiled. This is a bug in NXT Studio; the details show the compiler's message.</source>
         <translation>Nie udało się skompilować programu. To błąd w NXT Studio – w szczegółach znajdziesz komunikat kompilatora.</translation>
     </message>
@@ -1550,7 +1587,10 @@
         <location filename="../src/app/FactoryResetDialog.cpp" line="144" />
         <source>%n missing LEGO file(s) will be put back.</source>
         <translation>
-            <numerusform>Brakujący plik LEGO zostanie przywrócony.</numerusform><numerusform>%n brakujące pliki LEGO zostaną przywrócone.</numerusform><numerusform>%n brakujących plików LEGO zostanie przywróconych.</numerusform></translation>
+            <numerusform>Brakujący plik LEGO zostanie przywrócony.</numerusform>
+            <numerusform>%n brakujące pliki LEGO zostaną przywrócone.</numerusform>
+            <numerusform>%n brakujących plików LEGO zostanie przywróconych.</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/app/FactoryResetDialog.cpp" line="161" />
@@ -1576,53 +1616,65 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="103" />
+        <location filename="../src/app/MainWindow.cpp" line="121" />
         <source>Program</source>
         <translation>Program</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="103" />
+        <location filename="../src/app/MainWindow.cpp" line="121" />
         <source>Drive</source>
         <translation>Jazda</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="103" />
+        <location filename="../src/app/MainWindow.cpp" line="121" />
         <source>Brick</source>
         <translation>Kostka</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="120" />
-        <location filename="../src/app/MainWindow.cpp" line="208" />
+        <location filename="../src/app/MainWindow.cpp" line="138" />
+        <location filename="../src/app/MainWindow.cpp" line="226" />
         <source>●  No gamepad</source>
         <translation>●  Brak pada</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="135" />
+        <location filename="../src/app/MainWindow.cpp" line="153" />
         <source>Settings</source>
         <translation>Ustawienia</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="207" />
+        <location filename="../src/app/MainWindow.cpp" line="225" />
         <source>●  Gamepad → NXT</source>
         <translation>●  Pad → NXT</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="208" />
+        <location filename="../src/app/MainWindow.cpp" line="226" />
         <source>●  Gamepad</source>
         <translation>●  Pad</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="209" />
+        <location filename="../src/app/MainWindow.cpp" line="227" />
         <source>The program on the brick is reading this gamepad.</source>
         <translation>Program na kostce odczytuje ten pad.</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="182" />
+        <location filename="../src/app/MainWindow.cpp" line="200" />
         <source>●  Connecting…</source>
         <translation>●  Łączenie…</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="184" />
+        <location filename="../src/app/MainWindow.cpp" line="77" />
+        <source>Connected</source>
+        <comment>on the brick's screen, line 1</comment>
+        <translation>Połączono</translation>
+    </message>
+    <message>
+        <location filename="../src/app/MainWindow.cpp" line="78" />
+        <source>over Bluetooth</source>
+        <comment>on the brick's screen, line 2</comment>
+        <translation>przez Bluetooth</translation>
+    </message>
+    <message>
+        <location filename="../src/app/MainWindow.cpp" line="202" />
         <source>●  Not connected</source>
         <translation>●  Brak połączenia</translation>
     </message>
@@ -1902,27 +1954,27 @@
 <context>
     <name>Sensors</name>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="55" />
+        <location filename="../src/nxt/Brick.cpp" line="57" />
         <source>Touch</source>
         <translation>Dotyk</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="56" />
+        <location filename="../src/nxt/Brick.cpp" line="58" />
         <source>Light (reflected)</source>
         <translation>Światło (odbite)</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="57" />
+        <location filename="../src/nxt/Brick.cpp" line="59" />
         <source>Light (ambient)</source>
         <translation>Światło (z otoczenia)</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="58" />
+        <location filename="../src/nxt/Brick.cpp" line="60" />
         <source>Sound</source>
         <translation>Dźwięk</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="61" />
+        <location filename="../src/nxt/Brick.cpp" line="63" />
         <source>Not used</source>
         <translation>Nieużywany</translation>
     </message>
