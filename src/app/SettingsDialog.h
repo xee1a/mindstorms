@@ -17,6 +17,7 @@ public:
 signals:
     /** The user asked to restart now so theme, accent or language changes apply. */
     void restartRequested();
+    void message(const QString &text, const char *kind);
 
 private:
     QWidget *buildAppearance();

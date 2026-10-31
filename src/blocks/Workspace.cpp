@@ -1,4 +1,5 @@
 #include "Workspace.h"
+#include "app/Sounds.h"
 
 #include <QGraphicsDropShadowEffect>
 #include <QGraphicsPathItem>
@@ -132,6 +133,7 @@ void Workspace::beginDrag(Block *b, const QPointF &grabOffset)
     shadow->setOffset(0, 8);
     shadow->setColor(QColor(0, 0, 0, 150));
     b->setGraphicsEffect(shadow);
+    sfx::play(sfx::Sound::Pick);
 }
 
 void Workspace::dragTo(const QPointF &scenePos, const QPoint &globalPos)
@@ -168,6 +170,7 @@ void Workspace::endDrag(const QPoint &globalPos)
         // We're inside the block's own mouse handler, so free it once that returns.
         removeItem(d);
         d->deleteLater();
+        sfx::play(sfx::Sound::Delete);
         commit();
         return;
     }
@@ -214,6 +217,7 @@ void Workspace::endDrag(const QPoint &globalPos)
     case Target::None:
         break;
     }
+    sfx::play(t.kind == Target::None ? sfx::Sound::Drop : sfx::Sound::Snap);
     d->relayout();
     commit();
 }
@@ -303,6 +307,7 @@ void Workspace::deleteBlock(Block *b)
     if (next) next->detach();
     b->detach();
     delete b;
+    sfx::play(sfx::Sound::Delete);
     if (next) {
         if (parent && link == Block::Link::Next) parent->attachNext(next);
         else if (parent && link == Block::Link::Statement) parent->attachStatement(name, next);

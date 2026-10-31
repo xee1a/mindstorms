@@ -40,10 +40,25 @@ struct BrickState {
     /** What the last USB scan saw while disconnected. */
     enum class Usb { NotFound, NeedsDriver, Ready } usb = Usb::NotFound;
     QString usbDriver;
+    /** How the brick is connected: "USB" or "Bluetooth (COM5)". */
+    QString link;
+    bool bluetooth = false;
+    /** Program running on the brick itself (e.g. "robot.rxe"), or empty. */
+    QString runningProgram;
+    /** The gamepad is being streamed to the running program's inbox. */
+    bool padStreaming = false;
     /** Set when the last connection attempt failed or the link dropped. */
     QString lastError;
     /** Bumped on every new error, so the UI can tell repeats apart. */
     int errorSerial = 0;
+};
+
+/** A file stored on the brick. */
+struct BrickFile {
+    QString name;
+    quint32 size = 0;
+    /** Shipped with the brick (system sounds, Try Me programs, settings): kept by a normal factory reset. */
+    bool builtIn() const;
 };
 
 /** Lives on the I/O thread. Owns the transport; every method runs there, so nothing needs locking. */
@@ -56,6 +71,7 @@ public:
 public slots:
     void start();
     void connectUsb();
+    void connectBluetooth(const QString &port);
     void disconnectBrick();
     void setMotors(int a, int b, int c);
     void stopAll();
@@ -67,12 +83,26 @@ public slots:
     void setBrakeOnStop(bool on);
     void setSpeedRegulation(bool on);
     void setAutoConnect(bool on);
+    /** Stops whatever runs on the brick, replaces `name` with `data` and optionally starts it. */
+    void uploadProgram(const QString &name, const QByteArray &data, bool run);
+    void listFiles();
+    /** Deletes user files (all files except settings when `everything`), and renames the brick "NXT" when `rename`. */
+    void factoryReset(bool everything, bool rename);
+    /** Latest gamepad packet for programs that read the pad; empty stops streaming. */
+    void setPadMessage(const QByteArray &message);
 
 signals:
     void stateChanged(const nxt::BrickState &state);
+    void jobProgress(int percent);
+    /** An upload, listing or reset ended; `error` is empty on success. */
+    void jobFinished(const QString &error);
+    void filesListed(const QList<nxt::BrickFile> &files);
 
 private:
-    void attach(std::unique_ptr<Transport> transport);
+    void attach(std::unique_ptr<Transport> transport, const QString &link, bool bluetooth);
+    QList<BrickFile> findFiles();
+    void stopRunningProgram();
+    void streamPad();
     void linkLost(const QString &message);
     void fail(const QString &message);
     QByteArray request(const QByteArray &packet);
@@ -88,6 +118,11 @@ private:
     QTimer *m_telemetry = nullptr;
     QTimer *m_autoConnect = nullptr;
     QTimer *m_moveTimer = nullptr;
+    QTimer *m_padTimer = nullptr;
+    QByteArray m_padMessage;
+    QByteArray m_padSent;
+    qint64 m_lastPadSend = 0;
+    qint64 m_lastProgramCheck = 0;
     QElapsedTimer m_clock;
     qint64 m_lastBattery = 0;
     qint64 m_lastKeepAlive = 0;
@@ -116,6 +151,7 @@ public:
     bool connected() const { return m_state.status == LinkStatus::Connected; }
 
     void connectUsb();
+    void connectBluetooth(const QString &port);
     void disconnectBrick();
     /** Connect on its own whenever a WinUSB brick is plugged in. */
     void setAutoConnect(bool on);
@@ -130,6 +166,12 @@ public:
     void setSensor(int port, SensorKind kind);
     void setBrakeOnStop(bool on);
     void setSpeedRegulation(bool on);
+    /** File jobs run one at a time; each ends with jobFinished(). They return false while another one runs. */
+    bool uploadProgram(const QString &name, const QByteArray &data, bool run);
+    bool listFiles();
+    bool factoryReset(bool everything, bool rename);
+    bool busy() const { return m_busy; }
+    void setPadMessage(const QByteArray &message);
     /** Stops the motors and the I/O thread; call before QApplication goes away. */
     void shutdown();
     bool brakeOnStop() const { return m_brake; }
@@ -137,6 +179,9 @@ public:
 
 signals:
     void stateChanged(const nxt::BrickState &state);
+    void jobProgress(int percent);
+    void jobFinished(const QString &error);
+    void filesListed(const QList<nxt::BrickFile> &files);
 
 private:
     Brick();
@@ -149,11 +194,20 @@ private:
     bool m_brake = true;
     bool m_regulated = false;
     bool m_autoConnect = true;
+    QByteArray m_padMessage;
+    bool m_busy = false;
 };
 
-/** Six AA cells: ~9.0 V fresh, the NXT starts warning around 6.5 V. */
-int batteryPercent(int mv);
+/**
+ * Charge shown as a coloured battery. Tuned so six fresh rechargeable NiMH cells
+ * (about 7.8-8.4 V off the charger, 7.2 V for most of their life) read as full or good;
+ * alkaline cells start higher and read full for longer. The NXT itself warns near 6.4 V.
+ */
+enum class BatteryLevel { Empty, Low, Half, Good, Full };
+BatteryLevel batteryLevel(int mv);
+QString batteryLabel(BatteryLevel level);
 
 } // namespace nxt
 
 Q_DECLARE_METATYPE(nxt::BrickState)
+Q_DECLARE_METATYPE(nxt::BrickFile)

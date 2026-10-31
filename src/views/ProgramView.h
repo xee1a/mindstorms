@@ -27,6 +27,7 @@ public:
     void newProject();
     void openProject();
     void saveProject();
+    void uploadToBrick();
 
 signals:
     void message(const QString &text, const char *kind);

@@ -28,6 +28,7 @@ private:
     void onBrick(const nxt::BrickState &s);
     void openSettings();
     void restart();
+    void updatePadChip();
 
     QStackedWidget *m_stack;
     QButtonGroup *m_tabs;
@@ -37,4 +38,6 @@ private:
     QWidget *m_tabBar = nullptr;
     nxt::LinkStatus m_lastStatus = nxt::LinkStatus::Disconnected;
     int m_lastErrorSerial = 0;
+    bool m_padConnected = false;
+    bool m_padStreaming = false;
 };

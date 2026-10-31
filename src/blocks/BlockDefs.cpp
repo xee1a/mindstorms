@@ -37,6 +37,18 @@ Options messages()
     for (int i = 1; i <= 5; ++i) o << QPair<QString, QString>{Blocks::tr("message %1").arg(i), QString::number(i)};
     return o;
 }
+/** Values are drive::PadButton indexes. */
+Options padButtons()
+{
+    return {{"A", "0"}, {"B", "1"}, {"X", "2"}, {"Y", "3"}, {"L1", "4"}, {"R1", "5"}, {"Select", "6"}, {"Start", "7"},
+            {"L3", "8"}, {"R3", "9"}, {"↑", "10"}, {"↓", "11"}, {"←", "12"}, {"→", "13"}};
+}
+Options mailboxes()
+{
+    Options o;
+    for (int i = 1; i <= 9; ++i) o << QPair<QString, QString>{QString::number(i), QString::number(i)};
+    return o;
+}
 Options colours()
 {
     return {{Blocks::tr("black"), "1"}, {Blocks::tr("blue"), "2"}, {Blocks::tr("green"), "3"},
@@ -116,7 +128,7 @@ QList<BlockDef> build()
     // ── Movement (two-motor driving base) ─────────────
     d << def("nxt_move_for", C::Movement, S::Statement, {row(Blocks::tr("%1 move %2 for %3 %4"))},
              {icon("arrow"), dropdown("DIR", {{Blocks::tr("forward"), "FORWARD"}, {Blocks::tr("backward"), "BACKWARD"},
-                                              {Blocks::tr("left"), "LEFT"}, {Blocks::tr("right"), "RIGHT"}}),
+                                              {Blocks::tr("left", "direction"), "LEFT"}, {Blocks::tr("right", "direction"), "RIGHT"}}),
               number("AMOUNT", "2"), units()},
              Blocks::tr("Drives with the movement motors and speed set below, then stops."));
     d << def("nxt_move_start", C::Movement, S::Statement, {row(Blocks::tr("%1 start moving %2"))},
@@ -168,6 +180,24 @@ QList<BlockDef> build()
     d << def("nxt_touch_count", C::Sensors, S::Reporter, {row(Blocks::tr("%1 touch %2 bump count"))}, {icon("touch"), dropdown("PORT", sensorPorts())},
              Blocks::tr("How many times the touch sensor was pressed and released since the program started."));
     d << def("nxt_battery", C::Sensors, S::Reporter, {row(Blocks::tr("%1 battery level mV"))}, {icon("battery")});
+
+    // ── Gamepad and Bluetooth ─────────────────────────
+    d << def("pad_when_button", C::Gamepad, S::Hat, {row(Blocks::tr("%1 when gamepad button %2 is pressed"))},
+             {icon("gamepad"), dropdown("BUTTON", padButtons())},
+             Blocks::tr("The gamepad plugged into this PC. On the NXT it works while the app is connected (USB or Bluetooth)."));
+    d << def("pad_button", C::Gamepad, S::Boolean, {row(Blocks::tr("%1 gamepad button %2 pressed?"))}, {icon("gamepad"), dropdown("BUTTON", padButtons())});
+    d << def("pad_axis", C::Gamepad, S::Reporter, {row(Blocks::tr("%1 gamepad %2"))},
+             {icon("gamepad"), dropdown("AXIS", {{Blocks::tr("left stick ↔"), "0"}, {Blocks::tr("left stick ↕"), "1"}, {Blocks::tr("right stick ↔"), "2"},
+                                                 {Blocks::tr("right stick ↕"), "3"}, {Blocks::tr("trigger L2"), "4"}, {Blocks::tr("trigger R2"), "5"}})},
+             Blocks::tr("Sticks give -100 to 100 (right and up are positive), triggers 0 to 100."));
+    d << def("pad_drive", C::Gamepad, S::Statement, {row(Blocks::tr("%1 drive with the left stick: left motor %2 right motor %3"))},
+             {icon("steer"), dropdown("LEFT", motorPorts(), "B"), dropdown("RIGHT", motorPorts(), "C")},
+             Blocks::tr("Sets both motors from the left stick once. Put it inside \"forever\" to drive the robot with the gamepad."));
+    d << def("nxt_mailbox_number", C::Gamepad, S::Reporter, {row(Blocks::tr("%1 number in mailbox %2"))}, {icon("bluetooth"), dropdown("BOX", mailboxes())},
+             Blocks::tr("The last number another brick or the PC sent to this mailbox (0 until something arrives). Only on the NXT."));
+    d << def("nxt_mailbox_send", C::Gamepad, S::Statement, {row(Blocks::tr("%1 send number %2 to mailbox %3 of brick %4"))},
+             {icon("bluetooth"), number("VALUE", "1"), dropdown("BOX", mailboxes()), dropdown("CONN", {{"1", "1"}, {"2", "2"}, {"3", "3"}})},
+             Blocks::tr("Sends over Bluetooth to a brick connected to this one (Bluetooth menu on the NXT, connection 1-3). Only on the NXT."));
 
     // ── Control ───────────────────────────────────────
     d << def("nxt_wait_seconds", C::Control, S::Statement, {row(Blocks::tr("%1 wait %2 seconds"))},
@@ -287,7 +317,7 @@ QList<BlockDef> build()
 QColor categoryColor(Category c)
 {
     static const QColor colors[CategoryCount] = {
-        QColor("#FFB020"), QColor("#3D8BFD"), QColor("#E8548F"), QColor("#12B5C9"), QColor("#FF8A3D"),
+        QColor("#FFB020"), QColor("#3D8BFD"), QColor("#E8548F"), QColor("#12B5C9"), QColor("#4CAF7A"), QColor("#FF8A3D"),
         QColor("#9466FF"), QColor("#C95FE0"), QColor("#5B6CF0"), QColor("#2FB86C"), QColor("#FF6A55"),
     };
     return colors[int(c)];
@@ -300,6 +330,7 @@ QString categoryName(Category c)
     case Category::Motors: return Blocks::tr("Motors");
     case Category::Movement: return Blocks::tr("Movement");
     case Category::Sensors: return Blocks::tr("Sensors");
+    case Category::Gamepad: return Blocks::tr("Gamepad");
     case Category::Control: return Blocks::tr("Control");
     case Category::Sound: return Blocks::tr("Sound");
     case Category::Display: return Blocks::tr("Display");

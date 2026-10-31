@@ -4,12 +4,20 @@ A native Windows app for programming LEGO MINDSTORMS **NXT** bricks. It has
 Scratch-style blocks and a live gamepad Drive mode. The interface is in Polish, with English,
 a light theme and accent colours available in the settings.
 
-- **Program:** build programs from snap-together blocks (motors, sensors, sound, loops, variables)
+- **Program:** build programs from snap-together blocks (motors, sensors, sound, loops, variables,
+  gamepad and Bluetooth mailboxes). **Run** tries a program live from the PC; **Upload to NXT** compiles
+  it and saves it on the brick under a name you choose, so it runs without the PC.
 - **Drive (Jazda):** drive the robot in real time with a wired USB/XInput controller or the keyboard.
   The screen shows the pad and what every button does; ports and feel are in Settings → Drive.
-- **Brick (Kostka):** connection status, battery, firmware info and a driver setup guide
+- **Brick (Kostka):** connection over USB or Bluetooth, battery, firmware info, a driver setup guide,
+  and a factory reset (Settings → Brick) that clears the files on the brick
 
-Downloading block programs to the brick is the next milestone.
+Programs on the brick that use gamepad blocks read the PC's pad while the app stays connected.
+
+## Uploading
+Block programs are turned into NXC and compiled by the bundled NBC compiler
+(`third_party/nbc`, copied to `tools\nbc.exe` next to the app). This works with the standard LEGO
+firmware 1.28 or newer.
 
 ## Connecting the NXT
 The app talks to the brick through the Windows **WinUSB** driver. Set it up once:
@@ -17,6 +25,8 @@ The app talks to the brick through the Windows **WinUSB** driver. Set it up once
 1. Connect the NXT over USB and turn it on.
 2. Run [Zadig](https://zadig.akeo.ie), then choose *Options → List All Devices* and **LEGO MINDSTORMS NXT**.
 3. Choose **WinUSB** and click *Install Driver*.
+
+For Bluetooth, pair the NXT with Windows (code 1234), then pick its outgoing COM port on the Brick tab.
 
 ## Building
 Requirements:

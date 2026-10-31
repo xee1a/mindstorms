@@ -13,6 +13,25 @@ const char *statusMessage(uint8_t status)
 {
     switch (status) {
     case 0x20: return "Pending communication transaction in progress";
+    case 0x81: return "No more handles";
+    case 0x82: return "No space";
+    case 0x83: return "No more files";
+    case 0x84: return "End of file expected";
+    case 0x85: return "End of file";
+    case 0x86: return "Not a linear file";
+    case 0x87: return "File not found";
+    case 0x88: return "Handle already closed";
+    case 0x89: return "No linear space";
+    case 0x8a: return "Undefined error";
+    case 0x8b: return "File is busy";
+    case 0x8c: return "No write buffers";
+    case 0x8d: return "Append not possible";
+    case 0x8e: return "File is full";
+    case 0x8f: return "File exists";
+    case 0x90: return "Module not found";
+    case 0x91: return "Out of boundary";
+    case 0x92: return "Illegal file name";
+    case 0x93: return "Illegal handle";
     case 0x40: return "Specified mailbox queue is empty";
     case 0xbd: return "Request failed (i.e. specified file not found)";
     case 0xbe: return "Unknown command opcode";
@@ -79,6 +98,31 @@ uint32_t u32(const QByteArray &b, int i)
 }
 int32_t s32(const QByteArray &b, int i) { return static_cast<int32_t>(u32(b, i)); }
 
+/** Filename: 15.3 characters plus a terminating zero, padded to 20 bytes. */
+QByteArray fileName20(const QString &name)
+{
+    QByteArray file = name.toLatin1().left(19);
+    file.append(QByteArray(20 - file.size(), char(0)));
+    return file;
+}
+
+QByteArray system(uint8_t op, const QByteArray &payload = {})
+{
+    QByteArray out;
+    out.append(static_cast<char>(CommandType::System));
+    out.append(static_cast<char>(op));
+    out.append(payload);
+    return out;
+}
+
+QString zeroTerminated(const QByteArray &b, int from, int length)
+{
+    QByteArray s = b.mid(from, length);
+    const qsizetype end = s.indexOf(char(0));
+    if (end >= 0) s.truncate(end);
+    return QString::fromLatin1(s);
+}
+
 /** Validates the reply header and status byte; `minLength` covers the payload the caller reads. */
 void checkReply(const QByteArray &reply, uint8_t op, int minLength)
 {
@@ -139,12 +183,9 @@ QByteArray playTone(int frequencyHz, int durationMs)
 
 QByteArray playSoundFile(const QString &name, bool loop)
 {
-    // Filename: 15.3 characters plus a terminating zero, padded to 20 bytes.
-    QByteArray file = name.toLatin1().left(19);
-    file.append(QByteArray(20 - file.size(), char(0)));
     QByteArray payload;
     payload.append(static_cast<char>(loop ? 1 : 0));
-    payload.append(file);
+    payload.append(fileName20(name));
     return direct(DirectOp::PlaySoundFile, false, payload);
 }
 
@@ -167,6 +208,44 @@ QByteArray stopProgram() { return direct(DirectOp::StopProgram, false); }
 QByteArray getFirmwareVersion() { return bytes({CommandType::System, SystemOp::GetFirmwareVersion}); }
 QByteArray getDeviceInfo() { return bytes({CommandType::System, SystemOp::GetDeviceInfo}); }
 
+QByteArray startProgram(const QString &name) { return direct(DirectOp::StartProgram, true, fileName20(name)); }
+QByteArray getCurrentProgramName() { return direct(DirectOp::GetCurrentProgramName, true); }
+
+QByteArray messageWrite(int mailbox, const QByteArray &message)
+{
+    QByteArray msg = message.left(58);
+    msg.append(char(0));
+    QByteArray payload = bytes({std::clamp(mailbox, 0, 9), int(msg.size())});
+    payload.append(msg);
+    return direct(DirectOp::MessageWrite, false, payload);
+}
+
+QByteArray openWrite(const QString &name, uint32_t size)
+{
+    QByteArray payload = fileName20(name);
+    appendU32(payload, size);
+    return system(SystemOp::OpenWrite, payload);
+}
+
+QByteArray writeChunk(uint8_t handle, const QByteArray &data)
+{
+    QByteArray payload = bytes({handle});
+    payload.append(data.left(MaxWriteChunk));
+    return system(SystemOp::Write, payload);
+}
+
+QByteArray closeHandle(uint8_t handle) { return system(SystemOp::Close, bytes({handle})); }
+QByteArray deleteFile(const QString &name) { return system(SystemOp::Delete, fileName20(name)); }
+QByteArray findFirst(const QString &pattern) { return system(SystemOp::FindFirst, fileName20(pattern)); }
+QByteArray findNext(uint8_t handle) { return system(SystemOp::FindNext, bytes({handle})); }
+
+QByteArray setBrickName(const QString &name)
+{
+    QByteArray n = name.toLatin1().left(15);
+    n.append(QByteArray(16 - n.size(), char(0)));
+    return system(SystemOp::SetBrickName, n);
+}
+
 bool expectsReply(const QByteArray &packet)
 {
     return !packet.isEmpty() && (u8(packet, 0) & CommandType::NoReply) == 0;
@@ -176,6 +255,40 @@ int parseBatteryLevel(const QByteArray &reply)
 {
     checkReply(reply, DirectOp::GetBatteryLevel, 5);
     return u16(reply, 3);
+}
+
+uint8_t replyStatus(const QByteArray &reply, uint8_t op)
+{
+    if (reply.size() < 3 || u8(reply, 0) != CommandType::Reply || u8(reply, 1) != op)
+        throw ProtocolError(QStringLiteral("Unexpected reply for command 0x%1").arg(hex(op), 2, 16, QLatin1Char('0')).toStdString());
+    return static_cast<uint8_t>(u8(reply, 2));
+}
+
+void checkStatus(const QByteArray &reply, uint8_t op) { checkReply(reply, op, 3); }
+
+uint8_t parseOpenWrite(const QByteArray &reply)
+{
+    checkReply(reply, SystemOp::OpenWrite, 4);
+    return static_cast<uint8_t>(u8(reply, 3));
+}
+
+std::optional<FoundFile> parseFind(const QByteArray &reply, uint8_t op)
+{
+    const uint8_t status = replyStatus(reply, op);
+    if (status == FileStatus::FileNotFound || status == FileStatus::NoMoreFiles) return std::nullopt;
+    checkReply(reply, op, 28);
+    FoundFile f;
+    f.handle = static_cast<uint8_t>(u8(reply, 3));
+    f.name = zeroTerminated(reply, 4, 20);
+    f.size = u32(reply, 24);
+    return f;
+}
+
+QString parseCurrentProgramName(const QByteArray &reply)
+{
+    if (replyStatus(reply, DirectOp::GetCurrentProgramName) == 0xec) return {}; // no active program
+    checkReply(reply, DirectOp::GetCurrentProgramName, 23);
+    return zeroTerminated(reply, 3, 20);
 }
 
 InputValues parseInputValues(const QByteArray &reply)

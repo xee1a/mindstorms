@@ -1,6 +1,7 @@
 #pragma once
 
 #include "drive/Gamepad.h"
+#include "nxt/Brick.h"
 
 #include <QAbstractButton>
 #include <QFrame>
@@ -29,55 +30,58 @@ protected:
     void paintEvent(QPaintEvent *) override;
 };
 
+/** A battery that fills and changes colour with the charge: green, yellow, red. No numbers. */
 class BatteryWidget : public QWidget {
     Q_OBJECT
 public:
     explicit BatteryWidget(QWidget *parent = nullptr);
-    void setLevel(int percent);
-    QSize sizeHint() const override { return {72, 24}; }
+    void setLevel(nxt::BatteryLevel level);
+    QSize sizeHint() const override { return {44, 22}; }
+    /** The same drawing as a small icon, for buttons and chips. */
+    static QIcon icon(nxt::BatteryLevel level);
+    static QColor colour(nxt::BatteryLevel level);
 
 protected:
     void paintEvent(QPaintEvent *) override;
 
 private:
-    int m_percent = 0;
+    nxt::BatteryLevel m_level = nxt::BatteryLevel::Full;
 };
 
-/** A transparent photo scaled to fit, greyed out and faded while "offline". */
-class PhotoWidget : public QWidget {
+/** Simple drawing of the NXT brick; its screen shows the name and battery while connected. */
+class BrickArt : public QWidget {
     Q_OBJECT
 public:
-    PhotoWidget(const QString &resource, QSize hint, QWidget *parent = nullptr);
-    void setOnline(bool on);
-    bool online() const { return m_on; }
-    QSize sizeHint() const override { return m_hint; }
+    explicit BrickArt(QWidget *parent = nullptr);
+    void setState(bool online, const QString &name, std::optional<nxt::BatteryLevel> battery);
+    QSize sizeHint() const override { return {230, 290}; }
 
 protected:
     void paintEvent(QPaintEvent *) override;
-    /** Drawn over the photo; `photo` is where the photo landed, in widget coordinates. */
-    virtual void paintOverlay(QPainter &, const QRectF &) {}
 
 private:
-    QImage m_photo;
-    QImage m_dimmed;
-    QImage m_scaled;
-    QSize m_scaledFor;
-    QSize m_hint;
-    bool m_scaledOn = false;
-    bool m_on = false;
+    bool m_online = false;
+    QString m_name;
+    std::optional<nxt::BatteryLevel> m_battery;
 };
 
-/** Photo of the user's gamepad with live highlights on the pressed buttons and moved sticks. */
-class PadView : public PhotoWidget {
+/** Drawing of a gamepad (the layout of common USB pads) with live highlights on pressed buttons and moved sticks. */
+class PadView : public QWidget {
     Q_OBJECT
 public:
     explicit PadView(QWidget *parent = nullptr);
+    void setOnline(bool on);
     void setState(const drive::ControlInput &input, const std::array<bool, int(drive::PadButton::Count)> &buttons);
+    QSize sizeHint() const override { return {520, 405}; }
 
 protected:
-    void paintOverlay(QPainter &p, const QRectF &photo) override;
+    void paintEvent(QPaintEvent *) override;
 
 private:
+    void paintPad(QPainter &p, const QRectF &r) const;
+    void paintHighlights(QPainter &p, const QRectF &r) const;
+
+    bool m_on = false;
     drive::ControlInput m_input;
     std::array<bool, int(drive::PadButton::Count)> m_buttons{};
 };

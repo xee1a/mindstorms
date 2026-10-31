@@ -2,6 +2,10 @@
 
 #include "nxt/Brick.h"
 
+namespace drive {
+struct PadSnapshot;
+}
+
 #include <QJsonObject>
 #include <QObject>
 #include <memory>
@@ -13,7 +17,7 @@ struct Context;
 /**
  * Runs a block program from the PC: each stack runs on its own thread and turns blocks
  * into direct commands sent live over USB, so the cable has to stay connected.
- * (Downloading a compiled program to the brick is milestone 2.)
+ * To run without the PC, the program is compiled and uploaded instead (UploadDialog).
  */
 class Runner : public QObject {
     Q_OBJECT
@@ -36,6 +40,7 @@ signals:
 
 private:
     void onBrick(const nxt::BrickState &s);
+    void onPad(const drive::PadSnapshot &snap);
     void finish();
 
     std::shared_ptr<Context> m_ctx;

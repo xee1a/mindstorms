@@ -21,10 +21,15 @@ The Brick (Kostka) tab explains this to users.
 
 ## Layout
 - `src/nxt/Protocol.*`: pure packet encoders/decoders for direct and system commands (unit tested)
-- `src/nxt/Transport.h`: `Transport` interface, implemented by `WinUsbTransport`
+- `src/nxt/Transport.h`: `Transport` interface, implemented by `WinUsbTransport` and `SerialTransport` (Bluetooth COM port)
 - `src/nxt/Brick.*`: `BrickWorker` runs on its own thread and owns the transport, coalesces motor commands,
-  polls telemetry and auto-reconnects. `Brick::instance()` is the UI-side facade.
-- `src/drive/Mixer.*`: pure tank/arcade/racing mixer (unit tested). `Gamepad.*` handles XInput polling.
+  polls telemetry and auto-reconnects. It also uploads programs, lists files, does the factory reset and
+  streams the gamepad into inbox 10 while a program runs on the brick. `Brick::instance()` is the UI-side facade.
+- `src/drive/Mixer.*`: pure tank/arcade/racing mixer (unit tested). `Gamepad.*` handles XInput/DirectInput polling.
+  `PadLink.*` encodes the pad for programs on the brick.
+- `src/compile/`: `NxcGenerator` turns a workspace into NXC (unit tested: every block compiles with nbc);
+  `Compiler` runs the bundled `third_party/nbc/nbc.exe`. Generated helpers use the `ns_` prefix, since NXC's
+  own headers define many `__` macros.
 - `src/blocks/`: the custom block editor on QGraphicsView
   - `BlockDefs` defines the blocks
   - `Block` handles layout, paint and JSON
@@ -33,25 +38,27 @@ The Brick (Kostka) tab explains this to users.
   - `Palette` holds the categories and flyout
 - `src/run/Runner.*`: runs a block program from the PC (one thread per stack), sending direct commands live;
   degree moves are braked by `BrickWorker::pollMoves` on the USB thread
-- `src/views/`: Program, Drive and Brick screens. Drive shows the pad photo with every input and its action;
-  drive setup lives in Settings.
-- `src/app/`: MainWindow, Theme (dark/light tokens plus accent hue shift), Prefs (live settings with a `changed` signal),
-  SettingsDialog, shared widgets (`PhotoWidget`, `PadView` with button hotspots on `pad.png`)
+- `src/views/`: Program, Drive and Brick screens, and `UploadDialog`. Drive shows a drawing of the pad with every
+  input and its action; drive setup lives in Settings.
+- `src/app/`: MainWindow, Splash, Theme (dark/light tokens plus accent hue shift), Prefs (live settings with a `changed` signal),
+  SettingsDialog, FactoryResetDialog, Sounds (editor clicks, synthesised), shared widgets (`BrickArt`, `PadView`,
+  `BatteryWidget`: all drawn with QPainter, no photos)
 - `i18n/nxtstudio_pl.ts`: Polish translation. Source strings are English.
-- `resources/`: SVG icons, app icon, `images/nxt.png` and `images/pad.png` (transparent photos)
-- `tools/cutout.cpp`: one-off tool that turns a photo on white (`tools/source/*.jpg`) into a transparent PNG
+- `resources/`: SVG icons and the app icon
 
 ## Commands
 - `.\build.ps1`: configure, build Release, run tests, then copy a runnable folder to `dist\` (windeployqt)
 - `.\build.ps1 -Debug`: Debug build
 - `cmake --build build --target update_translations`: refresh the .ts file after changing UI strings
   (then translate the new entries)
-- `cmake --build build --config Release --target cutout`: build the image tool
 
 ## Conventions
 - Never use `slots`/`signals` as identifiers, because they're Qt macros
 - `QString::arg(uint8_t)` formats a character, so cast to `int`
-- Wrap all user-visible text in `tr()`, and keep the Polish .ts with 0 unfinished entries
+- Wrap all user-visible text in `tr()`, and keep the Polish .ts with 0 unfinished entries. Write natural Polish
+  ("bloczek", "skrypt", "podczas gdy"), not word-for-word translation
+- Outside QObject classes, use a file-local `struct Text { Q_DECLARE_TR_FUNCTIONS(Ctx) };` and `Text::tr()`, so lupdate
+  and the runtime agree on the context
 - Colours come from `theme::` tokens or the dark-theme QSS (Theme.cpp maps each QSS colour to a light one), never new literals
 - Theme, accent and language apply on restart; other settings go through `Prefs` and apply live
 - Commit messages carry no Claude/AI co-author trailer
@@ -60,5 +67,5 @@ The Brick (Kostka) tab explains this to users.
 
 ## Milestones
 1. ✅ Block editor and gamepad Drive mode over direct commands (native Qt rewrite)
-2. ✅ Run from PC over USB (Program → Run). Still to do: blocks → NXC generator → bundled `nbc.exe` → `.rxe` → download to the brick (system commands) and run
-3. Bluetooth (serial COM) transport, installer
+2. ✅ Run from PC over USB (Program → Run), and Upload to NXT (blocks → NXC → bundled `nbc.exe` → `.rxe` → system commands)
+3. ✅ Bluetooth (serial COM) transport. Still to do: installer

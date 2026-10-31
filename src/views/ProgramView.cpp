@@ -1,4 +1,5 @@
 #include "ProgramView.h"
+#include "UploadDialog.h"
 
 #include "app/Prefs.h"
 #include "run/Runner.h"
@@ -100,8 +101,11 @@ ProgramView::ProgramView(QWidget *parent) : QWidget(parent)
     auto *divider = new QFrame(bar);
     divider->setFrameShape(QFrame::VLine);
     divider->setStyleSheet(QStringLiteral("color:%1").arg(theme::Border.name()));
+    auto *upload = ui::button(tr("Upload to NXT"), "ghost", "save", bar);
+    upload->setToolTip(tr("Saves the program on the brick, so it runs without the PC."));
+    connect(upload, &QPushButton::clicked, this, &ProgramView::uploadToBrick);
     auto *run = ui::button(tr("Run"), "primary", "play", bar);
-    run->setToolTip(tr("Runs the program from this PC over USB. Keep the cable connected."));
+    run->setToolTip(tr("Runs the program from this PC while the brick stays connected. Good for quick tests."));
     m_runButton = run;
     m_runner = new run::Runner(this);
     connect(run, &QPushButton::clicked, this, [this] {
@@ -124,7 +128,7 @@ ProgramView::ProgramView(QWidget *parent) : QWidget(parent)
     });
     for (QWidget *w : {static_cast<QWidget *>(undo), static_cast<QWidget *>(redo), static_cast<QWidget *>(newBtn),
                        static_cast<QWidget *>(openBtn), static_cast<QWidget *>(saveBtn), static_cast<QWidget *>(divider),
-                       static_cast<QWidget *>(run)})
+                       static_cast<QWidget *>(upload), static_cast<QWidget *>(run)})
         tb->addWidget(w);
     root->addWidget(bar);
 
@@ -308,6 +312,15 @@ void ProgramView::saveProject()
         return;
     }
     emit message(tr("Saved “%1”").arg(QFileInfo(path).fileName()), "success");
+}
+
+void ProgramView::uploadToBrick()
+{
+    if (m_runner->running()) m_runner->stop();
+    UploadDialog dlg(m_ws->toJson(), m_name->text(), this);
+    theme::styleTitleBar(&dlg);
+    connect(&dlg, &UploadDialog::message, this, &ProgramView::message);
+    dlg.exec();
 }
 
 void ProgramView::showEvent(QShowEvent *e)

@@ -17,6 +17,9 @@ if ($LASTEXITCODE) { exit $LASTEXITCODE }
 $dist = "$PSScriptRoot\dist"
 New-Item -ItemType Directory -Force $dist | Out-Null
 Copy-Item "$PSScriptRoot\build\$config\NXTStudio.exe" $dist -Force
+# The NXC compiler used by "Upload to NXT".
+New-Item -ItemType Directory -Force "$dist\tools" | Out-Null
+Copy-Item "$PSScriptRoot\third_party\nbc\nbc.exe" "$dist\tools\nbc.exe" -Force
 & "$QtDir\bin\windeployqt.exe" --no-compiler-runtime --no-opengl-sw --no-system-d3d-compiler --translations pl "$dist\NXTStudio.exe"
 if ($LASTEXITCODE) { exit $LASTEXITCODE }
 Write-Host "Ready: $dist\NXTStudio.exe"

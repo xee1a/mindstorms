@@ -1,5 +1,7 @@
 #include "Runner.h"
 
+#include "drive/Gamepad.h"
+#include "drive/PadLink.h"
 #include "nxt/Protocol.h"
 
 #include <QCoreApplication>
@@ -20,7 +22,10 @@ namespace run {
 
 namespace {
 
-QString tr(const char *text) { return QCoreApplication::translate("Runner", text); }
+/** Translation context for this file's messages (lupdate reads Text::tr calls). */
+struct Text {
+    Q_DECLARE_TR_FUNCTIONS(Runner)
+};
 
 /** Thrown to unwind a stack when the program is stopped. */
 struct Stopped {};
@@ -52,6 +57,9 @@ struct Context {
     std::array<bool, 4> touchDown{};
     QHash<QString, int> broadcasts;
     QHash<QString, int> busyReceivers;
+    /** The PC's gamepad, copied from the UI thread. */
+    drive::PadAxes padAxes{};
+    std::array<bool, int(drive::PadButton::Count)> padButtons{};
     QString error;
 
     std::mutex threadsMu;
@@ -92,7 +100,7 @@ QString toText(const QVariant &v)
         const double d = v.toDouble();
         return d == std::floor(d) && std::abs(d) < 1e12 ? QString::number(qint64(d)) : QString::number(d, 'g', 6);
     }
-    if (v.typeId() == QMetaType::Bool) return v.toBool() ? tr("true") : tr("false");
+    if (v.typeId() == QMetaType::Bool) return v.toBool() ? Text::tr("true") : Text::tr("false");
     return v.toString();
 }
 
@@ -171,6 +179,12 @@ public:
         if (t == u"nxt_ultrasonic" || t == u"nxt_is_distance") unsupportedSensor();
         if (t == u"nxt_color" || t == u"nxt_color_is") unsupportedColour();
         if (t == u"nxt_button") unsupportedButtons();
+        if (t == u"pad_axis") {
+            std::lock_guard lock(m_ctx->mu);
+            return double(m_ctx->padAxes[std::clamp(field(b, "AXIS").toInt(), 0, int(drive::PadAxis::Count) - 1)]);
+        }
+        if (t == u"pad_button") return padPressed(field(b, "BUTTON").toInt());
+        if (t == u"nxt_mailbox_number") onlyOnBrick();
 
         // Logic
         if (t == u"logic_compare") return compare(value(b, "A"), field(b, "OP"), value(b, "B"));
@@ -226,7 +240,7 @@ public:
             std::lock_guard lock(m_ctx->mu);
             return m_ctx->vars.value(field(b, "VAR"), 0.0);
         }
-        throw RunError{tr("The block \"%1\" can't be used as a value.").arg(t)};
+        throw RunError{Text::tr("The block \"%1\" can't be used as a value.").arg(t)};
     }
 
     // ── statements ───────────────────────────────────
@@ -307,6 +321,19 @@ public:
             if (t == u"nxt_move_tank_start") return drive(l, r);
             return runFor(drivePorts(), {l, r}, num(b, "AMOUNT"), field(b, "UNIT"));
         }
+
+        // Pad and Bluetooth
+        if (t == u"pad_drive") {
+            int x, y;
+            {
+                std::lock_guard lock(m_ctx->mu);
+                x = m_ctx->padAxes[int(drive::PadAxis::LeftX)];
+                y = m_ctx->padAxes[int(drive::PadAxis::LeftY)];
+            }
+            setMotor(motorPorts(field(b, "LEFT")).value(0), power(y + x));
+            return setMotor(motorPorts(field(b, "RIGHT")).value(0), power(y - x));
+        }
+        if (t == u"nxt_mailbox_send") onlyOnBrick();
 
         // Sensors
         if (t == u"nxt_reset_timer") {
@@ -464,14 +491,27 @@ private:
 
     [[noreturn]] void unsupportedSensor() const
     {
-        throw RunError{tr("The ultrasonic sensor can't be read while running from the PC yet.")};
+        throw RunError{Text::tr("The ultrasonic sensor only works in programs uploaded to the NXT. Use Upload to NXT instead of Run.")};
     }
-    [[noreturn]] void unsupportedColour() const { throw RunError{tr("The colour sensor can't be read while running from the PC yet.")}; }
+    [[noreturn]] void unsupportedColour() const { throw RunError{Text::tr("The colour sensor only works in programs uploaded to the NXT. Use Upload to NXT instead of Run.")}; }
     [[noreturn]] void unsupportedButtons() const
     {
-        throw RunError{tr("The NXT's own buttons can't be read while running from the PC.")};
+        throw RunError{Text::tr("The NXT's own buttons only work in programs uploaded to the NXT. Use Upload to NXT instead of Run.")};
     }
 
+    [[noreturn]] void onlyOnBrick() const
+    {
+        throw RunError{Text::tr("Mailbox blocks only work when the program runs on the NXT. Use Upload to NXT instead of Run.")};
+    }
+
+public:
+    bool padPressed(int button)
+    {
+        std::lock_guard lock(m_ctx->mu);
+        return button >= 0 && button < int(drive::PadButton::Count) && m_ctx->padButtons[button];
+    }
+
+private:
     static int power(double p) { return std::clamp(int(std::lround(p)), -100, 100); }
 
     QVariant compare(const QVariant &a, const QString &op, const QVariant &b) const
@@ -502,10 +542,10 @@ private:
         for (;;) {
             {
                 std::lock_guard lock(m_ctx->mu);
-                if (m_ctx->state.status != nxt::LinkStatus::Connected) throw RunError{tr("The NXT was disconnected.")};
+                if (m_ctx->state.status != nxt::LinkStatus::Connected) throw RunError{Text::tr("The NXT was disconnected.")};
                 if (m_ctx->state.sensors[port] == kind && m_ctx->state.sensorValues[port]) return *m_ctx->state.sensorValues[port];
             }
-            if (t.elapsed() > 3000) throw RunError{tr("No reading from the sensor on port %1. Is it plugged in?").arg(port + 1)};
+            if (t.elapsed() > 3000) throw RunError{Text::tr("No reading from the sensor on port %1. Is it plugged in?").arg(port + 1)};
             sleepMs(PollMs);
         }
     }
@@ -679,6 +719,10 @@ std::function<bool(Interpreter &)> trigger(const QJsonObject &hat)
     if (t == u"nxt_when_button") return [](Interpreter &in) {
         return toBool(in.evaluate(QJsonObject{{QStringLiteral("type"), QStringLiteral("nxt_button")}}));
     };
+    if (t == u"pad_when_button") {
+        const int button = f.value(QStringLiteral("BUTTON")).toString().toInt();
+        return [button](Interpreter &in) { return in.padPressed(button); };
+    }
     if (t == u"nxt_when_timer") {
         const double s = toNumber(f.value(QStringLiteral("SECONDS")).toString());
         return [s](Interpreter &in) { return toNumber(in.evaluate(QJsonObject{{QStringLiteral("type"), QStringLiteral("nxt_timer")}})) > s; };
@@ -691,6 +735,15 @@ std::function<bool(Interpreter &)> trigger(const QJsonObject &hat)
 Runner::Runner(QObject *parent) : QObject(parent)
 {
     connect(&nxt::Brick::instance(), &nxt::Brick::stateChanged, this, &Runner::onBrick);
+    connect(&drive::Gamepad::instance(), &drive::Gamepad::updated, this, &Runner::onPad);
+}
+
+void Runner::onPad(const drive::PadSnapshot &snap)
+{
+    if (!m_ctx) return;
+    std::lock_guard lock(m_ctx->mu);
+    m_ctx->padAxes = snap.connected ? drive::padAxes(snap.input) : drive::PadAxes{};
+    m_ctx->padButtons = snap.connected ? snap.buttons : decltype(snap.buttons){};
 }
 
 Runner::~Runner() { stop(); }
@@ -699,17 +752,17 @@ QString Runner::start(const QJsonObject &workspace)
 {
     if (m_ctx) return {};
     const nxt::BrickState state = nxt::Brick::instance().state();
-    if (state.status != nxt::LinkStatus::Connected) return tr("Connect the NXT first (Brick tab).");
+    if (state.status != nxt::LinkStatus::Connected) return Text::tr("Connect the NXT first (Brick tab).");
 
     QList<QJsonObject> startStacks, eventStacks;
     for (const QJsonValue &v : workspace.value(QStringLiteral("stacks")).toArray()) {
         const QJsonObject top = v.toObject().value(QStringLiteral("block")).toObject();
         const QString t = type(top);
         if (t == u"nxt_when_start") startStacks << top;
-        else if (t.startsWith(u"nxt_when_")) eventStacks << top;
+        else if (t.startsWith(u"nxt_when_") || t == u"pad_when_button") eventStacks << top;
     }
     if (startStacks.isEmpty() && eventStacks.isEmpty())
-        return tr("Nothing to run: start a stack with \"when program starts\".");
+        return Text::tr("Nothing to run: start a stack with \"when program starts\".");
 
     auto ctx = std::make_shared<Context>();
     ctx->owner = this;
@@ -718,6 +771,11 @@ QString Runner::start(const QJsonObject &workspace)
     ctx->hasEventStacks = !eventStacks.isEmpty();
     for (const QJsonValue &v : workspace.value(QStringLiteral("variables")).toArray()) ctx->vars.insert(v.toString(), 0.0);
     ctx->startStacks = int(startStacks.size());
+    const drive::PadSnapshot pad = drive::Gamepad::instance().snapshot();
+    if (pad.connected) {
+        ctx->padAxes = drive::padAxes(pad.input);
+        ctx->padButtons = pad.buttons;
+    }
     m_ctx = ctx;
     emit runningChanged(true);
 
@@ -835,7 +893,7 @@ void Runner::onBrick(const nxt::BrickState &s)
     if (s.status != nxt::LinkStatus::Connected) {
         {
             std::lock_guard lock(m_ctx->mu);
-            if (m_ctx->error.isEmpty()) m_ctx->error = tr("The NXT was disconnected.");
+            if (m_ctx->error.isEmpty()) m_ctx->error = Text::tr("The NXT was disconnected.");
         }
         stop();
         return;

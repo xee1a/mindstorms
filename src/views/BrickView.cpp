@@ -2,8 +2,11 @@
 
 #include "app/Theme.h"
 #include "app/Widgets.h"
+#include "nxt/SerialTransport.h"
 
+#include <QComboBox>
 #include <QGridLayout>
+#include <QSettings>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -23,8 +26,7 @@ BrickView::BrickView(QWidget *parent) : QWidget(parent)
     cl->setContentsMargins(26, 26, 26, 26);
     cl->setSpacing(10);
     cl->addStretch(1);
-    m_illustration = new ui::PhotoWidget(QStringLiteral(":/images/nxt.png"), {320, 265}, conn);
-    m_illustration->setFixedSize(320, 265);
+    m_illustration = new ui::BrickArt(conn);
     cl->addWidget(m_illustration, 0, Qt::AlignHCenter);
     cl->addSpacing(8);
 
@@ -63,6 +65,7 @@ BrickView::BrickView(QWidget *parent) : QWidget(parent)
     m_battery = new ui::BatteryWidget(m_batteryRow);
     m_batteryText = ui::label({}, nullptr, m_batteryRow);
     m_batteryText->setStyleSheet(QStringLiteral("font-weight:600"));
+    bl->setSpacing(8);
     bl->addWidget(m_battery);
     bl->addWidget(m_batteryText);
     cl->addWidget(m_batteryRow, 0, Qt::AlignHCenter);
@@ -76,6 +79,33 @@ BrickView::BrickView(QWidget *parent) : QWidget(parent)
     actions->addStretch();
     cl->addSpacing(4);
     cl->addLayout(actions);
+
+    // Bluetooth: the paired brick shows up as a COM port.
+    m_btRow = new QWidget(conn);
+    auto *btl = new QHBoxLayout(m_btRow);
+    btl->setContentsMargins(0, 0, 0, 0);
+    btl->setSpacing(6);
+    m_btPort = new QComboBox(m_btRow);
+    m_btPort->setMinimumWidth(120);
+    m_btPort->setToolTip(tr("The outgoing Bluetooth COM port Windows created when you paired the NXT."));
+    auto *refresh = ui::button({}, "ghost", "reset", m_btRow);
+    refresh->setToolTip(tr("Look for ports again"));
+    m_btConnect = ui::button(tr("Connect over Bluetooth"), "ghost", "bluetooth", m_btRow);
+    btl->addStretch();
+    btl->addWidget(m_btPort);
+    btl->addWidget(refresh);
+    btl->addWidget(m_btConnect);
+    btl->addStretch();
+    cl->addWidget(m_btRow);
+    connect(refresh, &QPushButton::clicked, this, &BrickView::refreshPorts);
+    connect(m_btConnect, &QPushButton::clicked, this, [this] {
+        if (m_btPort->currentText().isEmpty()) {
+            emit message(tr("No COM ports found. Pair the NXT with Windows first (steps on the right)."), "error");
+            return;
+        }
+        nxt::Brick::instance().connectBluetooth(m_btPort->currentText());
+    });
+    refreshPorts();
 
     m_quick = new QWidget(conn);
     auto *ql = new QHBoxLayout(m_quick);
@@ -124,6 +154,23 @@ BrickView::BrickView(QWidget *parent) : QWidget(parent)
         gl->addLayout(row);
     }
 
+    gl->addSpacing(6);
+    gl->addWidget(ui::label(tr("Bluetooth <span style='color:%1;font-size:12px;font-weight:600'>(no cable)</span>").arg(theme::Text3.name()), "h2", guide));
+    const QString btSteps[] = {
+        tr("On the NXT, open <i>Bluetooth</i>, switch it <b>On</b> and set <i>Visibility</i> to visible."),
+        tr("In Windows open <i>Settings → Bluetooth & devices → Add device</i>, choose the NXT and enter the code <b>1234</b>. Confirm it on the brick too."),
+        tr("In <i>More Bluetooth settings → COM Ports</i>, note the <b>outgoing</b> port for the NXT, pick it on the left and press <b>Connect over Bluetooth</b>."),
+    };
+    for (int i = 0; i < 3; ++i) {
+        auto *row = new QHBoxLayout;
+        row->setSpacing(12);
+        row->addWidget(ui::label(QString::number(i + 1), "step", guide), 0, Qt::AlignTop);
+        auto *t = ui::label(btSteps[i], "muted", guide);
+        t->setWordWrap(true);
+        row->addWidget(t, 1);
+        gl->addLayout(row);
+    }
+
     auto *faqToggle = new QToolButton(guide);
     faqToggle->setText(tr("Troubleshooting"));
     faqToggle->setCheckable(true);
@@ -136,7 +183,8 @@ BrickView::BrickView(QWidget *parent) : QWidget(parent)
            "<p><b>Access denied:</b> another program (NXT-G, BricxCC) has the brick open. Close it and try again.</p>"
            "<p><b>Using the old LEGO software too?</b> NXT-G and BricxCC need the Fantom driver. Switch back with Zadig or "
            "Device Manager when you need them.</p>"
-           "<p><b>Brick only ticking:</b> it's in firmware-update mode. Reflash the LEGO firmware.</p>"),
+           "<p><b>Brick only ticking:</b> it's in firmware-update mode. Reflash the LEGO firmware.</p>"
+           "<p><b>Bluetooth is slow or drops:</b> keep the brick within a few metres, and use the cable for uploading big programs.</p>"),
         "muted", guide);
     faq->setWordWrap(true);
     faq->hide();
@@ -157,10 +205,14 @@ void BrickView::onBrick(const nxt::BrickState &s)
 {
     const bool connected = s.status == nxt::LinkStatus::Connected;
     const bool connecting = s.status == nxt::LinkStatus::Connecting;
-    m_illustration->setOnline(connected);
+    m_illustration->setState(connected, s.name, s.batteryMv ? std::optional(nxt::batteryLevel(*s.batteryMv)) : std::nullopt);
     m_title->setText(connected ? s.name : connecting ? tr("Connecting…") : tr("No brick connected"));
-    m_subtitle->setText(connected ? tr("Connected over USB.")
-                                  : tr("Connect your NXT with its USB cable and switch it on."));
+    QString sub = tr("Connect your NXT with its USB cable and switch it on.");
+    if (connected) {
+        sub = s.bluetooth ? tr("Connected over %1.").arg(s.link) : tr("Connected with the USB cable.");
+        if (!s.runningProgram.isEmpty()) sub += QLatin1Char(' ') + tr("Running on the brick: %1").arg(s.runningProgram);
+    }
+    m_subtitle->setText(sub);
 
     const bool needsDriver = !connected && s.usb == nxt::BrickState::Usb::NeedsDriver;
     m_usbHint->setVisible(needsDriver);
@@ -174,12 +226,23 @@ void BrickView::onBrick(const nxt::BrickState &s)
     m_bluetooth->setText(s.bluetoothAddress);
     m_batteryRow->setVisible(connected && s.batteryMv.has_value());
     if (s.batteryMv) {
-        const int pct = nxt::batteryPercent(*s.batteryMv);
-        m_battery->setLevel(pct);
-        m_batteryText->setText(QStringLiteral("%1% · %2 V").arg(pct).arg(*s.batteryMv / 1000.0, 0, 'f', 2));
+        const nxt::BatteryLevel level = nxt::batteryLevel(*s.batteryMv);
+        m_battery->setLevel(level);
+        m_batteryText->setText(nxt::batteryLabel(level));
+        m_batteryText->setToolTip(tr("%1 V").arg(*s.batteryMv / 1000.0, 0, 'f', 2));
     }
     m_connect->setVisible(!connected);
     m_connect->setEnabled(!connecting);
+    m_btRow->setVisible(!connected);
+    m_btConnect->setEnabled(!connecting);
     m_disconnect->setVisible(connected);
     m_quick->setVisible(connected);
+}
+
+void BrickView::refreshPorts()
+{
+    const QString last = QSettings().value(QStringLiteral("brick/bluetoothPort")).toString();
+    m_btPort->clear();
+    m_btPort->addItems(nxt::SerialTransport::ports());
+    if (const int i = m_btPort->findText(last); i >= 0) m_btPort->setCurrentIndex(i);
 }

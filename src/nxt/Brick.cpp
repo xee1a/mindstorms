@@ -1,9 +1,11 @@
 #include "Brick.h"
 #include "Protocol.h"
+#include "SerialTransport.h"
 #include "WinUsbTransport.h"
 
 #include <QCoreApplication>
 #include <QSettings>
+#include <QThread>
 #include <algorithm>
 
 namespace nxt {
@@ -13,11 +15,20 @@ namespace {
 constexpr int MovePollMs = 4;
 
 constexpr int TelemetryIntervalMs = 120;
+constexpr int BluetoothTelemetryMs = 400;
 constexpr int AutoConnectIntervalMs = 2000;
 constexpr int BatteryIntervalMs = 10'000;
 constexpr int KeepAliveIntervalMs = 60'000;
 constexpr int MotorRefreshMs = 1'000;
 constexpr int ReplyTimeoutMs = 800;
+constexpr int ProgramCheckMs = 1'000;
+constexpr int PadIntervalMs = 40;
+constexpr int PadRepeatMs = 250;
+
+/** Translation context for this file's messages (lupdate reads Text::tr calls). */
+struct Text {
+    Q_DECLARE_TR_FUNCTIONS(Brick)
+};
 
 QString errorText(const std::exception &e) { return QString::fromStdString(e.what()); }
 
@@ -47,7 +58,33 @@ QString sensorLabel(SensorKind kind)
     return QCoreApplication::translate("Sensors", "Not used");
 }
 
-int batteryPercent(int mv) { return std::clamp((mv - 6500) * 100 / 2500, 0, 100); }
+BatteryLevel batteryLevel(int mv)
+{
+    if (mv >= 7600) return BatteryLevel::Full;
+    if (mv >= 7200) return BatteryLevel::Good;
+    if (mv >= 6800) return BatteryLevel::Half;
+    if (mv >= 6400) return BatteryLevel::Low;
+    return BatteryLevel::Empty;
+}
+
+QString batteryLabel(BatteryLevel level)
+{
+    switch (level) {
+    case BatteryLevel::Full: return Text::tr("Battery full");
+    case BatteryLevel::Good: return Text::tr("Battery good");
+    case BatteryLevel::Half: return Text::tr("Battery half empty");
+    case BatteryLevel::Low: return Text::tr("Battery low");
+    case BatteryLevel::Empty: return Text::tr("Replace the batteries");
+    }
+    return {};
+}
+
+bool BrickFile::builtIn() const
+{
+    // Shipped by LEGO: system sounds ("! Startup.rso"), Try Me programs and the brick's own settings.
+    return name.startsWith(QLatin1String("! ")) || name.startsWith(QLatin1String("Try-"), Qt::CaseInsensitive) ||
+           name.endsWith(QLatin1String(".sys"), Qt::CaseInsensitive);
+}
 
 // ── Worker ────────────────────────────────────────────────
 
@@ -65,6 +102,9 @@ void BrickWorker::start()
     m_moveTimer->setTimerType(Qt::PreciseTimer);
     m_moveTimer->setInterval(MovePollMs);
     connect(m_moveTimer, &QTimer::timeout, this, &BrickWorker::pollMoves);
+    m_padTimer = new QTimer(this);
+    m_padTimer->setInterval(PadIntervalMs);
+    connect(m_padTimer, &QTimer::timeout, this, &BrickWorker::streamPad);
     m_autoConnect = new QTimer(this);
     m_autoConnect->setInterval(AutoConnectIntervalMs);
     connect(m_autoConnect, &QTimer::timeout, this, &BrickWorker::tryAutoConnect);
@@ -94,7 +134,7 @@ void BrickWorker::tryAutoConnect()
     }
     if (!m_autoConnectEnabled || usb != BrickState::Usb::Ready) return;
     try {
-        attach(WinUsbTransport::open());
+        attach(WinUsbTransport::open(), QStringLiteral("USB"), false);
     } catch (const std::exception &) {
         // Stay quiet; the user gets the reason when they press Connect.
     }
@@ -105,7 +145,7 @@ void BrickWorker::connectUsb()
     m_state.status = LinkStatus::Connecting;
     publish();
     try {
-        attach(WinUsbTransport::open());
+        attach(WinUsbTransport::open(), QStringLiteral("USB"), false);
     } catch (const std::exception &e) {
         m_state.status = LinkStatus::Disconnected;
         fail(errorText(e));
@@ -113,10 +153,28 @@ void BrickWorker::connectUsb()
     }
 }
 
-void BrickWorker::attach(std::unique_ptr<Transport> transport)
+void BrickWorker::connectBluetooth(const QString &port)
+{
+    disconnectBrick();
+    m_state.status = LinkStatus::Connecting;
+    publish();
+    try {
+        attach(SerialTransport::open(port), QStringLiteral("Bluetooth (%1)").arg(port), true);
+    } catch (const std::exception &e) {
+        m_state.status = LinkStatus::Disconnected;
+        fail(errorText(e));
+        publish();
+    }
+}
+
+void BrickWorker::attach(std::unique_ptr<Transport> transport, const QString &link, bool bluetooth)
 {
     disconnectBrick();
     m_transport = std::move(transport);
+    m_state.link = link;
+    m_state.bluetooth = bluetooth;
+    m_state.runningProgram.clear();
+    m_padSent.clear();
     m_state.status = LinkStatus::Connecting;
     publish();
     m_failures = 0;
@@ -133,10 +191,15 @@ void BrickWorker::attach(std::unique_ptr<Transport> transport)
         m_state.freeFlash = info.freeFlash;
         m_state.lastError.clear();
         applySensorModes();
+        // Each Bluetooth request takes tens of milliseconds, so poll less often there.
+        m_telemetry->setInterval(bluetooth ? BluetoothTelemetryMs : TelemetryIntervalMs);
         m_telemetry->start();
+        m_padTimer->start();
         publish();
     } catch (const std::exception &e) {
-        linkLost(errorText(e));
+        // Bluetooth bricks that are off or out of range never answer at all.
+        linkLost(bluetooth && dynamic_cast<const TimeoutError *>(&e) ? Text::tr("The NXT didn't answer over Bluetooth. Is it switched on and nearby?")
+                                                                     : errorText(e));
     }
 }
 
@@ -148,20 +211,29 @@ void BrickWorker::disconnectBrick()
     } catch (const std::exception &) {
     }
     m_telemetry->stop();
+    m_padTimer->stop();
     m_transport.reset();
     m_state.status = LinkStatus::Disconnected;
     m_state.batteryMv.reset();
     m_state.sensorValues = {};
+    m_state.runningProgram.clear();
+    m_state.padStreaming = false;
     publish();
 }
 
 void BrickWorker::linkLost(const QString &message)
 {
     m_telemetry->stop();
+    m_padTimer->stop();
+    m_moveTimer->stop();
+    m_moveTarget = {};
+    m_limited = {};
     m_transport.reset();
     m_state.status = LinkStatus::Disconnected;
     m_state.batteryMv.reset();
     m_state.sensorValues = {};
+    m_state.runningProgram.clear();
+    m_state.padStreaming = false;
     fail(message);
     publish();
 }
@@ -376,12 +448,169 @@ void BrickWorker::pollTelemetry()
             request(keepAlive());
             m_lastKeepAlive = now;
         }
+        if (now - m_lastProgramCheck > ProgramCheckMs) {
+            m_state.runningProgram = parseCurrentProgramName(request(getCurrentProgramName()));
+            m_lastProgramCheck = now;
+        }
         m_failures = 0;
         publish();
     } catch (const DisconnectedError &e) {
         linkLost(errorText(e));
     } catch (const std::exception &e) {
         if (++m_failures >= 3) linkLost(errorText(e));
+    }
+}
+
+void BrickWorker::setPadMessage(const QByteArray &message) { m_padMessage = message; }
+
+void BrickWorker::streamPad()
+{
+    // Only a program running on the brick reads the inbox; don't flood it otherwise.
+    const bool want = m_transport && m_state.status == LinkStatus::Connected && !m_state.runningProgram.isEmpty() && !m_padMessage.isEmpty();
+    if (want != m_state.padStreaming) {
+        m_state.padStreaming = want;
+        m_padSent.clear();
+        publish();
+    }
+    if (!want) return;
+    const qint64 now = m_clock.elapsed();
+    if (m_padMessage == m_padSent && now - m_lastPadSend < PadRepeatMs) return;
+    try {
+        m_transport->write(messageWrite(PadMailbox, m_padMessage));
+        m_padSent = m_padMessage;
+        m_lastPadSend = now;
+    } catch (const DisconnectedError &e) {
+        linkLost(errorText(e));
+    } catch (const std::exception &) {
+        ++m_failures;
+    }
+}
+
+void BrickWorker::stopRunningProgram()
+{
+    m_transport->write(nxt::stopProgram());
+    // Give the VM time to close the program's files before they are replaced.
+    QThread::msleep(150);
+    m_state.runningProgram.clear();
+}
+
+QList<BrickFile> BrickWorker::findFiles()
+{
+    QList<BrickFile> files;
+    std::optional<FoundFile> f = parseFind(request(findFirst(QStringLiteral("*.*"))), SystemOp::FindFirst);
+    std::optional<uint8_t> handle;
+    while (f) {
+        handle = f->handle;
+        files << BrickFile{f->name, f->size};
+        if (files.size() > 500) break; // a brick holds far fewer; guards against a confused reply loop
+        f = parseFind(request(findNext(f->handle)), SystemOp::FindNext);
+    }
+    if (handle) {
+        try {
+            request(closeHandle(*handle));
+        } catch (const std::exception &) {
+            // Already closed by the brick at the end of the listing.
+        }
+    }
+    return files;
+}
+
+void BrickWorker::listFiles()
+{
+    if (!m_transport || m_state.status != LinkStatus::Connected) return emit jobFinished(Text::tr("The NXT isn't connected."));
+    try {
+        const QList<BrickFile> files = findFiles();
+        emit filesListed(files);
+        emit jobFinished({});
+    } catch (const DisconnectedError &e) {
+        linkLost(errorText(e));
+        emit jobFinished(Text::tr("The NXT was disconnected."));
+    } catch (const std::exception &e) {
+        emit jobFinished(Text::tr("Couldn't read the list of files: %1").arg(errorText(e)));
+    }
+}
+
+void BrickWorker::uploadProgram(const QString &name, const QByteArray &data, bool run)
+{
+    if (!m_transport || m_state.status != LinkStatus::Connected) return emit jobFinished(Text::tr("The NXT isn't connected."));
+    m_telemetry->stop();
+    std::optional<uint8_t> handle;
+    try {
+        stopAll();
+        stopRunningProgram();
+        const uint8_t del = replyStatus(request(deleteFile(name)), SystemOp::Delete);
+        if (del != 0 && del != FileStatus::FileNotFound) throw NxtError(del, SystemOp::Delete);
+        const QByteArray open = request(openWrite(name, uint32_t(data.size())));
+        const uint8_t status = replyStatus(open, SystemOp::OpenWrite);
+        if (status == FileStatus::NoSpace || status == 0x89)
+            throw std::runtime_error(Text::tr("There isn't enough free memory on the NXT. Delete some files from the brick, "
+                                        "or use Factory reset in Settings → Brick.").toStdString());
+        handle = parseOpenWrite(open);
+        int lastPercent = -1;
+        for (qsizetype off = 0; off < data.size(); off += MaxWriteChunk) {
+            checkStatus(request(writeChunk(*handle, data.mid(off, MaxWriteChunk))), SystemOp::Write);
+            const int percent = int((off + MaxWriteChunk) * 100 / std::max<qsizetype>(1, data.size()));
+            if (percent != lastPercent) emit jobProgress(std::min(100, lastPercent = percent));
+        }
+        checkStatus(request(closeHandle(*handle)), SystemOp::Close);
+        handle.reset();
+        const DeviceInfo info = parseDeviceInfo(request(getDeviceInfo()));
+        m_state.freeFlash = info.freeFlash;
+        if (run) {
+            checkStatus(request(startProgram(name)), DirectOp::StartProgram);
+            m_state.runningProgram = name;
+            m_lastProgramCheck = m_clock.elapsed();
+        }
+        m_telemetry->start();
+        publish();
+        emit jobFinished({});
+    } catch (const DisconnectedError &e) {
+        linkLost(errorText(e));
+        emit jobFinished(Text::tr("The NXT was disconnected during the upload. Connect it again and retry."));
+    } catch (const std::exception &e) {
+        if (handle) {
+            try {
+                request(closeHandle(*handle));
+                request(deleteFile(name)); // don't leave half a program behind
+            } catch (const std::exception &) {
+            }
+        }
+        if (m_transport) m_telemetry->start();
+        emit jobFinished(errorText(e));
+    }
+}
+
+void BrickWorker::factoryReset(bool everything, bool rename)
+{
+    if (!m_transport || m_state.status != LinkStatus::Connected) return emit jobFinished(Text::tr("The NXT isn't connected."));
+    m_telemetry->stop();
+    try {
+        stopAll();
+        stopRunningProgram();
+        QList<BrickFile> doomed;
+        for (const BrickFile &f : findFiles()) {
+            // The brick's own settings file is always kept; the firmware itself is never a file.
+            if (f.name.endsWith(QLatin1String(".sys"), Qt::CaseInsensitive)) continue;
+            if (everything || !f.builtIn()) doomed << f;
+        }
+        for (int i = 0; i < doomed.size(); ++i) {
+            const uint8_t st = replyStatus(request(deleteFile(doomed[i].name)), SystemOp::Delete);
+            if (st != 0 && st != FileStatus::FileNotFound) throw NxtError(st, SystemOp::Delete);
+            emit jobProgress((i + 1) * 100 / doomed.size());
+        }
+        if (rename) checkStatus(request(setBrickName(QStringLiteral("NXT"))), SystemOp::SetBrickName);
+        const DeviceInfo info = parseDeviceInfo(request(getDeviceInfo()));
+        m_state.freeFlash = info.freeFlash;
+        m_state.name = info.name.isEmpty() ? QStringLiteral("NXT") : info.name;
+        m_telemetry->start();
+        publish();
+        emit jobFinished({});
+    } catch (const DisconnectedError &e) {
+        linkLost(errorText(e));
+        emit jobFinished(Text::tr("The NXT was disconnected during the reset. Connect it again and retry."));
+    } catch (const std::exception &e) {
+        if (m_transport) m_telemetry->start();
+        emit jobFinished(errorText(e));
     }
 }
 
@@ -396,6 +625,8 @@ Brick &Brick::instance()
 Brick::Brick()
 {
     qRegisterMetaType<BrickState>();
+    qRegisterMetaType<BrickFile>();
+    qRegisterMetaType<QList<BrickFile>>();
     QSettings settings;
     std::array<SensorKind, 4> sensors = m_state.sensors;
     for (int i = 0; i < 4; ++i)
@@ -409,6 +640,12 @@ Brick::Brick()
     connect(&m_thread, &QThread::started, m_worker, &BrickWorker::start);
     connect(&m_thread, &QThread::finished, m_worker, &QObject::deleteLater);
     connect(m_worker, &BrickWorker::stateChanged, this, &Brick::onState);
+    connect(m_worker, &BrickWorker::jobProgress, this, &Brick::jobProgress);
+    connect(m_worker, &BrickWorker::jobFinished, this, [this](const QString &error) {
+        m_busy = false;
+        emit jobFinished(error);
+    });
+    connect(m_worker, &BrickWorker::filesListed, this, &Brick::filesListed);
     m_thread.setObjectName(QStringLiteral("nxt-io"));
     m_thread.start();
     QMetaObject::invokeMethod(m_worker, [w = m_worker, b = m_brake, r = m_regulated] {
@@ -440,6 +677,45 @@ void Brick::connectUsb()
         w->setAutoConnect(autoConnect);
         w->connectUsb();
     });
+}
+
+void Brick::connectBluetooth(const QString &port)
+{
+    QSettings().setValue(QStringLiteral("brick/bluetoothPort"), port);
+    QMetaObject::invokeMethod(m_worker, [w = m_worker, port] { w->connectBluetooth(port); });
+}
+
+bool Brick::uploadProgram(const QString &name, const QByteArray &data, bool run)
+{
+    if (m_busy) return false;
+    m_busy = true;
+    m_lastMotors = {};
+    QMetaObject::invokeMethod(m_worker, [w = m_worker, name, data, run] { w->uploadProgram(name, data, run); });
+    return true;
+}
+
+bool Brick::listFiles()
+{
+    if (m_busy) return false;
+    m_busy = true;
+    QMetaObject::invokeMethod(m_worker, &BrickWorker::listFiles);
+    return true;
+}
+
+bool Brick::factoryReset(bool everything, bool rename)
+{
+    if (m_busy) return false;
+    m_busy = true;
+    m_lastMotors = {};
+    QMetaObject::invokeMethod(m_worker, [w = m_worker, everything, rename] { w->factoryReset(everything, rename); });
+    return true;
+}
+
+void Brick::setPadMessage(const QByteArray &message)
+{
+    if (message == m_padMessage) return;
+    m_padMessage = message;
+    QMetaObject::invokeMethod(m_worker, [w = m_worker, message] { w->setPadMessage(message); });
 }
 
 void Brick::setAutoConnect(bool on)

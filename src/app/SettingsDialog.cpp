@@ -1,4 +1,5 @@
 #include "SettingsDialog.h"
+#include "FactoryResetDialog.h"
 
 #include "Prefs.h"
 #include "Theme.h"
@@ -292,6 +293,8 @@ QWidget *SettingsDialog::buildEditor()
     v->addWidget(section(p, tr("Block editor"), &ed));
     ed->addLayout(row(p, tr("Dot grid"), toggle(p, prefs.showGrid(), [](bool on) { Prefs::instance().setShowGrid(on); }),
                       tr("Dots in the background of the canvas.")));
+    ed->addLayout(row(p, tr("Sounds"), toggle(p, prefs.editorSounds(), [](bool on) { Prefs::instance().setEditorSounds(on); }),
+                      tr("Quiet clicks when you pick up, attach and delete blocks.")));
     ed->addLayout(row(p, tr("Autosave"), toggle(p, prefs.autosave(), [](bool on) { Prefs::instance().setAutosave(on); }),
                       tr("Keeps your program safe between sessions, even without saving a file.")));
 
@@ -398,6 +401,18 @@ QWidget *SettingsDialog::buildBrick()
                         tr("Connects as soon as an NXT is plugged in.")));
     conn->addLayout(row(p, tr("Hello beep"), toggle(p, prefs.beepOnConnect(), [](bool on) { Prefs::instance().setBeepOnConnect(on); }),
                         tr("The brick plays a short tune when it connects.")));
+
+    QVBoxLayout *reset;
+    v->addWidget(section(p, tr("Factory reset"), &reset,
+                         tr("Deletes the programs and files saved on the connected brick. The firmware stays; you see the list before anything is deleted.")));
+    auto *resetBrick = ui::button(tr("Reset the brick…"), "danger", "reset", p);
+    connect(resetBrick, &QPushButton::clicked, this, [this] {
+        FactoryResetDialog dlg(this);
+        theme::styleTitleBar(&dlg);
+        connect(&dlg, &FactoryResetDialog::message, this, &SettingsDialog::message);
+        dlg.exec();
+    });
+    reset->addWidget(resetBrick, 0, Qt::AlignLeft);
     v->addStretch();
     return p;
 }

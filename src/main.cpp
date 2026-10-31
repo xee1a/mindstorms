@@ -1,4 +1,5 @@
 #include "app/MainWindow.h"
+#include "app/Splash.h"
 #include "app/Theme.h"
 #include "nxt/Brick.h"
 
@@ -28,9 +29,13 @@ int main(int argc, char *argv[])
 
     theme::init();
     theme::apply(app);
+    auto *splash = new Splash;
+    splash->show();
+    splash->setStatus(QCoreApplication::translate("Splash", "Loading blocks…"));
     MainWindow w;
     theme::styleTitleBar(&w);
-    w.show();
+    splash->setStatus(QCoreApplication::translate("Splash", "Looking for the NXT and the gamepad…"));
+    splash->finishWhenReady(&w);
     const int rc = app.exec();
     nxt::Brick::instance().shutdown();
     return rc;

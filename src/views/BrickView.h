@@ -4,12 +4,13 @@
 
 #include <QWidget>
 
+class QComboBox;
 class QLabel;
 class QPushButton;
 
 namespace ui {
 class BatteryWidget;
-class PhotoWidget;
+class BrickArt;
 } // namespace ui
 
 class BrickView : public QWidget {
@@ -22,8 +23,9 @@ signals:
 
 private:
     void onBrick(const nxt::BrickState &s);
+    void refreshPorts();
 
-    ui::PhotoWidget *m_illustration;
+    ui::BrickArt *m_illustration;
     QLabel *m_title;
     QLabel *m_subtitle;
     QLabel *m_usbHint;
@@ -36,5 +38,8 @@ private:
     QLabel *m_batteryText;
     QPushButton *m_connect;
     QPushButton *m_disconnect;
+    QWidget *m_btRow;
+    QComboBox *m_btPort;
+    QPushButton *m_btConnect;
     QWidget *m_quick;
 };

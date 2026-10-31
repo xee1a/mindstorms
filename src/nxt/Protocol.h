@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <QString>
 #include <cstdint>
+#include <optional>
 #include <stdexcept>
 
 namespace nxt {
@@ -29,12 +30,34 @@ constexpr uint8_t ResetMotorPosition = 0x0a;
 constexpr uint8_t GetBatteryLevel = 0x0b;
 constexpr uint8_t StopSoundPlayback = 0x0c;
 constexpr uint8_t KeepAlive = 0x0d;
+constexpr uint8_t MessageWrite = 0x09;
+constexpr uint8_t GetCurrentProgramName = 0x11;
 } // namespace DirectOp
 
 namespace SystemOp {
+constexpr uint8_t OpenWrite = 0x81;
+constexpr uint8_t Write = 0x83;
+constexpr uint8_t Close = 0x84;
+constexpr uint8_t Delete = 0x85;
+constexpr uint8_t FindFirst = 0x86;
+constexpr uint8_t FindNext = 0x87;
 constexpr uint8_t GetFirmwareVersion = 0x88;
+constexpr uint8_t SetBrickName = 0x98;
 constexpr uint8_t GetDeviceInfo = 0x9b;
 } // namespace SystemOp
+
+/** System command status bytes the app handles on purpose. */
+namespace FileStatus {
+constexpr uint8_t NoSpace = 0x82;
+constexpr uint8_t NoMoreFiles = 0x83;
+constexpr uint8_t FileNotFound = 0x87;
+constexpr uint8_t FileExists = 0x8f;
+} // namespace FileStatus
+
+/** Largest data chunk one USB packet carries in a WRITE command (64 bytes minus the 3-byte header). */
+constexpr int MaxWriteChunk = 61;
+/** Inbox (0-based) the app streams the gamepad into, for programs that use pad blocks. */
+constexpr int PadMailbox = 9;
 
 namespace OutputMode {
 constexpr uint8_t MotorOn = 0x01;
@@ -118,10 +141,41 @@ QByteArray keepAlive();
 QByteArray stopProgram();
 QByteArray getFirmwareVersion();
 QByteArray getDeviceInfo();
+/** Starts a program stored on the brick, e.g. "robot.rxe". */
+QByteArray startProgram(const QString &name);
+QByteArray getCurrentProgramName();
+/** Puts a message (at most 58 bytes) into one of the brick's ten inboxes, without a reply. */
+QByteArray messageWrite(int mailbox, const QByteArray &message);
+
+// System commands for files. Names are 15.3 characters at most.
+QByteArray openWrite(const QString &name, uint32_t size);
+QByteArray writeChunk(uint8_t handle, const QByteArray &data);
+QByteArray closeHandle(uint8_t handle);
+QByteArray deleteFile(const QString &name);
+/** `pattern` may be "*.*", "*.rxe" and so on. */
+QByteArray findFirst(const QString &pattern);
+QByteArray findNext(uint8_t handle);
+QByteArray setBrickName(const QString &name);
 
 bool expectsReply(const QByteArray &packet);
 
 int parseBatteryLevel(const QByteArray &reply);
+/** Status byte of a reply, after checking its header. */
+uint8_t replyStatus(const QByteArray &reply, uint8_t op);
+/** Throws NxtError when the command failed. */
+void checkStatus(const QByteArray &reply, uint8_t op);
+/** Handle from an OPEN WRITE reply. Throws NxtError on failure. */
+uint8_t parseOpenWrite(const QByteArray &reply);
+
+struct FoundFile {
+    uint8_t handle = 0;
+    QString name;
+    uint32_t size = 0;
+};
+/** FIND FIRST / FIND NEXT reply; empty when there are no (more) files. */
+std::optional<FoundFile> parseFind(const QByteArray &reply, uint8_t op);
+/** Name of the program running on the brick, or empty when none is. */
+QString parseCurrentProgramName(const QByteArray &reply);
 
 struct InputValues {
     uint8_t port = 0;

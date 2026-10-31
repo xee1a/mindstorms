@@ -23,6 +23,8 @@ bool Prefs::autosave() const { return flag("editor/autosave", true); }
 void Prefs::setAutosave(bool on) { setFlag("editor/autosave", on); }
 bool Prefs::autoConnect() const { return flag("brick/autoConnect", true); }
 void Prefs::setAutoConnect(bool on) { setFlag("brick/autoConnect", on); }
+bool Prefs::editorSounds() const { return flag("editor/sounds", true); }
+void Prefs::setEditorSounds(bool on) { setFlag("editor/sounds", on); }
 bool Prefs::beepOnConnect() const { return flag("brick/beepOnConnect", true); }
 void Prefs::setBeepOnConnect(bool on) { setFlag("brick/beepOnConnect", on); }
 

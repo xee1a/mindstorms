@@ -5,6 +5,7 @@
 #include "Theme.h"
 #include "Widgets.h"
 #include "drive/Gamepad.h"
+#include "drive/PadLink.h"
 #include "views/BrickView.h"
 #include "views/DriveView.h"
 #include "views/ProgramView.h"
@@ -52,9 +53,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(brick, &BrickView::message, this, toast);
 
     connect(&drive::Gamepad::instance(), &drive::Gamepad::connectionChanged, this, [this](bool on) {
-        m_padChip->setText(on ? tr("●  Controller") : tr("●  No controller"));
-        m_padChip->setProperty("ok", on);
-        theme::repolish(m_padChip);
+        m_padConnected = on;
+        updatePadChip();
+    });
+    // Programs on the brick that use gamepad blocks read the pad from an inbox; the worker only sends while one runs.
+    connect(&drive::Gamepad::instance(), &drive::Gamepad::updated, this, [](const drive::PadSnapshot &snap) {
+        if (!snap.connected) return nxt::Brick::instance().setPadMessage({});
+        uint16_t bits = 0;
+        for (int i = 0; i < int(drive::PadButton::Count); ++i)
+            if (snap.buttons[i]) bits |= uint16_t(1u << i);
+        nxt::Brick::instance().setPadMessage(drive::encodePadMessage(drive::padAxes(snap.input), bits));
     });
     auto &nxtBrick = nxt::Brick::instance();
     connect(&nxtBrick, &nxt::Brick::stateChanged, this, &MainWindow::onBrick);
@@ -109,7 +117,7 @@ QWidget *MainWindow::buildHeader()
     m_tabBar = tabs;
     h->installEventFilter(this);
 
-    m_padChip = new QLabel(tr("●  No controller"), h);
+    m_padChip = new QLabel(tr("●  No gamepad"), h);
     m_padChip->setObjectName(QStringLiteral("chip"));
     m_padChip->setFixedHeight(28);
     l->addWidget(m_padChip);
@@ -146,6 +154,7 @@ void MainWindow::openSettings()
     SettingsDialog dlg(this);
     theme::styleTitleBar(&dlg);
     connect(&dlg, &SettingsDialog::restartRequested, this, &MainWindow::restart, Qt::QueuedConnection);
+    connect(&dlg, &SettingsDialog::message, this, [this](const QString &text, const char *kind) { m_toast->showMessage(text, kind); });
     dlg.exec();
 }
 
@@ -159,8 +168,16 @@ void MainWindow::showView(int index)
 void MainWindow::onBrick(const nxt::BrickState &s)
 {
     QString text;
+    m_brickChip->setIcon({});
+    m_brickChip->setToolTip({});
     if (s.status == nxt::LinkStatus::Connected) {
-        text = s.batteryMv ? QStringLiteral("●  %1 · %2%").arg(s.name).arg(nxt::batteryPercent(*s.batteryMv)) : QStringLiteral("●  %1").arg(s.name);
+        text = QStringLiteral("●  %1").arg(s.name);
+        if (s.batteryMv) {
+            const nxt::BatteryLevel level = nxt::batteryLevel(*s.batteryMv);
+            m_brickChip->setIcon(ui::BatteryWidget::icon(level));
+            m_brickChip->setIconSize(QSize(22, 22));
+            m_brickChip->setToolTip(QStringLiteral("%1 · %2").arg(nxt::batteryLabel(level), s.link));
+        }
     } else if (s.status == nxt::LinkStatus::Connecting) {
         text = tr("●  Connecting…");
     } else {
@@ -172,6 +189,10 @@ void MainWindow::onBrick(const nxt::BrickState &s)
         nxt::Brick::instance().playTone(784, 140);
     }
     m_lastStatus = s.status;
+    if (s.padStreaming != m_padStreaming) {
+        m_padStreaming = s.padStreaming;
+        updatePadChip();
+    }
     m_brickChip->setProperty("ok", s.status == nxt::LinkStatus::Connected);
     theme::repolish(m_brickChip);
 
@@ -179,6 +200,15 @@ void MainWindow::onBrick(const nxt::BrickState &s)
         m_lastErrorSerial = s.errorSerial;
         if (!s.lastError.isEmpty()) m_toast->showMessage(s.lastError, "error");
     }
+}
+
+void MainWindow::updatePadChip()
+{
+    if (m_padStreaming) m_padChip->setText(tr("●  Gamepad → NXT"));
+    else m_padChip->setText(m_padConnected ? tr("●  Gamepad") : tr("●  No gamepad"));
+    m_padChip->setToolTip(m_padStreaming ? tr("The program on the brick is reading this gamepad.") : QString());
+    m_padChip->setProperty("ok", m_padConnected);
+    theme::repolish(m_padChip);
 }
 
 void MainWindow::restart()

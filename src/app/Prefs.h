@@ -20,6 +20,8 @@ public:
     void setAutosave(bool on);
     bool autoConnect() const;
     void setAutoConnect(bool on);
+    bool editorSounds() const;
+    void setEditorSounds(bool on);
     bool beepOnConnect() const;
     void setBeepOnConnect(bool on);
     /** Tab shown at startup: 0..2, or -1 for the one open last time. */
