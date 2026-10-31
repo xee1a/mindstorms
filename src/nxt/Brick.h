@@ -57,7 +57,7 @@ struct BrickState {
 struct BrickFile {
     QString name;
     quint32 size = 0;
-    /** Shipped with the brick (system sounds, Try Me programs, settings): kept by a normal factory reset. */
+    /** Sounds, Try Me programs and the brick's settings: kept by a normal factory reset. */
     bool builtIn() const;
 };
 

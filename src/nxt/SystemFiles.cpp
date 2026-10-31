@@ -61,7 +61,8 @@ QString backupDir()
 bool restorable(const QString &name)
 {
     if (name.endsWith(QLatin1String(".sys"), Qt::CaseInsensitive)) return false; // never deleted, so never restored
-    return name.startsWith(QLatin1String("! ")) || name.startsWith(QLatin1String("Try-"), Qt::CaseInsensitive);
+    return name.startsWith(QLatin1String("! ")) || name.startsWith(QLatin1String("Try-"), Qt::CaseInsensitive) ||
+           name.endsWith(QLatin1String(".rso"), Qt::CaseInsensitive);
 }
 
 bool isKept(const QString &name) { return safeName(name) && QFile::exists(backupDir() + '/' + name); }

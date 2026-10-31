@@ -944,66 +944,66 @@
 <context>
     <name>Brick</name>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="78" />
+        <location filename="../src/nxt/Brick.cpp" line="80" />
         <source>Battery full</source>
         <translation>Bateria pełna</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="79" />
+        <location filename="../src/nxt/Brick.cpp" line="81" />
         <source>Battery good</source>
         <translation>Bateria naładowana</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="80" />
+        <location filename="../src/nxt/Brick.cpp" line="82" />
         <source>Battery half empty</source>
         <translation>Bateria w połowie</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="81" />
+        <location filename="../src/nxt/Brick.cpp" line="83" />
         <source>Battery low</source>
         <translation>Bateria słaba</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="82" />
+        <location filename="../src/nxt/Brick.cpp" line="84" />
         <source>Replace the batteries</source>
         <translation>Wymień baterie</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="210" />
+        <location filename="../src/nxt/Brick.cpp" line="211" />
         <source>The NXT didn't answer over Bluetooth. Is it switched on and nearby?</source>
         <translation>Kostka NXT nie odpowiada przez Bluetooth. Czy jest włączona i znajduje się w pobliżu?</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="529" />
-        <location filename="../src/nxt/Brick.cpp" line="650" />
-        <location filename="../src/nxt/Brick.cpp" line="667" />
-        <location filename="../src/nxt/Brick.cpp" line="696" />
+        <location filename="../src/nxt/Brick.cpp" line="530" />
+        <location filename="../src/nxt/Brick.cpp" line="651" />
+        <location filename="../src/nxt/Brick.cpp" line="668" />
+        <location filename="../src/nxt/Brick.cpp" line="697" />
         <source>The NXT isn't connected.</source>
         <translation>Kostka NXT nie jest połączona.</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="536" />
-        <location filename="../src/nxt/Brick.cpp" line="659" />
+        <location filename="../src/nxt/Brick.cpp" line="537" />
+        <location filename="../src/nxt/Brick.cpp" line="660" />
         <source>The NXT was disconnected.</source>
         <translation>Kostka NXT została odłączona.</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="538" />
+        <location filename="../src/nxt/Brick.cpp" line="539" />
         <source>Couldn't read the list of files: %1</source>
         <translation>Nie udało się odczytać listy plików: %1</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="570" />
+        <location filename="../src/nxt/Brick.cpp" line="571" />
         <source>There isn't enough free memory on the NXT. Delete some files from the brick, or use Factory reset in Settings → Brick.</source>
         <translation>Na kostce NXT brakuje wolnej pamięci. Usuń z niej część plików albo przywróć ustawienia fabryczne (Ustawienia → Kostka).</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="687" />
+        <location filename="../src/nxt/Brick.cpp" line="688" />
         <source>The NXT was disconnected during the upload. Connect it again and retry.</source>
         <translation>Kostka NXT została odłączona podczas wgrywania. Podłącz ją ponownie i spróbuj jeszcze raz.</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="738" />
+        <location filename="../src/nxt/Brick.cpp" line="744" />
         <source>The NXT was disconnected during the reset. Connect it again and retry.</source>
         <translation>Kostka NXT została odłączona podczas przywracania ustawień. Podłącz ją ponownie i spróbuj jeszcze raz.</translation>
     </message>
@@ -1320,77 +1320,83 @@
         <translation>Przywracanie ustawień fabrycznych kostki</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="36" />
-        <source>&lt;p&gt;&lt;b&gt;Removed:&lt;/b&gt; your programs, pictures, sounds and data files.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Kept:&lt;/b&gt; the firmware, the brick's own settings and, unless you tick the box below, LEGO's system sounds and Try Me programs.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Put back:&lt;/b&gt; system sounds and Try Me programs that are missing from the brick.&lt;/p&gt;&lt;p&gt;Your own deleted files can't be brought back.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;Zostaną usunięte:&lt;/b&gt; Twoje programy, obrazy, dźwięki i pliki z danymi.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Zostaną zachowane:&lt;/b&gt; firmware, ustawienia samej kostki oraz – jeśli nie zaznaczysz pola poniżej – systemowe dźwięki LEGO i programy Try Me.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Zostaną przywrócone:&lt;/b&gt; systemowe dźwięki i programy Try Me, których brakuje na kostce.&lt;/p&gt;&lt;p&gt;Usuniętych plików nie da się odzyskać.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="45" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="46" />
         <source>Reading the files on the brick…</source>
         <translation>Odczytywanie listy plików z kostki…</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="53" />
-        <source>Also remove LEGO's system sounds and Try Me programs (frees the most space)</source>
-        <translation>Usuń również systemowe dźwięki LEGO i programy Try Me (zwalnia najwięcej miejsca)</translation>
+        <location filename="../src/app/FactoryResetDialog.cpp" line="36" />
+        <source>&lt;p&gt;&lt;b&gt;Removed:&lt;/b&gt; your programs, pictures and data files.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Kept:&lt;/b&gt; the firmware, the brick's own settings and, unless you tick the box below, sounds and LEGO's Try Me programs.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Put back:&lt;/b&gt; sounds and Try Me programs that this PC has seen on a brick before, if they are missing.&lt;/p&gt;&lt;p&gt;Deleted programs can't be brought back.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;Zostaną usunięte:&lt;/b&gt; Twoje programy, obrazy i pliki z danymi.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Zostaną zachowane:&lt;/b&gt; firmware, ustawienia samej kostki oraz – jeśli nie zaznaczysz pola poniżej – dźwięki i programy Try Me od LEGO.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Zostaną przywrócone:&lt;/b&gt; brakujące dźwięki i programy Try Me, które ten komputer widział już wcześniej na jakiejś kostce.&lt;/p&gt;&lt;p&gt;Usuniętych programów nie da się odzyskać.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/app/FactoryResetDialog.cpp" line="54" />
+        <source>Also remove sounds and LEGO's Try Me programs (frees the most space)</source>
+        <translation>Usuń również dźwięki i programy Try Me od LEGO (zwalnia najwięcej miejsca)</translation>
+    </message>
+    <message>
+        <location filename="../src/app/FactoryResetDialog.cpp" line="55" />
         <source>Rename the brick back to “NXT”</source>
         <translation>Przywróć nazwę kostki „NXT”</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="56" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="57" />
         <source>I understand that the files listed above will be deleted</source>
         <translation>Rozumiem, że pliki z powyższej listy zostaną usunięte</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="70" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="71" />
         <source>Cancel</source>
         <translation>Anuluj</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="71" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="72" />
         <source>Delete and reset</source>
         <translation>Usuń i przywróć</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="88" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="89" />
         <source>Couldn't read the files: %1</source>
         <translation>Nie udało się odczytać listy plików: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="94" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="95" />
         <source>The brick is busy with another task. Close this window and try again.</source>
         <translation>Kostka jest zajęta innym zadaniem. Zamknij to okno i spróbuj ponownie.</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="95" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="96" />
         <source>Connect the NXT first (Brick tab).</source>
         <translation>Najpierw połącz się z kostką NXT (karta Kostka).</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="122" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="123" />
         <source>will be deleted</source>
         <translation>zostanie usunięty</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="122" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="123" />
         <source>stays</source>
         <translation>zostaje</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="136" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="137" />
         <source>will be put back</source>
         <translation>zostanie przywrócony</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="142" />
-        <source>There's nothing to delete: the brick only holds LEGO's own files.</source>
-        <translation>Nie ma nic do usunięcia: na kostce są tylko pliki LEGO.</translation>
+        <location filename="../src/app/FactoryResetDialog.cpp" line="143" />
+        <source>There's nothing to delete: the brick only holds sounds and LEGO's own files.</source>
+        <translation>Nie ma nic do usunięcia: na kostce są tylko dźwięki i pliki LEGO.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/app/FactoryResetDialog.cpp" line="143" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="145" />
+        <source>%n missing file(s) will be put back if there's room.</source>
+        <translation>
+            <numerusform>Brakujący plik zostanie przywrócony, jeśli zmieści się w pamięci.</numerusform><numerusform>%n brakujące pliki zostaną przywrócone, jeśli zmieszczą się w pamięci.</numerusform><numerusform>%n brakujących plików zostanie przywróconych, jeśli zmieszczą się w pamięci.</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/app/FactoryResetDialog.cpp" line="144" />
         <source>%n file(s) will be deleted, freeing %1 KB.</source>
         <translation>
             <numerusform>%n plik zostanie usunięty, zwalniając %1 KB.</numerusform>
@@ -1398,32 +1404,23 @@
             <numerusform>%n plików zostanie usuniętych, zwalniając %1 KB.</numerusform>
         </translation>
     </message>
-    <message numerus="yes">
-        <location filename="../src/app/FactoryResetDialog.cpp" line="144" />
-        <source>%n missing LEGO file(s) will be put back.</source>
-        <translation>
-            <numerusform>Brakujący plik LEGO zostanie przywrócony.</numerusform>
-            <numerusform>%n brakujące pliki LEGO zostaną przywrócone.</numerusform>
-            <numerusform>%n brakujących plików LEGO zostanie przywróconych.</numerusform>
-        </translation>
-    </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="161" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="162" />
         <source>Resetting the brick… Don't switch it off.</source>
         <translation>Przywracanie ustawień fabrycznych… Nie wyłączaj kostki.</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="164" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="165" />
         <source>The brick is busy with another task. Try again in a moment.</source>
         <translation>Kostka jest zajęta innym zadaniem. Spróbuj ponownie za chwilę.</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="175" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="176" />
         <source>The reset stopped: %1</source>
         <translation>Przywracanie zostało przerwane: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="180" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="181" />
         <source>The brick is back to factory settings</source>
         <translation>Przywrócono ustawienia fabryczne kostki</translation>
     </message>
@@ -1769,27 +1766,27 @@
 <context>
     <name>Sensors</name>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="57" />
+        <location filename="../src/nxt/Brick.cpp" line="59" />
         <source>Touch</source>
         <translation>Dotyk</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="58" />
+        <location filename="../src/nxt/Brick.cpp" line="60" />
         <source>Light (reflected)</source>
         <translation>Światło (odbite)</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="59" />
+        <location filename="../src/nxt/Brick.cpp" line="61" />
         <source>Light (ambient)</source>
         <translation>Światło (z otoczenia)</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="60" />
+        <location filename="../src/nxt/Brick.cpp" line="62" />
         <source>Sound</source>
         <translation>Dźwięk</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="63" />
+        <location filename="../src/nxt/Brick.cpp" line="65" />
         <source>Not used</source>
         <translation>Nieużywany</translation>
     </message>

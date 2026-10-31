@@ -26,6 +26,8 @@ constexpr int ProgramCheckMs = 1'000;
 constexpr int PadIntervalMs = 40;
 // Copy LEGO's files a little after connecting, once the UI has its first telemetry.
 constexpr int BackupDelayMs = 1'500;
+// Free flash a reset leaves when it puts sounds back (an NXT has about 120 KB for files).
+constexpr qint64 RestoreReserve = 20 * 1024;
 constexpr int PadRepeatMs = 250;
 // The program that shows "connected over Bluetooth" on the brick's screen.
 constexpr char GreetingFile[] = "NXT Studio.rxe";
@@ -86,9 +88,8 @@ QString batteryLabel(BatteryLevel level)
 
 bool BrickFile::builtIn() const
 {
-    // Shipped by LEGO: system sounds ("! Startup.rso"), Try Me programs and the brick's own settings.
-    return name.startsWith(QLatin1String("! ")) || name.startsWith(QLatin1String("Try-"), Qt::CaseInsensitive) ||
-           name.endsWith(QLatin1String(".sys"), Qt::CaseInsensitive);
+    // Sounds (including LEGO's "! Startup.rso"), Try Me programs and the brick's own settings.
+    return systemfiles::restorable(name) || name.endsWith(QLatin1String(".sys"), Qt::CaseInsensitive);
 }
 
 // ── Worker ────────────────────────────────────────────────
@@ -715,6 +716,9 @@ void BrickWorker::factoryReset(bool everything, bool rename)
                 if (!present.contains(name, Qt::CaseInsensitive)) missing << name;
         }
         const int deleteShare = missing.isEmpty() ? 100 : 60;
+        // Put files back only while they fit, keeping some room for the class's programs.
+        qint64 room = qint64(parseDeviceInfo(request(getDeviceInfo())).freeFlash) - RestoreReserve;
+        for (const BrickFile &f : doomed) room += f.size;
         for (int i = 0; i < doomed.size(); ++i) {
             const uint8_t st = replyStatus(request(deleteFile(doomed[i].name)), SystemOp::Delete);
             if (st != 0 && st != FileStatus::FileNotFound) throw NxtError(st, SystemOp::Delete);
@@ -723,6 +727,8 @@ void BrickWorker::factoryReset(bool everything, bool rename)
         for (int i = 0; i < missing.size(); ++i) {
             const QByteArray data = systemfiles::contents(missing[i]);
             const int span = 100 - deleteShare;
+            if (data.size() > room) continue;
+            room -= data.size();
             if (!data.isEmpty())
                 writeFile(missing[i], data, deleteShare + i * span / int(missing.size()), deleteShare + (i + 1) * span / int(missing.size()));
         }

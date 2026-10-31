@@ -27,8 +27,8 @@ The Brick (Kostka) tab explains this to users.
   streams the gamepad into inbox 10 while a program runs on the brick. It also renames the brick, and after a Bluetooth
   connection uploads and runs `NXT Studio.rxe`, a 2.5 s "connected over Bluetooth" screen that MainWindow compiles at startup
   in the UI language (skipped while another program runs). `Brick::instance()` is the UI-side facade.
-- `src/nxt/SystemFiles.*`: copies of LEGO's own files (system sounds, Try Me programs), read from each brick over USB into
-  `%APPDATA%\NXT Studio\NXT Studio\brick-files`; a normal factory reset writes back any that are missing. The three firmware
+- `src/nxt/SystemFiles.*`: copies of every sound file and LEGO's Try Me programs, read from each brick over USB into
+  `%APPDATA%\NXT Studio\NXT Studio\brick-files`; a normal factory reset keeps them and writes back any that are missing (while they fit). The three firmware
   sounds also have synthesised stand-ins (never bundle LEGO's files themselves)
 - `src/drive/Mixer.*`: `ControlInput` plus a pure tank/arcade/racing mixer (unit tested). `Gamepad.*` handles XInput/DirectInput
   polling, including spotting generic pads in digital mode (ANALOG light off).

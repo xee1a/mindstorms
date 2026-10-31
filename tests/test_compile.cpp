@@ -176,6 +176,7 @@ void TestCompile::systemSounds()
     QVERIFY(nxt::systemfiles::restorable("Try-Touch.rtm"));
     QVERIFY(!nxt::systemfiles::restorable("NVConfig.sys"));
     QVERIFY(!nxt::systemfiles::restorable("robot.rxe"));
+    QVERIFY(nxt::systemfiles::restorable("Hello.rso")); // every sound is kept and put back
 }
 
 void TestCompile::plainText()

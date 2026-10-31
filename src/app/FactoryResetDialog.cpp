@@ -33,11 +33,12 @@ FactoryResetDialog::FactoryResetDialog(QWidget *parent) : QDialog(parent)
     v->setSpacing(10);
     v->addWidget(ui::label(tr("Reset the brick to factory settings"), "h2", this));
 
-    auto *what = ui::label(tr("<p><b>Removed:</b> your programs, pictures, sounds and data files.</p>"
+    auto *what = ui::label(tr("<p><b>Removed:</b> your programs, pictures and data files.</p>"
                               "<p><b>Kept:</b> the firmware, the brick's own settings and, unless you tick the box below, "
-                              "LEGO's system sounds and Try Me programs.</p>"
-                              "<p><b>Put back:</b> system sounds and Try Me programs that are missing from the brick.</p>"
-                              "<p>Your own deleted files can't be brought back.</p>"),
+                              "sounds and LEGO's Try Me programs.</p>"
+                              "<p><b>Put back:</b> sounds and Try Me programs that this PC has seen on a brick before, "
+                              "if they are missing.</p>"
+                              "<p>Deleted programs can't be brought back.</p>"),
                            "muted", this);
     what->setWordWrap(true);
     v->addWidget(what);
@@ -50,7 +51,7 @@ FactoryResetDialog::FactoryResetDialog(QWidget *parent) : QDialog(parent)
     m_list->setSelectionMode(QAbstractItemView::NoSelection);
     v->addWidget(m_list);
 
-    m_everything = new QCheckBox(tr("Also remove LEGO's system sounds and Try Me programs (frees the most space)"), this);
+    m_everything = new QCheckBox(tr("Also remove sounds and LEGO's Try Me programs (frees the most space)"), this);
     m_rename = new QCheckBox(tr("Rename the brick back to “NXT”"), this);
     m_rename->setChecked(true);
     m_confirm = new QCheckBox(tr("I understand that the files listed above will be deleted"), this);
@@ -127,7 +128,7 @@ void FactoryResetDialog::updateSummary()
             bytes += f.size;
         }
     }
-    // LEGO's files that are missing get written back (from the app's copies, or its own system sounds).
+    // Missing sounds and Try Me programs get written back (from the app's copies, or its own system sounds).
     int restored = 0;
     if (!everything && !m_files.isEmpty()) {
         for (const QString &name : nxt::systemfiles::available()) {
@@ -139,9 +140,9 @@ void FactoryResetDialog::updateSummary()
         }
     }
     if (!m_loading && !m_files.isEmpty()) {
-        QString text = count == 0 ? tr("There's nothing to delete: the brick only holds LEGO's own files.")
+        QString text = count == 0 ? tr("There's nothing to delete: the brick only holds sounds and LEGO's own files.")
                                   : tr("%n file(s) will be deleted, freeing %1 KB.", nullptr, count).arg(bytes / 1024.0, 0, 'f', 1);
-        if (restored > 0) text += ' ' + tr("%n missing LEGO file(s) will be put back.", nullptr, restored);
+        if (restored > 0) text += ' ' + tr("%n missing file(s) will be put back if there's room.", nullptr, restored);
         m_summary->setText(text);
     }
     const bool canReset = !m_loading && !m_working && nxt::Brick::instance().connected() && (count > 0 || restored > 0 || m_rename->isChecked()) && !m_files.isEmpty();
