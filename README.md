@@ -1,14 +1,14 @@
 # NXT Studio
 
 A native Windows app for programming LEGO MINDSTORMS **NXT** bricks. It has
-Scratch-style blocks and a live gamepad Drive mode. The interface is in Polish, with English,
+Scratch-style blocks, with a USB gamepad as an input for programs. The interface is in Polish, with English,
 a light theme and accent colours available in the settings.
 
 - **Program:** build programs from snap-together blocks (motors, sensors, sound, loops, variables,
   gamepad and Bluetooth mailboxes). **Run** tries a program live from the PC; **Upload to NXT** compiles
   it and saves it on the brick under a name you choose, so it runs without the PC.
-- **Drive (Jazda):** drive the robot in real time with a wired USB/XInput controller or the keyboard.
-  The screen shows the pad and what every button does; ports and feel are in Settings → Drive.
+- **Controller (Pad):** shows live what the plugged-in pad sends, named as in the Gamepad blocks. It controls
+  nothing by itself: programs decide what each button and stick does.
 - **Brick (Kostka):** connection over USB or Bluetooth, battery, firmware info, a driver setup guide,
   and a factory reset (Settings → Brick) that clears the files on the brick
 

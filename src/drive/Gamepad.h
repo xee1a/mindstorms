@@ -63,6 +63,7 @@ private:
     double m_lastLeftMag = 0;
     int m_fullJumps = 0;
     bool m_digital = false;
+    bool m_sawAnalog = false;
 };
 
 } // namespace drive

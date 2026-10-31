@@ -1,7 +1,5 @@
 #pragma once
 
-#include "drive/Mixer.h"
-
 #include <QObject>
 #include <QString>
 
@@ -28,15 +26,11 @@ public:
     int startTab() const;
     void setStartTab(int tab);
 
-    drive::DriveConfig driveConfig() const;
-    void setDriveConfig(const drive::DriveConfig &cfg);
-
-    /** Clears every saved setting (window layout, drive setup, theme, language, sensors). */
+    /** Clears every saved setting (window layout, theme, language, sensors). */
     void resetAll();
 
 signals:
     void changed();
-    void driveConfigChanged(const drive::DriveConfig &cfg);
 
 private:
     Prefs() = default;

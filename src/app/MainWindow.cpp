@@ -9,7 +9,7 @@
 #include "drive/Gamepad.h"
 #include "drive/PadLink.h"
 #include "views/BrickView.h"
-#include "views/DriveView.h"
+#include "views/ControllerView.h"
 #include "views/ProgramView.h"
 
 #include <QApplication>
@@ -41,10 +41,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     m_stack = new QStackedWidget(central);
     auto *program = new ProgramView(m_stack);
-    auto *drive = new DriveView(m_stack);
+    auto *controller = new ControllerView(m_stack);
     auto *brick = new BrickView(m_stack);
     m_stack->addWidget(program);
-    m_stack->addWidget(drive);
+    m_stack->addWidget(controller);
     m_stack->addWidget(brick);
     v->addWidget(m_stack, 1);
     setCentralWidget(central);
@@ -52,7 +52,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_toast = new ui::Toast(central);
     const auto toast = [this](const QString &text, const char *kind) { m_toast->showMessage(text, kind); };
     connect(program, &ProgramView::message, this, toast);
-    connect(drive, &DriveView::message, this, toast);
     connect(brick, &BrickView::message, this, toast);
 
     connect(&drive::Gamepad::instance(), &drive::Gamepad::connectionChanged, this, [this](bool on) {
@@ -118,7 +117,7 @@ QWidget *MainWindow::buildHeader()
     tl->setContentsMargins(3, 3, 3, 3);
     tl->setSpacing(2);
     m_tabs = new QButtonGroup(this);
-    const std::pair<const char *, QString> items[] = {{"blocks", tr("Program")}, {"gamepad", tr("Drive")}, {"brick", tr("Brick")}};
+    const std::pair<const char *, QString> items[] = {{"blocks", tr("Program")}, {"gamepad", tr("Controller")}, {"brick", tr("Brick")}};
     int id = 0;
     for (const auto &[icon, text] : items) {
         auto *b = new QPushButton(text, tabs);

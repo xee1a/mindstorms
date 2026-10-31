@@ -2,8 +2,8 @@
 
 A native Windows desktop app for programming LEGO MINDSTORMS **NXT** (not EV3) bricks.
 It has a Scratch-style block editor, inspired by the feel of classic NXT classroom
-software but using only original artwork. It also has a live "Drive" (Jazda) mode that reads a
-wired USB gamepad on the PC and drives the brick's motors in real time.
+software but using only original artwork. A wired USB gamepad on the PC is an input for
+programs (Gamepad blocks); the Controller (Pad) tab only shows what it sends, it drives nothing itself.
 The UI is **Polish by default**, with English available under Settings → Language.
 
 ## Stack
@@ -30,7 +30,8 @@ The Brick (Kostka) tab explains this to users.
 - `src/nxt/SystemFiles.*`: copies of LEGO's own files (system sounds, Try Me programs), read from each brick over USB into
   `%APPDATA%\NXT Studio\NXT Studio\brick-files`; a normal factory reset writes back any that are missing. The three firmware
   sounds also have synthesised stand-ins (never bundle LEGO's files themselves)
-- `src/drive/Mixer.*`: pure tank/arcade/racing mixer (unit tested). `Gamepad.*` handles XInput/DirectInput polling.
+- `src/drive/Mixer.*`: `ControlInput` plus a pure tank/arcade/racing mixer (unit tested). `Gamepad.*` handles XInput/DirectInput
+  polling, including spotting generic pads in digital mode (ANALOG light off).
   `PadLink.*` encodes the pad for programs on the brick.
 - `src/compile/`: `NxcGenerator` turns a workspace into NXC (unit tested: every block compiles with nbc);
   `Compiler` runs the bundled `third_party/nbc/nbc.exe`. Generated helpers use the `ns_` prefix, since NXC's
@@ -43,8 +44,8 @@ The Brick (Kostka) tab explains this to users.
   - `Palette` holds the categories and flyout
 - `src/run/Runner.*`: runs a block program from the PC (one thread per stack), sending direct commands live;
   degree moves are braked by `BrickWorker::pollMoves` on the USB thread
-- `src/views/`: Program, Drive and Brick screens, and `UploadDialog`. Drive shows a drawing of the pad with every
-  input and its action; drive setup lives in Settings.
+- `src/views/`: Program, Controller and Brick screens, and `UploadDialog`. Controller shows a drawing of the pad with every
+  input's live value, named as in the Gamepad blocks; all control is done by programs.
 - `src/app/`: MainWindow, Splash, Theme (dark/light tokens plus accent hue shift), Prefs (live settings with a `changed` signal),
   SettingsDialog, FactoryResetDialog, Sounds (editor clicks, synthesised), shared widgets (`BrickArt`, `PadView`,
   `BatteryWidget`: all drawn with QPainter, no photos)

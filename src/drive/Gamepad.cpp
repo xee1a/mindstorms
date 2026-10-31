@@ -112,6 +112,7 @@ bool Gamepad::pollDirectInput(PadSnapshot &snap, bool rescan)
         m_lastLeftMag = 0;
         m_fullJumps = 0;
         m_digital = false;
+        m_sawAnalog = false;
     }
     DIJOYSTATE2 st{};
     if (!m_direct->read(st)) return false;
@@ -136,11 +137,14 @@ bool Gamepad::pollDirectInput(PadSnapshot &snap, bool rescan)
     };
     // With the ANALOG light off, these pads send the D-pad as the left stick (and the right stick as buttons 1-4).
     // That axis then jumps straight from centre to full; a real stick passes through the values in between.
+    // Anything only analog mode produces (the hat, the right stick axes, in-between values) rules digital mode out
+    // until the pad is plugged in again, so quick flicks of a real stick never trigger it.
     const double mag = std::max(std::abs(snap.input.leftX), std::abs(snap.input.leftY));
-    if (!centred || (mag > 0.2 && mag < 0.9)) {
-        m_fullJumps = 0;
+    const double rightMag = std::max(std::abs(snap.input.rightX), std::abs(snap.input.rightY));
+    if (!centred || rightMag > 0.2 || (mag > 0.2 && mag < 0.9)) {
+        m_sawAnalog = true;
         m_digital = false;
-    } else if (mag >= 0.9 && m_lastLeftMag < 0.1 && ++m_fullJumps >= 2) {
+    } else if (!m_sawAnalog && mag >= 0.9 && m_lastLeftMag < 0.1 && ++m_fullJumps >= 3) {
         m_digital = true;
     }
     m_lastLeftMag = mag;

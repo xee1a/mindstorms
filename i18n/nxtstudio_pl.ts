@@ -1250,246 +1250,61 @@
     </message>
 </context>
 <context>
-    <name>DriveView</name>
+    <name>ControllerView</name>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="56" />
+        <location filename="../src/views/ControllerView.cpp" line="42" />
         <source>Controller</source>
         <translation>Pad</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="95" />
-        <source>No extra motor set</source>
-        <translation>Nie ustawiono dodatkowego silnika</translation>
+        <location filename="../src/views/ControllerView.cpp" line="54" />
+        <source>&lt;b&gt;The pad is in digital mode.&lt;/b&gt; In this mode the pad itself sends the left stick as the arrows and the right stick as the A, B, X and Y buttons, so a program can't tell them apart. Press &lt;b&gt;ANALOG&lt;/b&gt; (or &lt;b&gt;MODE&lt;/b&gt;) on the pad so its light comes on.</source>
+        <translation>&lt;b&gt;Pad działa w trybie cyfrowym.&lt;/b&gt; W tym trybie sam pad wysyła lewą gałkę jako strzałki, a prawą jako przyciski A, B, X i Y, więc program nie może ich odróżnić. Naciśnij na padzie &lt;b&gt;ANALOG&lt;/b&gt; (lub &lt;b&gt;MODE&lt;/b&gt;), aby zapaliła się dioda.</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="96" />
-        <source>Motor %1 backwards</source>
-        <translation>Silnik %1 do tyłu</translation>
+        <location filename="../src/views/ControllerView.cpp" line="83" />
+        <source>pressed</source>
+        <translation>wciśnięty</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="97" />
-        <source>Motor %1 forwards</source>
-        <translation>Silnik %1 do przodu</translation>
+        <location filename="../src/views/ControllerView.cpp" line="83" />
+        <source>released</source>
+        <translation>puszczony</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="100" />
-        <source>Not used in this style</source>
-        <translation>Nieużywane w tym trybie</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="105" />
+        <location filename="../src/views/ControllerView.cpp" line="102" />
         <source>Left stick</source>
         <translation>Lewa gałka</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="108" />
-        <source>Drive forward/back and steer</source>
-        <translation>Jazda do przodu i do tyłu oraz skręcanie</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="109" />
-        <source>Left side (motor %1)</source>
-        <translation>Lewa strona (silnik %1)</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="110" />
-        <location filename="../src/views/DriveView.cpp" line="128" />
-        <source>Steer</source>
-        <translation>Skręcanie</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="114" />
-        <source>Turbo: full power while held</source>
-        <translation>Turbo: pełna moc, dopóki trzymasz</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="116" />
-        <source>Top speed ±10% (now %1%)</source>
-        <translation>Prędkość maksymalna ±10% (teraz %1%)</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="118" />
-        <source>Extra motor power ±10% (now %1%)</source>
-        <translation>Moc dodatkowego silnika ±10% (teraz %1%)</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="119" />
-        <source>Switch control style</source>
-        <translation>Zmień tryb sterowania</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="120" />
-        <source>Start / pause driving</source>
-        <translation>Rozpocznij lub wstrzymaj jazdę</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="123" />
-        <source>Accelerate</source>
-        <translation>Gaz</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="125" />
+        <location filename="../src/views/ControllerView.cpp" line="112" />
         <source>Right stick</source>
         <translation>Prawa gałka</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="129" />
-        <source>Right side (motor %1)</source>
-        <translation>Prawa strona (silnik %1)</translation>
+        <location filename="../src/views/ControllerView.cpp" line="120" />
+        <source>This tab only shows what the pad sends. To make the robot react, use the blocks in the &lt;b&gt;Gamepad&lt;/b&gt; category on the Program tab; the names here match the ones in the blocks. Sticks give -100 to 100 (right and up are positive), triggers 0 to 100.</source>
+        <translation>Ta zakładka tylko pokazuje, co wysyła pad. Aby robot reagował na pad, użyj bloczków z kategorii &lt;b&gt;Pad&lt;/b&gt; w zakładce Program – nazwy tutaj są takie same jak w bloczkach. Gałki dają wartości od -100 do 100 (w prawo i w górę to plus), spusty od 0 do 100.</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="135" />
-        <location filename="../src/views/DriveView.cpp" line="296" />
-        <source>Precision mode: on (half power)</source>
-        <translation>Tryb precyzyjny: włączony (połowa mocy)</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="135" />
-        <location filename="../src/views/DriveView.cpp" line="296" />
-        <source>Precision mode: off</source>
-        <translation>Tryb precyzyjny: wyłączony</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="137" />
-        <location filename="../src/views/DriveView.cpp" line="291" />
-        <source>Brake when stopped: on</source>
-        <translation>Hamowanie po zatrzymaniu: włączone</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="137" />
-        <location filename="../src/views/DriveView.cpp" line="291" />
-        <source>Brake when stopped: off</source>
-        <translation>Hamowanie po zatrzymaniu: wyłączone</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="138" />
-        <source>Reset rotation counters</source>
-        <translation>Wyzeruj liczniki obrotów</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="139" />
-        <source>Emergency stop</source>
-        <translation>Zatrzymanie awaryjne</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="140" />
-        <source>Horn</source>
-        <translation>Klakson</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="152" />
-        <source>Stop</source>
-        <translation>Stop</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="155" />
-        <source>Stop all motors (B or Space)</source>
-        <translation>Zatrzymaj wszystkie silniki (B lub spacja)</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="161" />
-        <source>No controller? Drive with &lt;b&gt;W A S D&lt;/b&gt; or the arrows, &lt;b&gt;Q&lt;/b&gt; / &lt;b&gt;E&lt;/b&gt; for the extra motor, &lt;b&gt;Space&lt;/b&gt; stops. Change ports and feel in Settings → Drive.</source>
-        <translation>Nie masz pada? Steruj klawiszami &lt;b&gt;W A S D&lt;/b&gt; lub strzałkami, &lt;b&gt;Q&lt;/b&gt; i &lt;b&gt;E&lt;/b&gt; obsługują dodatkowy silnik, a &lt;b&gt;spacja&lt;/b&gt; zatrzymuje robota. Porty i czułość zmienisz w Ustawienia → Jazda.</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="203" />
-        <source>Style: %1</source>
-        <translation>Tryb: %1</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="204" />
-        <source> · precision</source>
-        <translation> · precyzja</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="226" />
-        <source>●  Driving · START to pause</source>
-        <translation>●  Jazda · START wstrzymuje</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="226" />
-        <source>○  Start driving · START</source>
-        <translation>○  Rozpocznij jazdę · START</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="287" />
-        <source>Rotation counters reset</source>
-        <translation>Wyzerowano liczniki obrotów</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="301" />
-        <source>Control style: %1</source>
-        <translation>Tryb sterowania: %1</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="306" />
-        <source>Top speed: %1%</source>
-        <translation>Prędkość maksymalna: %1%</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="311" />
-        <source>Extra motor power: %1%</source>
-        <translation>Moc dodatkowego silnika: %1%</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="322" />
+        <location filename="../src/views/ControllerView.cpp" line="173" />
         <source>Plug in a USB controller and press any button.</source>
         <translation>Podłącz pad USB i naciśnij dowolny przycisk.</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="328" />
-        <source>Controller %1 connected. Press START to drive.</source>
-        <translation>Pad %1 jest podłączony. Naciśnij START, aby jechać.</translation>
+        <location filename="../src/views/ControllerView.cpp" line="174" />
+        <source>USB gamepad connected. Press buttons and move the sticks to see what each one sends.</source>
+        <translation>Pad USB jest podłączony. Naciskaj przyciski i poruszaj gałkami, aby zobaczyć, co wysyła każdy z nich.</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="342" />
-        <source>Brick: %1</source>
-        <translation>Kostka: %1</translation>
+        <location filename="../src/views/ControllerView.cpp" line="175" />
+        <source>Controller %1 connected. Press buttons and move the sticks to see what each one sends.</source>
+        <translation>Pad %1 jest podłączony. Naciskaj przyciski i poruszaj gałkami, aby zobaczyć, co wysyła każdy z nich.</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="342" />
-        <source>No brick: preview only</source>
-        <translation>Brak kostki – tylko podgląd</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="30" />
-        <source>Arcade</source>
-        <translation>Zręcznościowy</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="31" />
-        <source>Tank</source>
-        <translation>Czołg</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="32" />
-        <source>Racing</source>
-        <translation>Wyścigowy</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="103" />
-        <source>Reverse</source>
-        <translation>Odwróć</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="324" />
-        <source>The pad is in digital mode: the right stick works like the A, B, X and Y buttons. Press ANALOG (or MODE) on the pad so its light comes on.</source>
-        <translation>Pad działa w trybie cyfrowym: prawa gałka zachowuje się jak przyciski A, B, X i Y. Naciśnij na padzie ANALOG (lub MODE), aby zapaliła się dioda.</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="327" />
-        <source>USB gamepad connected. Press START to drive.</source>
-        <translation>Pad USB jest podłączony. Naciśnij START, aby jechać.</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="331" />
+        <location filename="../src/views/ControllerView.cpp" line="178" />
         <source>Controller %1</source>
         <translation>Pad %1</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="335" />
-        <source>Controller disconnected, so the motors were stopped.</source>
-        <translation>Pad został odłączony, więc silniki zostały zatrzymane.</translation>
     </message>
 </context>
 <context>
@@ -1616,65 +1431,65 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="121" />
+        <location filename="../src/app/MainWindow.cpp" line="120" />
         <source>Program</source>
         <translation>Program</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="121" />
-        <source>Drive</source>
-        <translation>Jazda</translation>
-    </message>
-    <message>
-        <location filename="../src/app/MainWindow.cpp" line="121" />
+        <location filename="../src/app/MainWindow.cpp" line="120" />
         <source>Brick</source>
         <translation>Kostka</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="138" />
-        <location filename="../src/app/MainWindow.cpp" line="226" />
+        <location filename="../src/app/MainWindow.cpp" line="120" />
+        <source>Controller</source>
+        <translation>Pad</translation>
+    </message>
+    <message>
+        <location filename="../src/app/MainWindow.cpp" line="137" />
+        <location filename="../src/app/MainWindow.cpp" line="225" />
         <source>●  No gamepad</source>
         <translation>●  Brak pada</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="153" />
+        <location filename="../src/app/MainWindow.cpp" line="152" />
         <source>Settings</source>
         <translation>Ustawienia</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="225" />
+        <location filename="../src/app/MainWindow.cpp" line="224" />
         <source>●  Gamepad → NXT</source>
         <translation>●  Pad → NXT</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="226" />
+        <location filename="../src/app/MainWindow.cpp" line="225" />
         <source>●  Gamepad</source>
         <translation>●  Pad</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="227" />
+        <location filename="../src/app/MainWindow.cpp" line="226" />
         <source>The program on the brick is reading this gamepad.</source>
         <translation>Program na kostce odczytuje ten pad.</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="200" />
+        <location filename="../src/app/MainWindow.cpp" line="199" />
         <source>●  Connecting…</source>
         <translation>●  Łączenie…</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="77" />
+        <location filename="../src/app/MainWindow.cpp" line="76" />
         <source>Connected</source>
         <comment>on the brick's screen, line 1</comment>
         <translation>Połączono</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="78" />
+        <location filename="../src/app/MainWindow.cpp" line="77" />
         <source>over Bluetooth</source>
         <comment>on the brick's screen, line 2</comment>
         <translation>przez Bluetooth</translation>
     </message>
     <message>
-        <location filename="../src/app/MainWindow.cpp" line="202" />
+        <location filename="../src/app/MainWindow.cpp" line="201" />
         <source>●  Not connected</source>
         <translation>●  Brak połączenia</translation>
     </message>
@@ -2007,354 +1822,253 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="97" />
-        <source>None</source>
-        <translation>Brak</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="98" />
-        <source>Motor %1</source>
-        <translation>Silnik %1</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="133" />
-        <source>Left stick drives forward and back, either stick steers.</source>
-        <translation>Lewa gałka steruje jazdą do przodu i do tyłu, a skręcać można dowolną gałką.</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="134" />
-        <source>Left stick drives the left side, right stick the right side.</source>
-        <translation>Lewa gałka napędza lewą stronę robota, prawa – prawą.</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="135" />
-        <source>RT accelerates, LT reverses, left stick steers.</source>
-        <translation>RT to gaz, LT – bieg wsteczny, a lewa gałka skręca.</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="160" />
+        <location filename="../src/app/SettingsDialog.cpp" line="113" />
         <source>Settings</source>
         <translation>Ustawienia</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="175" />
+        <location filename="../src/app/SettingsDialog.cpp" line="127" />
         <source>Restart NXT Studio to apply the new look or language.</source>
         <translation>Uruchom ponownie NXT Studio, aby zastosować nowy wygląd lub język.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="178" />
+        <location filename="../src/app/SettingsDialog.cpp" line="130" />
         <source>Restart now</source>
         <translation>Uruchom ponownie teraz</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="199" />
+        <location filename="../src/app/SettingsDialog.cpp" line="151" />
         <source>Appearance</source>
         <translation>Wygląd</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="200" />
+        <location filename="../src/app/SettingsDialog.cpp" line="152" />
         <source>Editor</source>
         <translation>Edytor</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="201" />
-        <location filename="../src/app/SettingsDialog.cpp" line="306" />
-        <source>Drive</source>
-        <translation>Jazda</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="202" />
-        <location filename="../src/app/SettingsDialog.cpp" line="307" />
+        <location filename="../src/app/SettingsDialog.cpp" line="153" />
+        <location filename="../src/app/SettingsDialog.cpp" line="258" />
         <source>Brick</source>
         <translation>Kostka</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="203" />
+        <location filename="../src/app/SettingsDialog.cpp" line="154" />
         <source>About</source>
         <translation>O programie</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="209" />
+        <location filename="../src/app/SettingsDialog.cpp" line="160" />
         <source>Done</source>
         <translation>Gotowe</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="236" />
+        <location filename="../src/app/SettingsDialog.cpp" line="187" />
         <source>Theme</source>
         <translation>Motyw</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="238" />
+        <location filename="../src/app/SettingsDialog.cpp" line="189" />
         <source>Dark</source>
         <translation>Ciemny</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="238" />
+        <location filename="../src/app/SettingsDialog.cpp" line="189" />
         <source>Light</source>
         <translation>Jasny</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="238" />
+        <location filename="../src/app/SettingsDialog.cpp" line="189" />
         <source>Match Windows</source>
         <translation>Jak w systemie Windows</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="243" />
+        <location filename="../src/app/SettingsDialog.cpp" line="194" />
         <source>Colour scheme</source>
         <translation>Kolorystyka</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="269" />
+        <location filename="../src/app/SettingsDialog.cpp" line="220" />
         <source>Accent colour</source>
         <translation>Kolor wiodący</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="269" />
+        <location filename="../src/app/SettingsDialog.cpp" line="220" />
         <source>Used for buttons, switches and highlights.</source>
         <translation>Kolor przycisków, przełączników i wyróżnień.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="272" />
+        <location filename="../src/app/SettingsDialog.cpp" line="223" />
         <source>Language</source>
         <translation>Język</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="281" />
+        <location filename="../src/app/SettingsDialog.cpp" line="232" />
         <source>App language</source>
         <translation>Język aplikacji</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="293" />
+        <location filename="../src/app/SettingsDialog.cpp" line="244" />
         <source>Block editor</source>
         <translation>Edytor bloczków</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="294" />
+        <location filename="../src/app/SettingsDialog.cpp" line="245" />
         <source>Dot grid</source>
         <translation>Siatka kropek</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="295" />
+        <location filename="../src/app/SettingsDialog.cpp" line="246" />
         <source>Dots in the background of the canvas.</source>
         <translation>Kropki w tle obszaru roboczego.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="296" />
+        <location filename="../src/app/SettingsDialog.cpp" line="247" />
         <source>Sounds</source>
         <translation>Dźwięki</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="297" />
+        <location filename="../src/app/SettingsDialog.cpp" line="248" />
         <source>Quiet clicks when you pick up, attach and delete blocks.</source>
         <translation>Ciche kliknięcia przy podnoszeniu, dołączaniu i usuwaniu bloczków.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="298" />
+        <location filename="../src/app/SettingsDialog.cpp" line="249" />
         <source>Autosave</source>
         <translation>Automatyczny zapis</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="299" />
+        <location filename="../src/app/SettingsDialog.cpp" line="250" />
         <source>Keeps your program safe between sessions, even without saving a file.</source>
         <translation>Zachowuje program między uruchomieniami aplikacji, nawet jeśli nie zapiszesz go w pliku.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="302" />
+        <location filename="../src/app/SettingsDialog.cpp" line="253" />
         <source>Startup</source>
         <translation>Uruchamianie</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="304" />
+        <location filename="../src/app/SettingsDialog.cpp" line="255" />
         <source>Last used</source>
         <translation>Ostatnio otwarta</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="305" />
+        <location filename="../src/app/SettingsDialog.cpp" line="256" />
         <source>Program</source>
         <translation>Program</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="310" />
+        <location filename="../src/app/SettingsDialog.cpp" line="257" />
+        <source>Controller</source>
+        <translation>Pad</translation>
+    </message>
+    <message>
+        <location filename="../src/app/SettingsDialog.cpp" line="261" />
         <source>Open on</source>
         <translation>Karta na starcie</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="324" />
-        <source>Control style</source>
-        <translation>Tryb sterowania</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="325" />
-        <source>Arcade</source>
-        <translation>Zręcznościowy</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="325" />
-        <source>Tank</source>
-        <translation>Czołg</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="325" />
-        <source>Racing</source>
-        <translation>Wyścigowy</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="336" />
-        <source>Motors</source>
-        <translation>Silniki</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="336" />
-        <source>Which NXT output drives each side of the robot.</source>
-        <translation>Które wyjście NXT napędza każdą ze stron robota.</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="343" />
-        <source>Left side</source>
-        <translation>Lewa strona</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="344" />
-        <source>Right side</source>
-        <translation>Prawa strona</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="345" />
-        <source>Extra (LB/RB)</source>
-        <translation>Dodatkowy (L1/R1)</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="358" />
-        <source>Reverse</source>
-        <translation>Odwróć</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="372" />
-        <source>Feel</source>
-        <translation>Czułość</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="375" />
-        <source>Top speed</source>
-        <translation>Prędkość maksymalna</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="376" />
-        <source>Extra motor power</source>
-        <translation>Moc dodatkowego silnika</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="377" />
-        <source>Stick deadzone</source>
-        <translation>Martwa strefa gałek</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="379" />
-        <source>Fine control (expo)</source>
-        <translation>Precyzja przy małym wychyleniu (expo)</translation>
-    </message>
-    <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="383" />
+        <location filename="../src/app/SettingsDialog.cpp" line="292" />
         <source>Motor behaviour</source>
         <translation>Zachowanie silników</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="385" />
+        <location filename="../src/app/SettingsDialog.cpp" line="294" />
         <source>Brake when stopped</source>
         <translation>Hamuj po zatrzymaniu</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="386" />
+        <location filename="../src/app/SettingsDialog.cpp" line="295" />
         <source>Holds the wheels in place instead of rolling to a stop.</source>
         <translation>Koła stają w miejscu, zamiast toczyć się siłą rozpędu.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="387" />
+        <location filename="../src/app/SettingsDialog.cpp" line="296" />
         <source>Speed regulation</source>
         <translation>Regulacja prędkości</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="388" />
+        <location filename="../src/app/SettingsDialog.cpp" line="297" />
         <source>The NXT adds power on slopes and under load to keep the speed steady.</source>
         <translation>NXT dodaje mocy pod górę i pod obciążeniem, aby utrzymać stałą prędkość.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="399" />
+        <location filename="../src/app/SettingsDialog.cpp" line="273" />
         <source>Connection</source>
         <translation>Połączenie</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="400" />
+        <location filename="../src/app/SettingsDialog.cpp" line="274" />
         <source>Connect automatically</source>
         <translation>Łącz automatycznie</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="401" />
+        <location filename="../src/app/SettingsDialog.cpp" line="275" />
         <source>Connects as soon as an NXT is plugged in.</source>
         <translation>Łączy się z kostką, gdy tylko ją podłączysz.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="402" />
+        <location filename="../src/app/SettingsDialog.cpp" line="276" />
         <source>Hello beep</source>
         <translation>Dźwięk powitania</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="403" />
+        <location filename="../src/app/SettingsDialog.cpp" line="277" />
         <source>The brick plays a short tune when it connects.</source>
         <translation>Po połączeniu kostka gra krótką melodię.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="406" />
+        <location filename="../src/app/SettingsDialog.cpp" line="280" />
         <source>Factory reset</source>
         <translation>Ustawienia fabryczne</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="407" />
+        <location filename="../src/app/SettingsDialog.cpp" line="281" />
         <source>Deletes the programs and files saved on the connected brick. The firmware stays; you see the list before anything is deleted.</source>
         <translation>Usuwa programy i pliki zapisane na podłączonej kostce. Firmware zostaje, a przed usunięciem zobaczysz listę plików.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="408" />
+        <location filename="../src/app/SettingsDialog.cpp" line="282" />
         <source>Reset the brick…</source>
         <translation>Przywróć ustawienia fabryczne…</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="426" />
+        <location filename="../src/app/SettingsDialog.cpp" line="308" />
         <source>Version %1</source>
         <translation>Wersja %1</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="427" />
+        <location filename="../src/app/SettingsDialog.cpp" line="309" />
         <source>Block programming and live gamepad driving for LEGO MINDSTORMS NXT.</source>
         <translation>Programowanie bloczkami i sterowanie padem na żywo dla LEGO MINDSTORMS NXT.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="430" />
+        <location filename="../src/app/SettingsDialog.cpp" line="312" />
         <source>Project on GitHub</source>
         <translation>Projekt na GitHubie</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="435" />
+        <location filename="../src/app/SettingsDialog.cpp" line="317" />
         <source>Reset</source>
         <translation>Resetowanie ustawień</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="435" />
+        <location filename="../src/app/SettingsDialog.cpp" line="317" />
         <source>Puts every setting back to how it was on first launch. Your programs are not touched.</source>
         <translation>Przywraca wszystkie ustawienia aplikacji do stanu z pierwszego uruchomienia. Twoje programy pozostają nietknięte.</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="436" />
+        <location filename="../src/app/SettingsDialog.cpp" line="318" />
         <source>Reset all settings</source>
         <translation>Przywróć ustawienia domyślne</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="438" />
+        <location filename="../src/app/SettingsDialog.cpp" line="320" />
         <source>Reset settings</source>
         <translation>Przywracanie ustawień</translation>
     </message>
     <message>
-        <location filename="../src/app/SettingsDialog.cpp" line="438" />
+        <location filename="../src/app/SettingsDialog.cpp" line="320" />
         <source>Reset all settings and restart NXT Studio?</source>
         <translation>Przywrócić wszystkie ustawienia i uruchomić ponownie NXT Studio?</translation>
     </message>
