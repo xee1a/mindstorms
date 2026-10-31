@@ -55,6 +55,7 @@ DriveView::DriveView(QWidget *parent) : QWidget(parent)
     titles->setSpacing(2);
     titles->addWidget(ui::label(tr("Controller"), "h1", card));
     m_padName = ui::label({}, "muted", card);
+    m_padName->setWordWrap(true);
     titles->addWidget(m_padName);
     head->addLayout(titles, 1);
     m_padPick = new QComboBox(card);
@@ -254,6 +255,7 @@ void DriveView::tick()
 {
     PadSnapshot snap = drive::Gamepad::instance().snapshot();
     if (!snap.connected) snap.input = keyboardInput();
+    if (snap.digitalMode != m_digitalShown) onPadConnection(snap.connected);
     m_pad->setOnline(snap.connected);
     m_pad->setState(snap.input, snap.buttons);
     for (InputRow &r : m_rows) {
@@ -316,9 +318,13 @@ void DriveView::onPadButton(PadButton b)
 void DriveView::onPadConnection(bool connected)
 {
     auto &pad = drive::Gamepad::instance();
+    m_digitalShown = connected && pad.snapshot().digitalMode;
     if (!connected) m_padName->setText(tr("Plug in a USB controller and press any button."));
+    else if (pad.snapshot().digitalMode)
+        m_padName->setText(tr("The pad is in digital mode: the right stick works like the A, B, X and Y buttons. "
+                              "Press ANALOG (or MODE) on the pad so its light comes on."));
     else if (pad.snapshot().directInput)
-        m_padName->setText(tr("USB gamepad connected. Press START to drive. If the sticks move like the D-pad, press MODE."));
+        m_padName->setText(tr("USB gamepad connected. Press START to drive."));
     else m_padName->setText(tr("Controller %1 connected. Press START to drive.").arg(pad.snapshot().slot + 1));
     const auto padSlots = pad.connectedSlots();
     m_padPick->clear();

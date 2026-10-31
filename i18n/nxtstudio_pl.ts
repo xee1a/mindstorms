@@ -944,64 +944,64 @@
 <context>
     <name>Brick</name>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="72" />
+        <location filename="../src/nxt/Brick.cpp" line="76" />
         <source>Battery full</source>
         <translation>Bateria pełna</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="73" />
+        <location filename="../src/nxt/Brick.cpp" line="77" />
         <source>Battery good</source>
         <translation>Bateria naładowana</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="74" />
+        <location filename="../src/nxt/Brick.cpp" line="78" />
         <source>Battery half empty</source>
         <translation>Bateria w połowie</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="75" />
+        <location filename="../src/nxt/Brick.cpp" line="79" />
         <source>Battery low</source>
         <translation>Bateria słaba</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="76" />
+        <location filename="../src/nxt/Brick.cpp" line="80" />
         <source>Replace the batteries</source>
         <translation>Wymień baterie</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="198" />
+        <location filename="../src/nxt/Brick.cpp" line="206" />
         <source>The NXT didn't answer over Bluetooth. Is it switched on and nearby?</source>
         <translation>Kostka NXT nie odpowiada przez Bluetooth. Czy jest włączona i znajduje się w pobliżu?</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="517" />
-        <location filename="../src/nxt/Brick.cpp" line="532" />
-        <location filename="../src/nxt/Brick.cpp" line="582" />
+        <location filename="../src/nxt/Brick.cpp" line="525" />
+        <location filename="../src/nxt/Brick.cpp" line="623" />
+        <location filename="../src/nxt/Brick.cpp" line="652" />
         <source>The NXT isn't connected.</source>
         <translation>Kostka NXT nie jest połączona.</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="524" />
+        <location filename="../src/nxt/Brick.cpp" line="532" />
         <source>The NXT was disconnected.</source>
         <translation>Kostka NXT została odłączona.</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="526" />
+        <location filename="../src/nxt/Brick.cpp" line="534" />
         <source>Couldn't read the list of files: %1</source>
         <translation>Nie udało się odczytać listy plików: %1</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="543" />
+        <location filename="../src/nxt/Brick.cpp" line="566" />
         <source>There isn't enough free memory on the NXT. Delete some files from the brick, or use Factory reset in Settings → Brick.</source>
         <translation>Na kostce NXT brakuje wolnej pamięci. Usuń z niej część plików albo przywróć ustawienia fabryczne (Ustawienia → Kostka).</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="566" />
+        <location filename="../src/nxt/Brick.cpp" line="643" />
         <source>The NXT was disconnected during the upload. Connect it again and retry.</source>
         <translation>Kostka NXT została odłączona podczas wgrywania. Podłącz ją ponownie i spróbuj jeszcze raz.</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="607" />
+        <location filename="../src/nxt/Brick.cpp" line="694" />
         <source>The NXT was disconnected during the reset. Connect it again and retry.</source>
         <translation>Kostka NXT została odłączona podczas przywracania ustawień. Podłącz ją ponownie i spróbuj jeszcze raz.</translation>
     </message>
@@ -1178,7 +1178,7 @@
         <source>%1 KB</source>
         <translation>%1 KB</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>Compiler</name>
     <message>
@@ -1220,202 +1220,197 @@
         <translation>Pad</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="94" />
+        <location filename="../src/views/DriveView.cpp" line="95" />
         <source>No extra motor set</source>
         <translation>Nie ustawiono dodatkowego silnika</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="95" />
+        <location filename="../src/views/DriveView.cpp" line="96" />
         <source>Motor %1 backwards</source>
         <translation>Silnik %1 do tyłu</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="96" />
+        <location filename="../src/views/DriveView.cpp" line="97" />
         <source>Motor %1 forwards</source>
         <translation>Silnik %1 do przodu</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="99" />
+        <location filename="../src/views/DriveView.cpp" line="100" />
         <source>Not used in this style</source>
         <translation>Nieużywane w tym trybie</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="104" />
+        <location filename="../src/views/DriveView.cpp" line="105" />
         <source>Left stick</source>
         <translation>Lewa gałka</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="107" />
+        <location filename="../src/views/DriveView.cpp" line="108" />
         <source>Drive forward/back and steer</source>
         <translation>Jazda do przodu i do tyłu oraz skręcanie</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="108" />
+        <location filename="../src/views/DriveView.cpp" line="109" />
         <source>Left side (motor %1)</source>
         <translation>Lewa strona (silnik %1)</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="109" />
-        <location filename="../src/views/DriveView.cpp" line="127" />
+        <location filename="../src/views/DriveView.cpp" line="110" />
+        <location filename="../src/views/DriveView.cpp" line="128" />
         <source>Steer</source>
         <translation>Skręcanie</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="113" />
+        <location filename="../src/views/DriveView.cpp" line="114" />
         <source>Turbo: full power while held</source>
         <translation>Turbo: pełna moc, dopóki trzymasz</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="115" />
+        <location filename="../src/views/DriveView.cpp" line="116" />
         <source>Top speed ±10% (now %1%)</source>
         <translation>Prędkość maksymalna ±10% (teraz %1%)</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="117" />
+        <location filename="../src/views/DriveView.cpp" line="118" />
         <source>Extra motor power ±10% (now %1%)</source>
         <translation>Moc dodatkowego silnika ±10% (teraz %1%)</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="118" />
+        <location filename="../src/views/DriveView.cpp" line="119" />
         <source>Switch control style</source>
         <translation>Zmień tryb sterowania</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="119" />
+        <location filename="../src/views/DriveView.cpp" line="120" />
         <source>Start / pause driving</source>
         <translation>Rozpocznij lub wstrzymaj jazdę</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="122" />
+        <location filename="../src/views/DriveView.cpp" line="123" />
         <source>Accelerate</source>
         <translation>Gaz</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="124" />
+        <location filename="../src/views/DriveView.cpp" line="125" />
         <source>Right stick</source>
         <translation>Prawa gałka</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="128" />
+        <location filename="../src/views/DriveView.cpp" line="129" />
         <source>Right side (motor %1)</source>
         <translation>Prawa strona (silnik %1)</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="134" />
-        <location filename="../src/views/DriveView.cpp" line="294" />
+        <location filename="../src/views/DriveView.cpp" line="135" />
+        <location filename="../src/views/DriveView.cpp" line="296" />
         <source>Precision mode: on (half power)</source>
         <translation>Tryb precyzyjny: włączony (połowa mocy)</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="134" />
-        <location filename="../src/views/DriveView.cpp" line="294" />
+        <location filename="../src/views/DriveView.cpp" line="135" />
+        <location filename="../src/views/DriveView.cpp" line="296" />
         <source>Precision mode: off</source>
         <translation>Tryb precyzyjny: wyłączony</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="136" />
-        <location filename="../src/views/DriveView.cpp" line="289" />
+        <location filename="../src/views/DriveView.cpp" line="137" />
+        <location filename="../src/views/DriveView.cpp" line="291" />
         <source>Brake when stopped: on</source>
         <translation>Hamowanie po zatrzymaniu: włączone</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="136" />
-        <location filename="../src/views/DriveView.cpp" line="289" />
+        <location filename="../src/views/DriveView.cpp" line="137" />
+        <location filename="../src/views/DriveView.cpp" line="291" />
         <source>Brake when stopped: off</source>
         <translation>Hamowanie po zatrzymaniu: wyłączone</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="137" />
+        <location filename="../src/views/DriveView.cpp" line="138" />
         <source>Reset rotation counters</source>
         <translation>Wyzeruj liczniki obrotów</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="138" />
+        <location filename="../src/views/DriveView.cpp" line="139" />
         <source>Emergency stop</source>
         <translation>Zatrzymanie awaryjne</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="139" />
+        <location filename="../src/views/DriveView.cpp" line="140" />
         <source>Horn</source>
         <translation>Klakson</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="151" />
+        <location filename="../src/views/DriveView.cpp" line="152" />
         <source>Stop</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="154" />
+        <location filename="../src/views/DriveView.cpp" line="155" />
         <source>Stop all motors (B or Space)</source>
         <translation>Zatrzymaj wszystkie silniki (B lub spacja)</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="160" />
+        <location filename="../src/views/DriveView.cpp" line="161" />
         <source>No controller? Drive with &lt;b&gt;W A S D&lt;/b&gt; or the arrows, &lt;b&gt;Q&lt;/b&gt; / &lt;b&gt;E&lt;/b&gt; for the extra motor, &lt;b&gt;Space&lt;/b&gt; stops. Change ports and feel in Settings → Drive.</source>
         <translation>Nie masz pada? Steruj klawiszami &lt;b&gt;W A S D&lt;/b&gt; lub strzałkami, &lt;b&gt;Q&lt;/b&gt; i &lt;b&gt;E&lt;/b&gt; obsługują dodatkowy silnik, a &lt;b&gt;spacja&lt;/b&gt; zatrzymuje robota. Porty i czułość zmienisz w Ustawienia → Jazda.</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="202" />
+        <location filename="../src/views/DriveView.cpp" line="203" />
         <source>Style: %1</source>
         <translation>Tryb: %1</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="203" />
+        <location filename="../src/views/DriveView.cpp" line="204" />
         <source> · precision</source>
         <translation> · precyzja</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="225" />
+        <location filename="../src/views/DriveView.cpp" line="226" />
         <source>●  Driving · START to pause</source>
         <translation>●  Jazda · START wstrzymuje</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="225" />
+        <location filename="../src/views/DriveView.cpp" line="226" />
         <source>○  Start driving · START</source>
         <translation>○  Rozpocznij jazdę · START</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="285" />
+        <location filename="../src/views/DriveView.cpp" line="287" />
         <source>Rotation counters reset</source>
         <translation>Wyzerowano liczniki obrotów</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="299" />
+        <location filename="../src/views/DriveView.cpp" line="301" />
         <source>Control style: %1</source>
         <translation>Tryb sterowania: %1</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="304" />
+        <location filename="../src/views/DriveView.cpp" line="306" />
         <source>Top speed: %1%</source>
         <translation>Prędkość maksymalna: %1%</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="309" />
+        <location filename="../src/views/DriveView.cpp" line="311" />
         <source>Extra motor power: %1%</source>
         <translation>Moc dodatkowego silnika: %1%</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="319" />
+        <location filename="../src/views/DriveView.cpp" line="322" />
         <source>Plug in a USB controller and press any button.</source>
         <translation>Podłącz pad USB i naciśnij dowolny przycisk.</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="321" />
-        <source>USB gamepad connected. Press START to drive. If the sticks move like the D-pad, press MODE.</source>
-        <translation>Pad USB jest podłączony. Naciśnij START, aby jechać. Jeśli gałki działają jak krzyżak, naciśnij MODE.</translation>
-    </message>
-    <message>
-        <location filename="../src/views/DriveView.cpp" line="322" />
+        <location filename="../src/views/DriveView.cpp" line="328" />
         <source>Controller %1 connected. Press START to drive.</source>
         <translation>Pad %1 jest podłączony. Naciśnij START, aby jechać.</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="336" />
+        <location filename="../src/views/DriveView.cpp" line="342" />
         <source>Brick: %1</source>
         <translation>Kostka: %1</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="336" />
+        <location filename="../src/views/DriveView.cpp" line="342" />
         <source>No brick: preview only</source>
         <translation>Brak kostki – tylko podgląd</translation>
     </message>
@@ -1435,121 +1430,145 @@
         <translation>Wyścigowy</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="102" />
+        <location filename="../src/views/DriveView.cpp" line="103" />
         <source>Reverse</source>
         <translation>Odwróć</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="325" />
+        <location filename="../src/views/DriveView.cpp" line="324" />
+        <source>The pad is in digital mode: the right stick works like the A, B, X and Y buttons. Press ANALOG (or MODE) on the pad so its light comes on.</source>
+        <translation>Pad działa w trybie cyfrowym: prawa gałka zachowuje się jak przyciski A, B, X i Y. Naciśnij na padzie ANALOG (lub MODE), aby zapaliła się dioda.</translation>
+    </message>
+    <message>
+        <location filename="../src/views/DriveView.cpp" line="327" />
+        <source>USB gamepad connected. Press START to drive.</source>
+        <translation>Pad USB jest podłączony. Naciśnij START, aby jechać.</translation>
+    </message>
+    <message>
+        <location filename="../src/views/DriveView.cpp" line="331" />
         <source>Controller %1</source>
         <translation>Pad %1</translation>
     </message>
     <message>
-        <location filename="../src/views/DriveView.cpp" line="329" />
+        <location filename="../src/views/DriveView.cpp" line="335" />
         <source>Controller disconnected, so the motors were stopped.</source>
         <translation>Pad został odłączony, więc silniki zostały zatrzymane.</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>FactoryResetDialog</name>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="28" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="29" />
         <source>Factory reset</source>
         <translation>Ustawienia fabryczne</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="33" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="34" />
         <source>Reset the brick to factory settings</source>
         <translation>Przywracanie ustawień fabrycznych kostki</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="35" />
-        <source>&lt;p&gt;&lt;b&gt;Removed:&lt;/b&gt; your programs, pictures, sounds and data files.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Kept:&lt;/b&gt; the firmware, the brick's own settings and, unless you tick the box below, LEGO's system sounds and Try Me programs.&lt;/p&gt;&lt;p&gt;Deleted files can't be brought back.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;Zostaną usunięte:&lt;/b&gt; Twoje programy, obrazy, dźwięki i pliki z danymi.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Zostaną zachowane:&lt;/b&gt; firmware, ustawienia samej kostki oraz – jeśli nie zaznaczysz pola poniżej – systemowe dźwięki LEGO i programy Try Me.&lt;/p&gt;&lt;p&gt;Usuniętych plików nie da się odzyskać.&lt;/p&gt;</translation>
+        <location filename="../src/app/FactoryResetDialog.cpp" line="36" />
+        <source>&lt;p&gt;&lt;b&gt;Removed:&lt;/b&gt; your programs, pictures, sounds and data files.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Kept:&lt;/b&gt; the firmware, the brick's own settings and, unless you tick the box below, LEGO's system sounds and Try Me programs.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Put back:&lt;/b&gt; system sounds and Try Me programs that are missing from the brick.&lt;/p&gt;&lt;p&gt;Your own deleted files can't be brought back.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;Zostaną usunięte:&lt;/b&gt; Twoje programy, obrazy, dźwięki i pliki z danymi.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Zostaną zachowane:&lt;/b&gt; firmware, ustawienia samej kostki oraz – jeśli nie zaznaczysz pola poniżej – systemowe dźwięki LEGO i programy Try Me.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Zostaną przywrócone:&lt;/b&gt; systemowe dźwięki i programy Try Me, których brakuje na kostce.&lt;/p&gt;&lt;p&gt;Usuniętych plików nie da się odzyskać.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="43" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="45" />
         <source>Reading the files on the brick…</source>
         <translation>Odczytywanie listy plików z kostki…</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="51" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="53" />
         <source>Also remove LEGO's system sounds and Try Me programs (frees the most space)</source>
         <translation>Usuń również systemowe dźwięki LEGO i programy Try Me (zwalnia najwięcej miejsca)</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="52" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="54" />
         <source>Rename the brick back to “NXT”</source>
         <translation>Przywróć nazwę kostki „NXT”</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="54" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="56" />
         <source>I understand that the files listed above will be deleted</source>
         <translation>Rozumiem, że pliki z powyższej listy zostaną usunięte</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="68" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="70" />
         <source>Cancel</source>
         <translation>Anuluj</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="69" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="71" />
         <source>Delete and reset</source>
         <translation>Usuń i przywróć</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="86" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="88" />
         <source>Couldn't read the files: %1</source>
         <translation>Nie udało się odczytać listy plików: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="92" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="94" />
         <source>The brick is busy with another task. Close this window and try again.</source>
         <translation>Kostka jest zajęta innym zadaniem. Zamknij to okno i spróbuj ponownie.</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="93" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="95" />
         <source>Connect the NXT first (Brick tab).</source>
         <translation>Najpierw połącz się z kostką NXT (karta Kostka).</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="120" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="122" />
         <source>will be deleted</source>
         <translation>zostanie usunięty</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="120" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="122" />
         <source>stays</source>
         <translation>zostaje</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="129" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="136" />
+        <source>will be put back</source>
+        <translation>zostanie przywrócony</translation>
+    </message>
+    <message>
+        <location filename="../src/app/FactoryResetDialog.cpp" line="142" />
         <source>There's nothing to delete: the brick only holds LEGO's own files.</source>
         <translation>Nie ma nic do usunięcia: na kostce są tylko pliki LEGO.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/app/FactoryResetDialog.cpp" line="130" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="143" />
         <source>%n file(s) will be deleted, freeing %1 KB.</source>
         <translation>
-            <numerusform>%n plik zostanie usunięty, zwalniając %1 KB.</numerusform><numerusform>%n pliki zostaną usunięte, zwalniając %1 KB.</numerusform><numerusform>%n plików zostanie usuniętych, zwalniając %1 KB.</numerusform></translation>
+            <numerusform>%n plik zostanie usunięty, zwalniając %1 KB.</numerusform>
+            <numerusform>%n pliki zostaną usunięte, zwalniając %1 KB.</numerusform>
+            <numerusform>%n plików zostanie usuniętych, zwalniając %1 KB.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/app/FactoryResetDialog.cpp" line="144" />
+        <source>%n missing LEGO file(s) will be put back.</source>
+        <translation>
+            <numerusform>Brakujący plik LEGO zostanie przywrócony.</numerusform><numerusform>%n brakujące pliki LEGO zostaną przywrócone.</numerusform><numerusform>%n brakujących plików LEGO zostanie przywróconych.</numerusform></translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="146" />
-        <source>Deleting files… Don't switch the brick off.</source>
-        <translation>Usuwanie plików… Nie wyłączaj kostki.</translation>
+        <location filename="../src/app/FactoryResetDialog.cpp" line="161" />
+        <source>Resetting the brick… Don't switch it off.</source>
+        <translation>Przywracanie ustawień fabrycznych… Nie wyłączaj kostki.</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="149" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="164" />
         <source>The brick is busy with another task. Try again in a moment.</source>
         <translation>Kostka jest zajęta innym zadaniem. Spróbuj ponownie za chwilę.</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="160" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="175" />
         <source>The reset stopped: %1</source>
         <translation>Przywracanie zostało przerwane: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/FactoryResetDialog.cpp" line="165" />
+        <location filename="../src/app/FactoryResetDialog.cpp" line="180" />
         <source>The brick is back to factory settings</source>
         <translation>Przywrócono ustawienia fabryczne kostki</translation>
     </message>
@@ -1607,7 +1626,7 @@
         <source>●  Not connected</source>
         <translation>●  Brak połączenia</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>NxcGenerator</name>
     <message>
@@ -1764,7 +1783,10 @@
         <location filename="../src/views/ProgramView.cpp" line="252" />
         <source>%n block(s)</source>
         <translation>
-            <numerusform>%n bloczek</numerusform><numerusform>%n bloczki</numerusform><numerusform>%n bloczków</numerusform></translation>
+            <numerusform>%n bloczek</numerusform>
+            <numerusform>%n bloczki</numerusform>
+            <numerusform>%n bloczków</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/views/ProgramView.cpp" line="266" />
@@ -1880,27 +1902,27 @@
 <context>
     <name>Sensors</name>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="51" />
+        <location filename="../src/nxt/Brick.cpp" line="55" />
         <source>Touch</source>
         <translation>Dotyk</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="52" />
+        <location filename="../src/nxt/Brick.cpp" line="56" />
         <source>Light (reflected)</source>
         <translation>Światło (odbite)</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="53" />
+        <location filename="../src/nxt/Brick.cpp" line="57" />
         <source>Light (ambient)</source>
         <translation>Światło (z otoczenia)</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="54" />
+        <location filename="../src/nxt/Brick.cpp" line="58" />
         <source>Sound</source>
         <translation>Dźwięk</translation>
     </message>
     <message>
-        <location filename="../src/nxt/Brick.cpp" line="57" />
+        <location filename="../src/nxt/Brick.cpp" line="61" />
         <source>Not used</source>
         <translation>Nieużywany</translation>
     </message>

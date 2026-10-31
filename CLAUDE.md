@@ -25,6 +25,9 @@ The Brick (Kostka) tab explains this to users.
 - `src/nxt/Brick.*`: `BrickWorker` runs on its own thread and owns the transport, coalesces motor commands,
   polls telemetry and auto-reconnects. It also uploads programs, lists files, does the factory reset and
   streams the gamepad into inbox 10 while a program runs on the brick. `Brick::instance()` is the UI-side facade.
+- `src/nxt/SystemFiles.*`: copies of LEGO's own files (system sounds, Try Me programs), read from each brick over USB into
+  `%APPDATA%\NXT Studio\NXT Studio\brick-files`; a normal factory reset writes back any that are missing. The three firmware
+  sounds also have synthesised stand-ins (never bundle LEGO's files themselves)
 - `src/drive/Mixer.*`: pure tank/arcade/racing mixer (unit tested). `Gamepad.*` handles XInput/DirectInput polling.
   `PadLink.*` encodes the pad for programs on the brick.
 - `src/compile/`: `NxcGenerator` turns a workspace into NXC (unit tested: every block compiles with nbc);

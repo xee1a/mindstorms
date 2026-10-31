@@ -62,6 +62,8 @@ private:
 
     drive::DriveConfig m_cfg;
     bool m_armed = false;
+    /** Whether the pad label currently shows the digital-mode hint. */
+    bool m_digitalShown = false;
     bool m_precision = false;
     QSet<int> m_keys;
     QTimer m_tick;

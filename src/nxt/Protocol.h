@@ -35,7 +35,9 @@ constexpr uint8_t GetCurrentProgramName = 0x11;
 } // namespace DirectOp
 
 namespace SystemOp {
+constexpr uint8_t OpenRead = 0x80;
 constexpr uint8_t OpenWrite = 0x81;
+constexpr uint8_t Read = 0x82;
 constexpr uint8_t Write = 0x83;
 constexpr uint8_t Close = 0x84;
 constexpr uint8_t Delete = 0x85;
@@ -56,6 +58,8 @@ constexpr uint8_t FileExists = 0x8f;
 
 /** Largest data chunk one USB packet carries in a WRITE command (64 bytes minus the 3-byte header). */
 constexpr int MaxWriteChunk = 61;
+/** Largest data chunk one USB reply carries for a READ command (64 bytes minus the 6-byte header). */
+constexpr int MaxReadChunk = 58;
 /** Inbox (0-based) the app streams the gamepad into, for programs that use pad blocks. */
 constexpr int PadMailbox = 9;
 
@@ -148,6 +152,8 @@ QByteArray getCurrentProgramName();
 QByteArray messageWrite(int mailbox, const QByteArray &message);
 
 // System commands for files. Names are 15.3 characters at most.
+QByteArray openRead(const QString &name);
+QByteArray readChunk(uint8_t handle, int count);
 QByteArray openWrite(const QString &name, uint32_t size);
 QByteArray writeChunk(uint8_t handle, const QByteArray &data);
 QByteArray closeHandle(uint8_t handle);
@@ -166,6 +172,15 @@ uint8_t replyStatus(const QByteArray &reply, uint8_t op);
 void checkStatus(const QByteArray &reply, uint8_t op);
 /** Handle from an OPEN WRITE reply. Throws NxtError on failure. */
 uint8_t parseOpenWrite(const QByteArray &reply);
+
+struct OpenedFile {
+    uint8_t handle = 0;
+    uint32_t size = 0;
+};
+/** Handle and size from an OPEN READ reply. Throws NxtError on failure. */
+OpenedFile parseOpenRead(const QByteArray &reply);
+/** Data from a READ reply. Throws NxtError on failure. */
+QByteArray parseRead(const QByteArray &reply);
 
 struct FoundFile {
     uint8_t handle = 0;

@@ -86,7 +86,8 @@ public slots:
     /** Stops whatever runs on the brick, replaces `name` with `data` and optionally starts it. */
     void uploadProgram(const QString &name, const QByteArray &data, bool run);
     void listFiles();
-    /** Deletes user files (all files except settings when `everything`), and renames the brick "NXT" when `rename`. */
+    /** Deletes user files (all files except settings when `everything`), and renames the brick "NXT" when `rename`.
+     *  A normal reset also puts back LEGO's system sounds and Try Me programs that are missing (see SystemFiles). */
     void factoryReset(bool everything, bool rename);
     /** Latest gamepad packet for programs that read the pad; empty stops streaming. */
     void setPadMessage(const QByteArray &message);
@@ -101,6 +102,12 @@ signals:
 private:
     void attach(std::unique_ptr<Transport> transport, const QString &link, bool bluetooth);
     QList<BrickFile> findFiles();
+    QByteArray readFile(const QString &name, uint32_t expectedSize);
+    /** Writes a new file, reporting progress between `from` and `to` percent. Removes a half-written file on failure. */
+    void writeFile(const QString &name, const QByteArray &data, int from, int to);
+    /** Copies LEGO's files on the brick to the PC, once each, so a later reset can put them back. */
+    void keepSystemFiles(const QList<BrickFile> &files);
+    void backupSystemFiles(int serial);
     void stopRunningProgram();
     void streamPad();
     void linkLost(const QString &message);
@@ -123,6 +130,8 @@ private:
     QByteArray m_padSent;
     qint64 m_lastPadSend = 0;
     qint64 m_lastProgramCheck = 0;
+    /** Bumped on every connection, so a delayed backup can tell it still has the same brick. */
+    int m_connectSerial = 0;
     QElapsedTimer m_clock;
     qint64 m_lastBattery = 0;
     qint64 m_lastKeepAlive = 0;

@@ -276,21 +276,47 @@ void BrickArt::paintEvent(QPaintEvent *)
 
 namespace {
 
-/** Button centres as fractions of the drawing's width and height. */
+// The drawing is laid out on a 520 × 405 grid and scaled to the widget.
+constexpr qreal ArtW = 520, ArtH = 405;
+
 struct Hotspot {
     drive::PadButton button;
-    qreal x, y, r; // r is a fraction of the width
+    qreal x, y, r;
 };
 
 constexpr Hotspot PadHotspots[] = {
-    {drive::PadButton::Y, 0.782, 0.294, 0.034},    {drive::PadButton::X, 0.704, 0.385, 0.034},
-    {drive::PadButton::B, 0.854, 0.385, 0.034},    {drive::PadButton::A, 0.780, 0.483, 0.034},
-    {drive::PadButton::Up, 0.222, 0.318, 0.028},   {drive::PadButton::Down, 0.222, 0.450, 0.028},
-    {drive::PadButton::Left, 0.170, 0.383, 0.028}, {drive::PadButton::Right, 0.276, 0.383, 0.028},
-    {drive::PadButton::Back, 0.501, 0.411, 0.026}, {drive::PadButton::Start, 0.501, 0.473, 0.026},
-    {drive::PadButton::LB, 0.229, 0.150, 0.050},   {drive::PadButton::RB, 0.767, 0.150, 0.050},
-    {drive::PadButton::LS, 0.361, 0.594, 0.066},   {drive::PadButton::RS, 0.638, 0.594, 0.066},
+    {drive::PadButton::Y, 398, 132, 16},    {drive::PadButton::X, 364, 166, 16},     {drive::PadButton::B, 432, 166, 16},
+    {drive::PadButton::A, 398, 200, 16},    {drive::PadButton::Up, 122, 138, 13},    {drive::PadButton::Down, 122, 194, 13},
+    {drive::PadButton::Left, 94, 166, 13},  {drive::PadButton::Right, 150, 166, 13}, {drive::PadButton::Back, 228, 160, 11},
+    {drive::PadButton::Start, 292, 160, 11}, {drive::PadButton::LB, 128, 84, 22},    {drive::PadButton::RB, 392, 84, 22},
+    {drive::PadButton::LS, 192, 240, 33},   {drive::PadButton::RS, 328, 240, 33},
 };
+// Triggers sit above the bumpers; only their tops show behind the body.
+constexpr QPointF TriggerCentre[2] = {{128, 56}, {392, 56}};
+
+/** Outline of the controller, one closed shape: the left half is drawn and mirrored. */
+QPainterPath padBody()
+{
+    // Left half from the top centre, anticlockwise to the bottom centre.
+    const auto half = [](QPainterPath &p, bool mirror) {
+        const auto pt = [mirror](qreal x, qreal y) { return QPointF(mirror ? ArtW - x : x, y); };
+        p.moveTo(pt(260, 96));
+        p.lineTo(pt(170, 96));
+        p.cubicTo(pt(110, 94), pt(66, 104), pt(54, 150));
+        p.cubicTo(pt(42, 196), pt(30, 290), pt(48, 336));
+        p.cubicTo(pt(62, 372), pt(110, 384), pt(134, 356));
+        p.cubicTo(pt(152, 334), pt(166, 300), pt(200, 292));
+        p.cubicTo(pt(230, 286), pt(250, 286), pt(260, 286));
+    };
+    QPainterPath left, right;
+    half(left, false);
+    half(right, true);
+    // Join the halves: down the left side, then back up the right side reversed.
+    QPainterPath body = left;
+    body.connectPath(right.toReversed());
+    body.closeSubpath();
+    return body;
+}
 
 void glow(QPainter &p, QPointF c, qreal r, QColor color, qreal strength = 1.0)
 {
@@ -347,59 +373,68 @@ void PadView::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
-    const QSizeF art = QSizeF(sizeHint()).scaled(QSizeF(size()), Qt::KeepAspectRatio);
-    const QRectF r(QPointF((width() - art.width()) / 2, (height() - art.height()) / 2), art);
+    const QSizeF art = QSizeF(ArtW, ArtH).scaled(QSizeF(size()), Qt::KeepAspectRatio);
+    p.translate((width() - art.width()) / 2, (height() - art.height()) / 2);
+    p.scale(art.width() / ArtW, art.height() / ArtH);
+    const QRectF r(0, 0, ArtW, ArtH);
     p.setOpacity(m_on ? 1.0 : 0.55);
     paintPad(p, r);
-    p.setOpacity(1.0);
-    if (m_on) paintHighlights(p, r);
+    paintHighlights(p, r);
 }
 
-void PadView::paintPad(QPainter &p, const QRectF &r) const
+void PadView::paintPad(QPainter &p, const QRectF &) const
 {
     using drive::PadButton;
-    const qreal W = r.width(), H = r.height();
-    const auto at = [&](qreal x, qreal y) { return QPointF(r.left() + x * W, r.top() + y * H); };
-    const auto box = [&](qreal x, qreal y, qreal w, qreal h) { return QRectF(r.left() + x * W, r.top() + y * H, w * W, h * H); };
+    QFont f = font();
+    f.setBold(true);
+    f.setPixelSize(13);
+    p.setFont(f);
 
-    // Triggers behind the shoulder buttons, then the bumpers.
-    for (qreal x : {0.229, 0.767}) {
+    // Triggers and bumpers peek out from behind the top edge.
+    for (int side = 0; side < 2; ++side) {
+        const QPointF t = TriggerCentre[side];
         p.setPen(QPen(theme::Border, 1.5));
         p.setBrush(theme::Surface);
-        p.drawRoundedRect(box(x - 0.07, 0.07, 0.14, 0.08), H * 0.03, H * 0.03);
+        p.drawRoundedRect(QRectF(t.x() - 40, t.y() - 16, 80, 40), 12, 12);
+        p.setPen(theme::Text3);
+        p.drawText(QRectF(t.x() - 40, t.y() - 15, 80, 18), Qt::AlignCenter, side ? QStringLiteral("R2") : QStringLiteral("L2"));
+        const Hotspot &b = PadHotspots[side ? 11 : 10];
+        p.setPen(QPen(theme::Border, 1.5));
         p.setBrush(theme::Surface2);
-        p.drawRoundedRect(box(x - 0.09, 0.115, 0.18, 0.075), H * 0.035, H * 0.035);
+        p.drawRoundedRect(QRectF(b.x - 56, b.y - 14, 112, 36), 14, 14);
+        p.setPen(theme::Text3);
+        p.drawText(QRectF(b.x - 56, b.y - 13, 112, 20), Qt::AlignCenter, side ? QStringLiteral("R1") : QStringLiteral("L1"));
     }
 
-    // Body: a wide rounded bar with two grips.
-    QPainterPath body;
-    body.addRoundedRect(box(0.1, 0.17, 0.8, 0.43), H * 0.16, H * 0.16);
-    for (qreal x : {0.235, 0.765}) {
-        QPainterPath grip;
-        grip.addEllipse(at(x, 0.62), W * 0.15, H * 0.27);
-        body = body.united(grip);
-    }
-    p.setPen(QPen(theme::Border, 2.5));
-    p.setBrush(theme::Surface3);
-    p.drawPath(body.simplified());
+    QLinearGradient shade(0, 96, 0, 380);
+    shade.setColorAt(0, theme::Surface3);
+    shade.setColorAt(1, theme::Surface2);
+    p.setPen(QPen(theme::Border, 2));
+    p.setBrush(shade);
+    p.drawPath(padBody());
 
-    // D-pad.
-    const QPointF d = at(0.222, 0.384);
-    const qreal arm = W * 0.088, thick = W * 0.05;
+    // D-pad: one plus-shaped key in a shallow round well.
+    const QPointF d(122, 166);
+    p.setPen(Qt::NoPen);
+    p.setBrush(theme::Surface2);
+    p.drawEllipse(d, 46, 46);
     QPainterPath cross;
-    cross.addRoundedRect(QRectF(d.x() - arm, d.y() - thick / 2, arm * 2, thick), 4, 4);
-    cross.addRoundedRect(QRectF(d.x() - thick / 2, d.y() - arm, thick, arm * 2), 4, 4);
+    cross.addRoundedRect(QRectF(d.x() - 40, d.y() - 13, 80, 26), 5, 5);
+    cross.addRoundedRect(QRectF(d.x() - 13, d.y() - 40, 26, 80), 5, 5);
     p.setPen(QPen(theme::Border, 1.5));
     p.setBrush(theme::Surface);
     p.drawPath(cross.simplified());
+    p.setPen(QPen(theme::Border, 1.2));
+    p.setBrush(Qt::NoBrush);
+    p.drawEllipse(d, 7, 7);
 
-    QFont f = font();
-    f.setBold(true);
-    f.setPixelSize(std::max(8, int(W * 0.028)));
-    p.setFont(f);
+    // Face buttons sit in a shallow well too.
+    p.setPen(Qt::NoPen);
+    p.setBrush(theme::Surface2);
+    p.drawEllipse(QPointF(398, 166), 58, 58);
+
     for (const Hotspot &h : PadHotspots) {
-        const QPointF c = at(h.x, h.y);
-        const qreal rad = h.r * W;
+        const QPointF c(h.x, h.y);
         switch (h.button) {
         case PadButton::A:
         case PadButton::B:
@@ -407,68 +442,68 @@ void PadView::paintPad(QPainter &p, const QRectF &r) const
         case PadButton::Y: {
             p.setPen(QPen(faceColour(h.button), 2));
             p.setBrush(theme::Surface);
-            p.drawEllipse(c, rad, rad);
-            p.setPen(theme::Text2);
+            p.drawEllipse(c, h.r, h.r);
+            p.setPen(faceColour(h.button));
             const char *names[] = {"A", "B", "X", "Y"};
-            p.drawText(QRectF(c.x() - rad, c.y() - rad, rad * 2, rad * 2), Qt::AlignCenter, QLatin1String(names[int(h.button)]));
+            p.drawText(QRectF(c.x() - h.r, c.y() - h.r, h.r * 2, h.r * 2), Qt::AlignCenter, QLatin1String(names[int(h.button)]));
             break;
         }
         case PadButton::Back:
         case PadButton::Start:
             p.setPen(QPen(theme::Border, 1.5));
             p.setBrush(theme::Surface);
-            p.drawRoundedRect(QRectF(c.x() - rad * 1.5, c.y() - rad * 0.55, rad * 3, rad * 1.1), rad * 0.55, rad * 0.55);
+            p.drawRoundedRect(QRectF(c.x() - 15, c.y() - 6, 30, 12), 6, 6);
             break;
         case PadButton::LS:
         case PadButton::RS:
-            p.setPen(QPen(theme::Border, 2));
+            p.setPen(Qt::NoPen);
             p.setBrush(theme::Surface2);
-            p.drawEllipse(c, rad, rad);
-            p.setBrush(theme::Surface);
-            p.drawEllipse(c, rad * 0.68, rad * 0.68);
+            p.drawEllipse(c, h.r + 6, h.r + 6);
+            p.setPen(QPen(theme::Border, 2));
+            p.setBrush(theme::Bg2);
+            p.drawEllipse(c, h.r, h.r);
             break;
-        case PadButton::LB:
-        case PadButton::RB: {
-            p.setPen(theme::Text3);
-            p.drawText(box(h.x - 0.09, 0.115, 0.18, 0.075), Qt::AlignCenter, h.button == PadButton::LB ? QStringLiteral("L1") : QStringLiteral("R1"));
-            break;
-        }
-        default: break; // the D-pad is drawn above
+        default: break; // D-pad and shoulders are drawn above
         }
     }
+    QFont small = f;
+    small.setPixelSize(9);
+    p.setFont(small);
     p.setPen(theme::Text3);
-    p.drawText(box(0.159, 0.07, 0.14, 0.08), Qt::AlignCenter, QStringLiteral("L2"));
-    p.drawText(box(0.697, 0.07, 0.14, 0.08), Qt::AlignCenter, QStringLiteral("R2"));
+    p.drawText(QRectF(203, 168, 50, 14), Qt::AlignCenter, QStringLiteral("SELECT"));
+    p.drawText(QRectF(267, 168, 50, 14), Qt::AlignCenter, QStringLiteral("START"));
 }
 
-void PadView::paintHighlights(QPainter &p, const QRectF &r) const
+void PadView::paintHighlights(QPainter &p, const QRectF &) const
 {
     using drive::PadButton;
-    const auto at = [&](qreal x, qreal y) { return QPointF(r.left() + x * r.width(), r.top() + y * r.height()); };
     for (const Hotspot &h : PadHotspots) {
-        const QPointF c = at(h.x, h.y);
-        const qreal rad = h.r * r.width();
+        const QPointF c(h.x, h.y);
         if (h.button == PadButton::LS || h.button == PadButton::RS) {
             const bool left = h.button == PadButton::LS;
-            const double sx = left ? m_input.leftX : m_input.rightX;
-            const double sy = left ? m_input.leftY : m_input.rightY;
+            // Offline, the caps just sit centred.
+            const double sx = !m_on ? 0 : left ? m_input.leftX : m_input.rightX;
+            const double sy = !m_on ? 0 : left ? m_input.leftY : m_input.rightY;
             const double mag = std::min(1.0, std::hypot(sx, sy));
-            if (m_buttons[int(h.button)]) glow(p, c, rad * 0.9, theme::Warm);
+            if (m_on && m_buttons[int(h.button)]) glow(p, c, h.r * 0.9, theme::Warm);
             // The cap follows the stick.
-            const QPointF tip = c + QPointF(sx, -sy) * rad * 0.45;
-            if (mag > 0.08) glow(p, tip, rad * 0.42, theme::Accent, 0.4 + 0.6 * mag);
+            const QPointF tip = c + QPointF(sx, -sy) * h.r * 0.4;
+            if (mag > 0.08) glow(p, tip, h.r * 0.45, theme::Accent, 0.4 + 0.6 * mag);
             p.setPen(QPen(mag > 0.08 ? theme::Accent : theme::Border, 2));
-            p.setBrush(theme::Surface);
-            p.drawEllipse(tip, rad * 0.55, rad * 0.55);
+            p.setBrush(theme::Surface3);
+            p.drawEllipse(tip, h.r * 0.6, h.r * 0.6);
+            p.setPen(QPen(theme::Border, 1));
+            p.setBrush(Qt::NoBrush);
+            p.drawEllipse(tip, h.r * 0.42, h.r * 0.42);
             continue;
         }
-        if (!m_buttons[int(h.button)]) continue;
+        if (!m_on || !m_buttons[int(h.button)]) continue;
         const bool face = h.button == PadButton::A || h.button == PadButton::B || h.button == PadButton::X || h.button == PadButton::Y;
-        glow(p, c, rad, face ? faceColour(h.button) : theme::Accent);
+        glow(p, c, h.r, face ? faceColour(h.button) : theme::Accent);
     }
     for (int side = 0; side < 2; ++side) {
         const double v = side ? m_input.rightTrigger : m_input.leftTrigger;
-        if (v > 0.03) glow(p, at(side ? 0.767 : 0.229, 0.11), 0.05 * r.width(), theme::Warm, v);
+        if (m_on && v > 0.03) glow(p, TriggerCentre[side], 22, theme::Warm, v);
     }
 }
 

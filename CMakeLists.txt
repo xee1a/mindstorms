@@ -14,6 +14,7 @@ endif()
 # Pure logic shared by the app and the tests.
 add_library(nxtcore STATIC
     src/nxt/Protocol.cpp src/nxt/Protocol.h
+    src/nxt/SystemFiles.cpp src/nxt/SystemFiles.h
     src/drive/Mixer.cpp src/drive/Mixer.h
     src/drive/PadLink.cpp src/drive/PadLink.h
     src/blocks/BlockDefs.cpp src/blocks/BlockDefs.h

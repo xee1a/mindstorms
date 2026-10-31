@@ -107,7 +107,12 @@ Gamepad::~Gamepad() = default;
 
 bool Gamepad::pollDirectInput(PadSnapshot &snap, bool rescan)
 {
-    if (!m_direct->device && !(rescan && m_direct->open())) return false;
+    if (!m_direct->device) {
+        if (!(rescan && m_direct->open())) return false;
+        m_lastLeftMag = 0;
+        m_fullJumps = 0;
+        m_digital = false;
+    }
     DIJOYSTATE2 st{};
     if (!m_direct->read(st)) return false;
     snap.connected = true;
@@ -129,9 +134,28 @@ bool Gamepad::pollDirectInput(PadSnapshot &snap, bool rescan)
         const int d = std::abs(int(pov) - int(angle)) % 36000;
         return !centred && std::min(d, 36000 - d) <= 6750;
     };
+    // With the ANALOG light off, these pads send the D-pad as the left stick (and the right stick as buttons 1-4).
+    // That axis then jumps straight from centre to full; a real stick passes through the values in between.
+    const double mag = std::max(std::abs(snap.input.leftX), std::abs(snap.input.leftY));
+    if (!centred || (mag > 0.2 && mag < 0.9)) {
+        m_fullJumps = 0;
+        m_digital = false;
+    } else if (mag >= 0.9 && m_lastLeftMag < 0.1 && ++m_fullJumps >= 2) {
+        m_digital = true;
+    }
+    m_lastLeftMag = mag;
+    bool up = towards(0), dn = towards(18000), left = towards(27000), right = towards(9000);
+    if (m_digital) {
+        up = up || snap.input.leftY > 0.5;
+        dn = dn || snap.input.leftY < -0.5;
+        left = left || snap.input.leftX < -0.5;
+        right = right || snap.input.leftX > 0.5;
+        snap.input.leftX = snap.input.leftY = 0;
+    }
+    snap.digitalMode = m_digital;
     const std::array<bool, int(PadButton::Count)> buttons{
         down(DiA), down(DiB), down(DiX), down(DiY), down(DiL1), down(DiR1), down(DiSelect), down(DiStart),
-        down(DiL3), down(DiR3), towards(0), towards(18000), towards(27000), towards(9000)};
+        down(DiL3), down(DiR3), up, dn, left, right};
     snap.buttons = buttons;
     return true;
 }

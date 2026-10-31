@@ -3,6 +3,7 @@
 #include "compile/NxcGenerator.h"
 #include "drive/PadLink.h"
 #include "nxt/Protocol.h"
+#include "nxt/SystemFiles.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -121,6 +122,7 @@ class TestCompile : public QObject {
 private slots:
     void padMessageRoundTrip();
     void protocolFileCommands();
+    void systemSounds();
     void plainText();
     void sensorConflictIsAnError();
     void emptyWorkspaceIsAnError();
@@ -152,6 +154,28 @@ void TestCompile::protocolFileCommands()
     QCOMPARE(found->name, QStringLiteral("x.rxe"));
     QCOMPARE(found->size, 16u);
     QVERIFY(!nxt::parseFind(QByteArray::fromHex("028687"), nxt::SystemOp::FindFirst));
+
+    QCOMPARE(nxt::readChunk(4, 500).toHex(), QByteArray("0182043a00"));
+    const auto opened = nxt::parseOpenRead(QByteArray::fromHex("02800005e5000000"));
+    QCOMPARE(int(opened.handle), 5);
+    QCOMPARE(opened.size, 229u);
+    QCOMPARE(nxt::parseRead(QByteArray::fromHex("028200050300616263")), QByteArray("abc"));
+    QVERIFY_THROWS_EXCEPTION(nxt::NxtError, nxt::parseOpenRead(QByteArray::fromHex("0280870000000000")));
+}
+
+void TestCompile::systemSounds()
+{
+    for (const char *name : {"! Startup.rso", "! Click.rso", "! Attention.rso"}) {
+        const QByteArray s = nxt::systemfiles::ownSound(QString::fromLatin1(name));
+        QVERIFY2(s.size() > 100 && s.size() < 6000, name);
+        QCOMPARE(s.left(2).toHex(), QByteArray("0101"));
+        QCOMPARE((uchar(s.at(2)) << 8 | uchar(s.at(3))), int(s.size() - 8));
+        QCOMPARE((uchar(s.at(4)) << 8 | uchar(s.at(5))), 8000);
+    }
+    QVERIFY(nxt::systemfiles::ownSound("Hello.rso").isEmpty());
+    QVERIFY(nxt::systemfiles::restorable("Try-Touch.rtm"));
+    QVERIFY(!nxt::systemfiles::restorable("NVConfig.sys"));
+    QVERIFY(!nxt::systemfiles::restorable("robot.rxe"));
 }
 
 void TestCompile::plainText()

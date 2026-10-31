@@ -16,6 +16,8 @@ struct PadSnapshot {
     bool connected = false;
     int slot = -1; // XInput user index 0..3; 4 for a DirectInput pad
     bool directInput = false;
+    /** A generic pad with its ANALOG light off: the D-pad arrives as the left stick, the right stick as buttons. */
+    bool digitalMode = false;
     ControlInput input;
     std::array<bool, int(PadButton::Count)> buttons{};
     bool pressed(PadButton b) const { return buttons[int(b)]; }
@@ -57,6 +59,10 @@ private:
     PadSnapshot m_snapshot;
     struct DirectPad;
     std::unique_ptr<DirectPad> m_direct;
+    // Digital-mode detection for DirectInput pads (see pollDirectInput).
+    double m_lastLeftMag = 0;
+    int m_fullJumps = 0;
+    bool m_digital = false;
 };
 
 } // namespace drive

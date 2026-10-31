@@ -1,6 +1,7 @@
 #include "FactoryResetDialog.h"
 
 #include "Theme.h"
+#include "nxt/SystemFiles.h"
 #include "Widgets.h"
 
 #include <QCheckBox>
@@ -35,7 +36,8 @@ FactoryResetDialog::FactoryResetDialog(QWidget *parent) : QDialog(parent)
     auto *what = ui::label(tr("<p><b>Removed:</b> your programs, pictures, sounds and data files.</p>"
                               "<p><b>Kept:</b> the firmware, the brick's own settings and, unless you tick the box below, "
                               "LEGO's system sounds and Try Me programs.</p>"
-                              "<p>Deleted files can't be brought back.</p>"),
+                              "<p><b>Put back:</b> system sounds and Try Me programs that are missing from the brick.</p>"
+                              "<p>Your own deleted files can't be brought back.</p>"),
                            "muted", this);
     what->setWordWrap(true);
     v->addWidget(what);
@@ -125,11 +127,24 @@ void FactoryResetDialog::updateSummary()
             bytes += f.size;
         }
     }
-    if (!m_loading && !m_files.isEmpty()) {
-        m_summary->setText(count == 0 ? tr("There's nothing to delete: the brick only holds LEGO's own files.")
-                                      : tr("%n file(s) will be deleted, freeing %1 KB.", nullptr, count).arg(bytes / 1024.0, 0, 'f', 1));
+    // LEGO's files that are missing get written back (from the app's copies, or its own system sounds).
+    int restored = 0;
+    if (!everything && !m_files.isEmpty()) {
+        for (const QString &name : nxt::systemfiles::available()) {
+            const bool present = std::any_of(m_files.begin(), m_files.end(), [&](const auto &f) { return f.name.compare(name, Qt::CaseInsensitive) == 0; });
+            if (present) continue;
+            auto *item = new QListWidgetItem(QStringLiteral("%1   ·   %2").arg(name, tr("will be put back")), m_list);
+            item->setForeground(theme::Good);
+            ++restored;
+        }
     }
-    const bool canReset = !m_loading && !m_working && nxt::Brick::instance().connected() && (count > 0 || m_rename->isChecked()) && !m_files.isEmpty();
+    if (!m_loading && !m_files.isEmpty()) {
+        QString text = count == 0 ? tr("There's nothing to delete: the brick only holds LEGO's own files.")
+                                  : tr("%n file(s) will be deleted, freeing %1 KB.", nullptr, count).arg(bytes / 1024.0, 0, 'f', 1);
+        if (restored > 0) text += ' ' + tr("%n missing LEGO file(s) will be put back.", nullptr, restored);
+        m_summary->setText(text);
+    }
+    const bool canReset = !m_loading && !m_working && nxt::Brick::instance().connected() && (count > 0 || restored > 0 || m_rename->isChecked()) && !m_files.isEmpty();
     m_confirm->setEnabled(canReset);
     m_reset->setEnabled(canReset && m_confirm->isChecked());
 }
@@ -143,7 +158,7 @@ void FactoryResetDialog::start()
     m_cancel->setEnabled(false);
     m_everything->setEnabled(false);
     m_rename->setEnabled(false);
-    m_summary->setText(tr("Deleting files… Don't switch the brick off."));
+    m_summary->setText(tr("Resetting the brick… Don't switch it off."));
     m_progressConn = connect(&brick, &nxt::Brick::jobProgress, m_progress, &QProgressBar::setValue);
     m_doneConn = connect(&brick, &nxt::Brick::jobFinished, this, &FactoryResetDialog::finished);
     if (!brick.factoryReset(m_everything->isChecked(), m_rename->isChecked())) finished(tr("The brick is busy with another task. Try again in a moment."));

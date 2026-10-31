@@ -220,6 +220,15 @@ QByteArray messageWrite(int mailbox, const QByteArray &message)
     return direct(DirectOp::MessageWrite, false, payload);
 }
 
+QByteArray openRead(const QString &name) { return system(SystemOp::OpenRead, fileName20(name)); }
+
+QByteArray readChunk(uint8_t handle, int count)
+{
+    QByteArray payload = bytes({handle});
+    appendU16(payload, uint16_t(std::clamp(count, 0, MaxReadChunk)));
+    return system(SystemOp::Read, payload);
+}
+
 QByteArray openWrite(const QString &name, uint32_t size)
 {
     QByteArray payload = fileName20(name);
@@ -270,6 +279,20 @@ uint8_t parseOpenWrite(const QByteArray &reply)
 {
     checkReply(reply, SystemOp::OpenWrite, 4);
     return static_cast<uint8_t>(u8(reply, 3));
+}
+
+OpenedFile parseOpenRead(const QByteArray &reply)
+{
+    checkReply(reply, SystemOp::OpenRead, 8);
+    return {static_cast<uint8_t>(u8(reply, 3)), u32(reply, 4)};
+}
+
+QByteArray parseRead(const QByteArray &reply)
+{
+    checkReply(reply, SystemOp::Read, 6);
+    const int count = u16(reply, 4);
+    if (reply.size() < 6 + count) throw ProtocolError("Short READ reply");
+    return reply.mid(6, count);
 }
 
 std::optional<FoundFile> parseFind(const QByteArray &reply, uint8_t op)

@@ -1,5 +1,6 @@
 #include "Brick.h"
 #include "Protocol.h"
+#include "SystemFiles.h"
 #include "SerialTransport.h"
 #include "WinUsbTransport.h"
 
@@ -23,6 +24,8 @@ constexpr int MotorRefreshMs = 1'000;
 constexpr int ReplyTimeoutMs = 800;
 constexpr int ProgramCheckMs = 1'000;
 constexpr int PadIntervalMs = 40;
+// Copy LEGO's files a little after connecting, once the UI has its first telemetry.
+constexpr int BackupDelayMs = 1'500;
 constexpr int PadRepeatMs = 250;
 
 /** Translation context for this file's messages (lupdate reads Text::tr calls). */
@@ -196,6 +199,8 @@ void BrickWorker::attach(std::unique_ptr<Transport> transport, const QString &li
         m_telemetry->start();
         m_padTimer->start();
         publish();
+        // Reading files over Bluetooth is slow, so LEGO's files are only copied over USB.
+        if (!bluetooth) QTimer::singleShot(BackupDelayMs, this, [this, serial = ++m_connectSerial] { backupSystemFiles(serial); });
     } catch (const std::exception &e) {
         // Bluetooth bricks that are off or out of range never answer at all.
         linkLost(bluetooth && dynamic_cast<const TimeoutError *>(&e) ? Text::tr("The NXT didn't answer over Bluetooth. Is it switched on and nearby?")
@@ -530,30 +535,99 @@ void BrickWorker::listFiles()
     }
 }
 
+QByteArray BrickWorker::readFile(const QString &name, uint32_t expectedSize)
+{
+    const OpenedFile file = parseOpenRead(request(openRead(name)));
+    QByteArray data;
+    try {
+        if (file.size != expectedSize) throw ProtocolError("File size changed");
+        while (data.size() < qsizetype(file.size)) {
+            const int want = std::min<int>(MaxReadChunk, int(file.size - data.size()));
+            const QByteArray chunk = parseRead(request(readChunk(file.handle, want)));
+            if (chunk.isEmpty()) throw ProtocolError("Empty READ reply");
+            data += chunk;
+        }
+    } catch (...) {
+        try {
+            request(closeHandle(file.handle));
+        } catch (const std::exception &) {
+        }
+        throw;
+    }
+    checkStatus(request(closeHandle(file.handle)), SystemOp::Close);
+    return data;
+}
+
+void BrickWorker::writeFile(const QString &name, const QByteArray &data, int from, int to)
+{
+    const QByteArray open = request(openWrite(name, uint32_t(data.size())));
+    const uint8_t status = replyStatus(open, SystemOp::OpenWrite);
+    if (status == FileStatus::NoSpace || status == 0x89)
+        throw std::runtime_error(Text::tr("There isn't enough free memory on the NXT. Delete some files from the brick, "
+                                    "or use Factory reset in Settings → Brick.").toStdString());
+    const uint8_t handle = parseOpenWrite(open);
+    try {
+        int lastPercent = -1;
+        for (qsizetype off = 0; off < data.size(); off += MaxWriteChunk) {
+            checkStatus(request(writeChunk(handle, data.mid(off, MaxWriteChunk))), SystemOp::Write);
+            const qsizetype done = std::min<qsizetype>(data.size(), off + MaxWriteChunk);
+            const int percent = from + int(done * (to - from) / std::max<qsizetype>(1, data.size()));
+            if (percent != lastPercent) emit jobProgress(lastPercent = percent);
+        }
+        checkStatus(request(closeHandle(handle)), SystemOp::Close);
+    } catch (const DisconnectedError &) {
+        throw;
+    } catch (...) {
+        try {
+            request(closeHandle(handle));
+            request(deleteFile(name)); // don't leave half a file behind
+        } catch (const std::exception &) {
+        }
+        throw;
+    }
+}
+
+void BrickWorker::keepSystemFiles(const QList<BrickFile> &files)
+{
+    for (const BrickFile &f : files) {
+        if (!systemfiles::restorable(f.name) || systemfiles::isKept(f.name) || f.size == 0) continue;
+        try {
+            systemfiles::keep(f.name, readFile(f.name, f.size));
+        } catch (const DisconnectedError &) {
+            throw;
+        } catch (const std::exception &) {
+            // A file that can't be read now is copied on a later connection.
+        }
+    }
+}
+
+void BrickWorker::backupSystemFiles(int serial)
+{
+    if (serial != m_connectSerial || !m_transport || m_state.status != LinkStatus::Connected) return;
+    // Don't hold up a degree move started from the PC; try again shortly.
+    if (m_moveTimer->isActive()) {
+        QTimer::singleShot(BackupDelayMs, this, [this, serial] { backupSystemFiles(serial); });
+        return;
+    }
+    try {
+        keepSystemFiles(findFiles());
+    } catch (const DisconnectedError &e) {
+        linkLost(errorText(e));
+    } catch (const std::exception &) {
+        // Only a convenience; the next connection tries again.
+    }
+}
+
 void BrickWorker::uploadProgram(const QString &name, const QByteArray &data, bool run)
 {
     if (!m_transport || m_state.status != LinkStatus::Connected) return emit jobFinished(Text::tr("The NXT isn't connected."));
     m_telemetry->stop();
-    std::optional<uint8_t> handle;
     try {
         stopAll();
         stopRunningProgram();
         const uint8_t del = replyStatus(request(deleteFile(name)), SystemOp::Delete);
         if (del != 0 && del != FileStatus::FileNotFound) throw NxtError(del, SystemOp::Delete);
-        const QByteArray open = request(openWrite(name, uint32_t(data.size())));
-        const uint8_t status = replyStatus(open, SystemOp::OpenWrite);
-        if (status == FileStatus::NoSpace || status == 0x89)
-            throw std::runtime_error(Text::tr("There isn't enough free memory on the NXT. Delete some files from the brick, "
-                                        "or use Factory reset in Settings → Brick.").toStdString());
-        handle = parseOpenWrite(open);
-        int lastPercent = -1;
-        for (qsizetype off = 0; off < data.size(); off += MaxWriteChunk) {
-            checkStatus(request(writeChunk(*handle, data.mid(off, MaxWriteChunk))), SystemOp::Write);
-            const int percent = int((off + MaxWriteChunk) * 100 / std::max<qsizetype>(1, data.size()));
-            if (percent != lastPercent) emit jobProgress(std::min(100, lastPercent = percent));
-        }
-        checkStatus(request(closeHandle(*handle)), SystemOp::Close);
-        handle.reset();
+        writeFile(name, data, 0, 100);
         const DeviceInfo info = parseDeviceInfo(request(getDeviceInfo()));
         m_state.freeFlash = info.freeFlash;
         if (run) {
@@ -568,13 +642,6 @@ void BrickWorker::uploadProgram(const QString &name, const QByteArray &data, boo
         linkLost(errorText(e));
         emit jobFinished(Text::tr("The NXT was disconnected during the upload. Connect it again and retry."));
     } catch (const std::exception &e) {
-        if (handle) {
-            try {
-                request(closeHandle(*handle));
-                request(deleteFile(name)); // don't leave half a program behind
-            } catch (const std::exception &) {
-            }
-        }
         if (m_transport) m_telemetry->start();
         emit jobFinished(errorText(e));
     }
@@ -587,16 +654,33 @@ void BrickWorker::factoryReset(bool everything, bool rename)
     try {
         stopAll();
         stopRunningProgram();
+        const QList<BrickFile> files = findFiles();
+        // Copy LEGO's files first, so even a full wipe can be undone by a later normal reset.
+        keepSystemFiles(files);
         QList<BrickFile> doomed;
-        for (const BrickFile &f : findFiles()) {
+        QStringList present;
+        for (const BrickFile &f : files) {
             // The brick's own settings file is always kept; the firmware itself is never a file.
             if (f.name.endsWith(QLatin1String(".sys"), Qt::CaseInsensitive)) continue;
             if (everything || !f.builtIn()) doomed << f;
+            else present << f.name;
         }
+        QStringList missing;
+        if (!everything) {
+            for (const QString &name : systemfiles::available())
+                if (!present.contains(name, Qt::CaseInsensitive)) missing << name;
+        }
+        const int deleteShare = missing.isEmpty() ? 100 : 60;
         for (int i = 0; i < doomed.size(); ++i) {
             const uint8_t st = replyStatus(request(deleteFile(doomed[i].name)), SystemOp::Delete);
             if (st != 0 && st != FileStatus::FileNotFound) throw NxtError(st, SystemOp::Delete);
-            emit jobProgress((i + 1) * 100 / doomed.size());
+            emit jobProgress((i + 1) * deleteShare / int(doomed.size()));
+        }
+        for (int i = 0; i < missing.size(); ++i) {
+            const QByteArray data = systemfiles::contents(missing[i]);
+            const int span = 100 - deleteShare;
+            if (!data.isEmpty())
+                writeFile(missing[i], data, deleteShare + i * span / int(missing.size()), deleteShare + (i + 1) * span / int(missing.size()));
         }
         if (rename) checkStatus(request(setBrickName(QStringLiteral("NXT"))), SystemOp::SetBrickName);
         const DeviceInfo info = parseDeviceInfo(request(getDeviceInfo()));
