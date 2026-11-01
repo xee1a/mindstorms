@@ -5,6 +5,7 @@
 
 #include <QAbstractButton>
 #include <QFrame>
+#include <QImage>
 #include <QLabel>
 #include <QPushButton>
 #include <QTimer>
@@ -54,12 +55,13 @@ class BrickArt : public QWidget {
 public:
     explicit BrickArt(QWidget *parent = nullptr);
     void setState(bool online, const QString &name, std::optional<nxt::BatteryLevel> battery);
-    QSize sizeHint() const override { return {230, 290}; }
+    QSize sizeHint() const override { return {200, 314}; }
 
 protected:
     void paintEvent(QPaintEvent *) override;
 
 private:
+    QImage m_image;
     bool m_online = false;
     QString m_name;
     std::optional<nxt::BatteryLevel> m_battery;

@@ -47,10 +47,10 @@ The Brick (Kostka) tab explains this to users.
 - `src/views/`: Program, Controller and Brick screens, and `UploadDialog`. Controller shows a drawing of the pad with every
   input's live value, named as in the Gamepad blocks; all control is done by programs.
 - `src/app/`: MainWindow, Splash, Theme (dark/light tokens plus accent hue shift), Prefs (live settings with a `changed` signal),
-  SettingsDialog, FactoryResetDialog, Sounds (editor clicks, synthesised), shared widgets (`BrickArt`, `PadView`,
-  `BatteryWidget`: all drawn with QPainter, no photos)
+  SettingsDialog, FactoryResetDialog, Sounds (editor clicks, synthesised), shared widgets (`BrickArt`: the brick picture
+  `resources/images/nxt.png` with its name and battery on the screen; `PadView` and `BatteryWidget`: drawn with QPainter)
 - `i18n/nxtstudio_pl.ts`: Polish translation. Source strings are English.
-- `resources/`: SVG icons and the app icon
+- `resources/`: SVG icons, the app icon and `images/nxt.png` (the user's brick picture, background removed)
 
 ## Commands
 - `.\build.ps1`: configure, build Release, run tests, then copy a runnable folder to `dist\` (windeployqt)

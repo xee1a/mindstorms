@@ -55,6 +55,7 @@ target_link_libraries(NXTStudio PRIVATE nxtcore Qt6::Widgets Qt6::Svg Qt6::SvgWi
 
 file(GLOB ICONS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS resources/icons/*.svg)
 qt_add_resources(NXTStudio icons PREFIX / BASE resources FILES ${ICONS})
+qt_add_resources(NXTStudio images PREFIX / BASE resources FILES resources/images/nxt.png)
 
 # The bundled NXC compiler (see third_party/nbc/README.md) goes to tools/nbc.exe next to the exe.
 add_custom_command(TARGET NXTStudio POST_BUILD

@@ -184,7 +184,7 @@ void BatteryWidget::paintEvent(QPaintEvent *)
 
 // ── BrickArt ──────────────────────────────────────────────
 
-BrickArt::BrickArt(QWidget *parent) : QWidget(parent) { setFixedSize(sizeHint()); }
+BrickArt::BrickArt(QWidget *parent) : QWidget(parent), m_image(QStringLiteral(":/images/nxt.png")) { setFixedSize(sizeHint()); }
 
 void BrickArt::setState(bool online, const QString &name, std::optional<nxt::BatteryLevel> battery)
 {
@@ -199,77 +199,37 @@ void BrickArt::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
+    p.setRenderHint(QPainter::SmoothPixmapTransform);
     p.setOpacity(m_online ? 1.0 : 0.6);
-    const qreal W = width(), H = height();
-    const QRectF body(W * 0.06, H * 0.08, W * 0.88, H * 0.84);
+    const QSizeF art = QSizeF(m_image.size()).scaled(QSizeF(size()), Qt::KeepAspectRatio);
+    const QRectF r(QPointF((width() - art.width()) / 2, (height() - art.height()) / 2), art);
+    p.drawImage(r, m_image);
+    if (!m_online) return;
 
-    // Ports: A B C on top, 1-4 underneath.
-    QFont small = font();
-    small.setPixelSize(int(W * 0.05));
-    small.setBold(true);
-    p.setFont(small);
-    const auto port = [&](qreal cx, qreal y, const QString &label, bool top) {
-        const QRectF r(cx - W * 0.07, y, W * 0.14, H * 0.07);
-        p.setPen(QPen(theme::Border, 1.5));
-        p.setBrush(theme::Surface);
-        p.drawRoundedRect(r, 3, 3);
-        p.setPen(theme::Text3);
-        const QRectF t = top ? QRectF(r.left(), r.bottom() + 2, r.width(), H * 0.06) : QRectF(r.left(), r.top() - H * 0.065, r.width(), H * 0.06);
-        p.drawText(t, Qt::AlignCenter, label);
-    };
-    for (int i = 0; i < 3; ++i) port(W * (0.28 + 0.22 * i), body.top() - H * 0.045, QString(QChar(u'A' + i)), true);
-    for (int i = 0; i < 4; ++i) port(W * (0.2 + 0.2 * i), body.bottom() - H * 0.025, QString::number(i + 1), false);
-
-    // Body and the lighter front panel.
-    p.setPen(QPen(theme::Border, 2));
-    p.setBrush(theme::Surface3);
-    p.drawRoundedRect(body, W * 0.09, W * 0.09);
-    const QRectF panel = body.adjusted(W * 0.07, H * 0.12, -W * 0.07, -H * 0.12);
-    p.setPen(Qt::NoPen);
-    p.setBrush(theme::Surface2);
-    p.drawRoundedRect(panel, W * 0.06, W * 0.06);
-
-    // Screen.
-    const QRectF screen(panel.left() + panel.width() * 0.1, panel.top() + panel.height() * 0.07, panel.width() * 0.8, panel.height() * 0.4);
-    p.setPen(QPen(theme::Border, 2));
-    p.setBrush(theme::Bg2);
-    p.drawRoundedRect(screen, 6, 6);
-    if (m_online) {
-        QFont f = font();
-        f.setPixelSize(int(screen.height() * 0.2));
-        f.setBold(true);
-        p.setFont(f);
-        p.setPen(theme::Text);
-        p.drawText(screen.adjusted(8, 6, -8, -screen.height() * 0.45), Qt::AlignLeft | Qt::AlignVCenter, m_name);
-        if (m_battery) paintBattery(p, QRectF(screen.right() - screen.height() * 0.62, screen.top() + screen.height() * 0.13, screen.height() * 0.5, screen.height() * 0.25), *m_battery);
-        p.setPen(QPen(theme::Text3, 1));
-        p.drawLine(QPointF(screen.left() + 8, screen.center().y()), QPointF(screen.right() - 8, screen.center().y()));
-        f.setBold(false);
-        f.setPixelSize(int(screen.height() * 0.16));
-        p.setFont(f);
-        p.setPen(theme::Text2);
-        p.drawText(screen.adjusted(8, screen.height() * 0.52, -8, -6), Qt::AlignHCenter | Qt::AlignVCenter, QStringLiteral("NXT Studio"));
-    }
-
-    // Buttons: orange square, grey arrows either side, dark grey one below.
-    const QPointF c(panel.center().x(), panel.top() + panel.height() * 0.68);
-    const qreal s = panel.width() * 0.17;
-    p.setPen(Qt::NoPen);
-    p.setBrush(m_online ? theme::Warm : theme::Text3);
-    p.drawRoundedRect(QRectF(c.x() - s / 2, c.y() - s / 2, s, s), 4, 4);
-    p.setBrush(theme::Text3);
-    for (int side : {-1, 1}) {
-        const qreal x = c.x() + side * s * 1.25;
-        QPainterPath tri;
-        tri.moveTo(x + side * s * 0.45, c.y());
-        tri.lineTo(x - side * s * 0.35, c.y() - s * 0.45);
-        tri.lineTo(x - side * s * 0.35, c.y() + s * 0.45);
-        tri.closeSubpath();
-        p.drawPath(tri);
-    }
-    p.setBrush(theme::Surface);
-    p.setPen(QPen(theme::Border, 1.5));
-    p.drawRoundedRect(QRectF(c.x() - s * 0.45, c.y() + s * 0.95, s * 0.9, s * 0.5), 3, 3);
+    // The brick's own screen in the picture, as fractions of the image.
+    const QRectF screen(r.left() + r.width() * 0.215, r.top() + r.height() * 0.175, r.width() * 0.57, r.height() * 0.228);
+    // Dark "LCD ink" from the screen's own colour, so it reads the same in both themes.
+    const QColor ink = m_image.pixelColor(m_image.width() / 2, int(m_image.height() * 0.29)).darker(320);
+    QFont f = font();
+    f.setPixelSize(std::max(8, int(screen.height() * 0.2)));
+    f.setBold(true);
+    const QRectF top = screen.adjusted(6, 4, -6, -screen.height() * 0.5);
+    const QRectF nameBox = top.adjusted(0, 0, -screen.height() * 0.55, 0);
+    // Names go up to 15 characters: shrink the text a little before cutting it short.
+    while (f.pixelSize() > 8 && QFontMetricsF(f).horizontalAdvance(m_name) > nameBox.width()) f.setPixelSize(f.pixelSize() - 1);
+    p.setFont(f);
+    p.setPen(ink);
+    p.drawText(nameBox, Qt::AlignLeft | Qt::AlignVCenter, p.fontMetrics().elidedText(m_name, Qt::ElideRight, int(nameBox.width())));
+    if (m_battery)
+        paintBattery(p, QRectF(screen.right() - 6 - screen.height() * 0.48, top.center().y() - screen.height() * 0.11, screen.height() * 0.48,
+                               screen.height() * 0.22),
+                     *m_battery);
+    p.setPen(QPen(ink, 1));
+    p.drawLine(QPointF(screen.left() + 6, screen.center().y()), QPointF(screen.right() - 6, screen.center().y()));
+    f.setBold(false);
+    f.setPixelSize(std::max(8, int(screen.height() * 0.17)));
+    p.setFont(f);
+    p.drawText(screen.adjusted(6, screen.height() * 0.52, -6, -4), Qt::AlignHCenter | Qt::AlignVCenter, QStringLiteral("NXT Studio"));
 }
 
 // ── PadView ───────────────────────────────────────────────
