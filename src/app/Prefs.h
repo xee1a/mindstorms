@@ -24,6 +24,9 @@ public:
     void setBeepOnConnect(bool on);
     /** Tab shown at startup: 0..2, or -1 for the one open last time. */
     int startTab() const;
+    /** How the Controller tab draws the pad: 0 MANGAN 200, 1 generic PlayStation, 2 generic Xbox (ui::PadView::Layout). */
+    int padLayout() const;
+    void setPadLayout(int layout);
     void setStartTab(int tab);
 
     /** Clears every saved setting (window layout, theme, language, sensors). */

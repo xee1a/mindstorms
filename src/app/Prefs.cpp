@@ -36,6 +36,14 @@ void Prefs::setStartTab(int tab)
     emit changed();
 }
 
+int Prefs::padLayout() const { return std::clamp(QSettings().value(QStringLiteral("controller/layout"), 0).toInt(), 0, 2); }
+
+void Prefs::setPadLayout(int layout)
+{
+    QSettings().setValue(QStringLiteral("controller/layout"), layout);
+    emit changed();
+}
+
 void Prefs::resetAll()
 {
     QSettings().clear();

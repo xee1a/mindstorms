@@ -1252,57 +1252,72 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="42" />
+        <location filename="../src/views/ControllerView.cpp" line="55" />
         <source>Controller</source>
         <translation>Pad</translation>
     </message>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="54" />
+        <location filename="../src/views/ControllerView.cpp" line="67" />
+        <source>How the pad is drawn</source>
+        <translation>Wygląd pada na rysunku</translation>
+    </message>
+    <message>
+        <location filename="../src/views/ControllerView.cpp" line="69" />
+        <source>Generic PlayStation layout</source>
+        <translation>Ogólny układ PlayStation</translation>
+    </message>
+    <message>
+        <location filename="../src/views/ControllerView.cpp" line="70" />
+        <source>Generic Xbox layout</source>
+        <translation>Ogólny układ Xbox</translation>
+    </message>
+    <message>
+        <location filename="../src/views/ControllerView.cpp" line="79" />
         <source>&lt;b&gt;The pad is in digital mode.&lt;/b&gt; In this mode the pad itself sends the left stick as the arrows and the right stick as the A, B, X and Y buttons, so a program can't tell them apart. Press &lt;b&gt;ANALOG&lt;/b&gt; (or &lt;b&gt;MODE&lt;/b&gt;) on the pad so its light comes on.</source>
         <translation>&lt;b&gt;Pad działa w trybie cyfrowym.&lt;/b&gt; W tym trybie sam pad wysyła lewą gałkę jako strzałki, a prawą jako przyciski A, B, X i Y, więc program nie może ich odróżnić. Naciśnij na padzie &lt;b&gt;ANALOG&lt;/b&gt; (lub &lt;b&gt;MODE&lt;/b&gt;), aby zapaliła się dioda.</translation>
     </message>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="83" />
+        <location filename="../src/views/ControllerView.cpp" line="108" />
         <source>pressed</source>
         <translation>wciśnięty</translation>
     </message>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="83" />
+        <location filename="../src/views/ControllerView.cpp" line="108" />
         <source>released</source>
         <translation>puszczony</translation>
     </message>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="102" />
+        <location filename="../src/views/ControllerView.cpp" line="127" />
         <source>Left stick</source>
         <translation>Lewa gałka</translation>
     </message>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="112" />
+        <location filename="../src/views/ControllerView.cpp" line="137" />
         <source>Right stick</source>
         <translation>Prawa gałka</translation>
     </message>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="120" />
+        <location filename="../src/views/ControllerView.cpp" line="145" />
         <source>This tab only shows what the pad sends. To make the robot react, use the blocks in the &lt;b&gt;Gamepad&lt;/b&gt; category on the Program tab; the names here match the ones in the blocks. Sticks give -100 to 100 (right and up are positive), triggers 0 to 100.</source>
         <translation>Ta zakładka tylko pokazuje, co wysyła pad. Aby robot reagował na pad, użyj bloczków z kategorii &lt;b&gt;Pad&lt;/b&gt; w zakładce Program – nazwy tutaj są takie same jak w bloczkach. Gałki dają wartości od -100 do 100 (w prawo i w górę to plus), spusty od 0 do 100.</translation>
     </message>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="173" />
+        <location filename="../src/views/ControllerView.cpp" line="209" />
         <source>Plug in a USB controller and press any button.</source>
         <translation>Podłącz pad USB i naciśnij dowolny przycisk.</translation>
     </message>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="174" />
+        <location filename="../src/views/ControllerView.cpp" line="210" />
         <source>USB gamepad connected. Press buttons and move the sticks to see what each one sends.</source>
         <translation>Pad USB jest podłączony. Naciskaj przyciski i poruszaj gałkami, aby zobaczyć, co wysyła każdy z nich.</translation>
     </message>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="175" />
+        <location filename="../src/views/ControllerView.cpp" line="211" />
         <source>Controller %1 connected. Press buttons and move the sticks to see what each one sends.</source>
         <translation>Pad %1 jest podłączony. Naciskaj przyciski i poruszaj gałkami, aby zobaczyć, co wysyła każdy z nich.</translation>
     </message>
     <message>
-        <location filename="../src/views/ControllerView.cpp" line="178" />
+        <location filename="../src/views/ControllerView.cpp" line="214" />
         <source>Controller %1</source>
         <translation>Pad %1</translation>
     </message>
@@ -1393,7 +1408,10 @@
         <location filename="../src/app/FactoryResetDialog.cpp" line="145" />
         <source>%n missing file(s) will be put back if there's room.</source>
         <translation>
-            <numerusform>Brakujący plik zostanie przywrócony, jeśli zmieści się w pamięci.</numerusform><numerusform>%n brakujące pliki zostaną przywrócone, jeśli zmieszczą się w pamięci.</numerusform><numerusform>%n brakujących plików zostanie przywróconych, jeśli zmieszczą się w pamięci.</numerusform></translation>
+            <numerusform>Brakujący plik zostanie przywrócony, jeśli zmieści się w pamięci.</numerusform>
+            <numerusform>%n brakujące pliki zostaną przywrócone, jeśli zmieszczą się w pamięci.</numerusform>
+            <numerusform>%n brakujących plików zostanie przywróconych, jeśli zmieszczą się w pamięci.</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <location filename="../src/app/FactoryResetDialog.cpp" line="144" />

@@ -236,28 +236,54 @@ void BrickArt::paintEvent(QPaintEvent *)
 
 namespace {
 
-// The drawing is laid out on a 520 × 405 grid and scaled to the widget.
+using Layout = PadView::Layout;
+
+// The drawn layouts use a 520 × 405 grid; the MANGAN 200 uses its picture's own pixels. Both are scaled to the widget.
 constexpr qreal ArtW = 520, ArtH = 405;
 
 struct Hotspot {
     drive::PadButton button;
     qreal x, y, r;
 };
+using Hotspots = std::array<Hotspot, int(drive::PadButton::Count)>;
 
-constexpr Hotspot PadHotspots[] = {
-    {drive::PadButton::Y, 398, 132, 16},    {drive::PadButton::X, 364, 166, 16},     {drive::PadButton::B, 432, 166, 16},
-    {drive::PadButton::A, 398, 200, 16},    {drive::PadButton::Up, 122, 138, 13},    {drive::PadButton::Down, 122, 194, 13},
-    {drive::PadButton::Left, 94, 166, 13},  {drive::PadButton::Right, 150, 166, 13}, {drive::PadButton::Back, 228, 160, 11},
-    {drive::PadButton::Start, 292, 160, 11}, {drive::PadButton::LB, 128, 84, 22},    {drive::PadButton::RB, 392, 84, 22},
-    {drive::PadButton::LS, 192, 240, 33},   {drive::PadButton::RS, 328, 240, 33},
-};
-// Triggers sit above the bumpers; only their tops show behind the body.
-constexpr QPointF TriggerCentre[2] = {{128, 56}, {392, 56}};
+/** Where each input sits, per layout; in the same order as PadButton. */
+const Hotspots &hotspots(Layout layout)
+{
+    using B = drive::PadButton;
+    static const Hotspots playStation{{
+        {B::A, 398, 200, 16}, {B::B, 432, 166, 16}, {B::X, 364, 166, 16}, {B::Y, 398, 132, 16},
+        {B::LB, 128, 84, 22}, {B::RB, 392, 84, 22}, {B::Back, 228, 160, 11}, {B::Start, 292, 160, 11},
+        {B::LS, 192, 240, 33}, {B::RS, 328, 240, 33}, {B::Up, 122, 138, 13}, {B::Down, 122, 194, 13},
+        {B::Left, 94, 166, 13}, {B::Right, 150, 166, 13},
+    }};
+    // Xbox pads swap the left stick and the D-pad.
+    static const Hotspots xbox{{
+        {B::A, 398, 200, 16}, {B::B, 432, 166, 16}, {B::X, 364, 166, 16}, {B::Y, 398, 132, 16},
+        {B::LB, 128, 84, 22}, {B::RB, 392, 84, 22}, {B::Back, 228, 160, 11}, {B::Start, 292, 160, 11},
+        {B::LS, 122, 166, 33}, {B::RS, 328, 240, 33}, {B::Up, 192, 214, 11}, {B::Down, 192, 266, 11},
+        {B::Left, 166, 240, 11}, {B::Right, 218, 240, 11},
+    }};
+    // Measured on resources/images/pad_mangan200.png (1061 × 841).
+    static const Hotspots mangan{{
+        {B::A, 826, 390, 33}, {B::B, 903, 314, 33}, {B::X, 748, 314, 33}, {B::Y, 826, 238, 33},
+        {B::LB, 252, 100, 40}, {B::RB, 810, 100, 40}, {B::Back, 531, 300, 22}, {B::Start, 531, 356, 22},
+        {B::LS, 388, 490, 76}, {B::RS, 674, 490, 76}, {B::Up, 233, 256, 28}, {B::Down, 233, 372, 28},
+        {B::Left, 175, 313, 28}, {B::Right, 292, 313, 28},
+    }};
+    return layout == Layout::Mangan200 ? mangan : layout == Layout::Xbox ? xbox : playStation;
+}
 
-/** Outline of the controller, one closed shape: the left half is drawn and mirrored. */
+/** Where a trigger's glow goes; the triggers sit above the bumpers. */
+QPointF triggerCentre(Layout layout, bool rightSide)
+{
+    if (layout == Layout::Mangan200) return rightSide ? QPointF(810, 70) : QPointF(252, 70);
+    return rightSide ? QPointF(392, 56) : QPointF(128, 56);
+}
+
+/** Outline of the drawn controller, one closed shape: the left half is drawn and mirrored. */
 QPainterPath padBody()
 {
-    // Left half from the top centre, anticlockwise to the bottom centre.
     const auto half = [](QPainterPath &p, bool mirror) {
         const auto pt = [mirror](qreal x, qreal y) { return QPointF(mirror ? ArtW - x : x, y); };
         p.moveTo(pt(260, 96));
@@ -271,7 +297,6 @@ QPainterPath padBody()
     QPainterPath left, right;
     half(left, false);
     half(right, true);
-    // Join the halves: down the left side, then back up the right side reversed.
     QPainterPath body = left;
     body.connectPath(right.toReversed());
     body.closeSubpath();
@@ -295,27 +320,63 @@ void glow(QPainter &p, QPointF c, qreal r, QColor color, qreal strength = 1.0)
     p.drawEllipse(c, r * 1.9, r * 1.9);
 }
 
-QColor faceColour(drive::PadButton b)
+bool isFace(drive::PadButton b)
 {
     using drive::PadButton;
-    if (b == PadButton::B) return theme::Bad;
-    if (b == PadButton::Y) return theme::Good;
-    if (b == PadButton::X) return theme::Warm;
+    return b == PadButton::A || b == PadButton::B || b == PadButton::X || b == PadButton::Y;
+}
+
+QColor faceColour(Layout layout, drive::PadButton b)
+{
+    using drive::PadButton;
+    switch (layout) {
+    case Layout::PlayStation: // △ green, ○ red, ✕ blue, □ teal
+        return b == PadButton::Y ? theme::Good : b == PadButton::B ? theme::Bad : b == PadButton::A ? theme::Accent : theme::Accent2;
+    case Layout::Xbox: // A green, B red, X blue, Y yellow
+        return b == PadButton::A ? theme::Good : b == PadButton::B ? theme::Bad : b == PadButton::X ? theme::Accent : theme::Warm;
+    case Layout::Mangan200: break;
+    }
     return theme::Accent;
+}
+
+/** PlayStation face symbols, drawn rather than typed so every font shows them. */
+void paintPsSymbol(QPainter &p, drive::PadButton b, QPointF c, qreal r)
+{
+    using drive::PadButton;
+    const qreal s = r * 0.48;
+    p.setBrush(Qt::NoBrush);
+    if (b == PadButton::Y) {
+        QPolygonF tri{{c.x(), c.y() - s}, {c.x() + s * 0.95, c.y() + s * 0.65}, {c.x() - s * 0.95, c.y() + s * 0.65}};
+        p.drawPolygon(tri);
+    } else if (b == PadButton::B) {
+        p.drawEllipse(c, s * 0.85, s * 0.85);
+    } else if (b == PadButton::A) {
+        p.drawLine(c + QPointF(-s * 0.75, -s * 0.75), c + QPointF(s * 0.75, s * 0.75));
+        p.drawLine(c + QPointF(-s * 0.75, s * 0.75), c + QPointF(s * 0.75, -s * 0.75));
+    } else {
+        p.drawRect(QRectF(c.x() - s * 0.72, c.y() - s * 0.72, s * 1.44, s * 1.44));
+    }
 }
 
 } // namespace
 
-PadView::PadView(QWidget *parent) : QWidget(parent)
+PadView::PadView(QWidget *parent) : QWidget(parent), m_mangan(QStringLiteral(":/images/pad_mangan200.png"))
 {
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setMinimumSize(300, 234);
+    setMinimumSize(300, 238);
 }
 
 void PadView::setOnline(bool on)
 {
     if (on == m_on) return;
     m_on = on;
+    update();
+}
+
+void PadView::setLayout(Layout layout)
+{
+    if (layout == m_layout) return;
+    m_layout = layout;
     update();
 }
 
@@ -329,22 +390,34 @@ void PadView::setState(const drive::ControlInput &input, const std::array<bool, 
     update();
 }
 
+QSizeF PadView::artSize() const { return m_layout == Layout::Mangan200 ? QSizeF(m_mangan.size()) : QSizeF(ArtW, ArtH); }
+
 void PadView::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
-    const QSizeF art = QSizeF(ArtW, ArtH).scaled(QSizeF(size()), Qt::KeepAspectRatio);
+    p.setRenderHint(QPainter::SmoothPixmapTransform);
+    const QSizeF size = artSize();
+    const QSizeF art = size.scaled(QSizeF(this->size()), Qt::KeepAspectRatio);
     p.translate((width() - art.width()) / 2, (height() - art.height()) / 2);
-    p.scale(art.width() / ArtW, art.height() / ArtH);
-    const QRectF r(0, 0, ArtW, ArtH);
+    p.scale(art.width() / size.width(), art.height() / size.height());
     p.setOpacity(m_on ? 1.0 : 0.55);
-    paintPad(p, r);
-    paintHighlights(p, r);
+    if (m_layout == Layout::Mangan200) {
+        const QSize pixels = (art * devicePixelRatioF()).toSize();
+        if (m_manganScaled.size() != pixels) m_manganScaled = m_mangan.scaled(pixels, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        p.drawImage(QRectF(QPointF(0, 0), size), m_manganScaled);
+    } else {
+        paintDrawn(p);
+    }
+    paintHighlights(p);
 }
 
-void PadView::paintPad(QPainter &p, const QRectF &) const
+void PadView::paintDrawn(QPainter &p) const
 {
     using drive::PadButton;
+    const bool xbox = m_layout == Layout::Xbox;
+    const Hotspots &spots = hotspots(m_layout);
+    const auto spot = [&](PadButton b) { return spots[int(b)]; };
     QFont f = font();
     f.setBold(true);
     f.setPixelSize(13);
@@ -352,18 +425,20 @@ void PadView::paintPad(QPainter &p, const QRectF &) const
 
     // Triggers and bumpers peek out from behind the top edge.
     for (int side = 0; side < 2; ++side) {
-        const QPointF t = TriggerCentre[side];
+        const QPointF t = triggerCentre(m_layout, side);
         p.setPen(QPen(theme::Border, 1.5));
         p.setBrush(theme::Surface);
         p.drawRoundedRect(QRectF(t.x() - 40, t.y() - 16, 80, 40), 12, 12);
         p.setPen(theme::Text3);
-        p.drawText(QRectF(t.x() - 40, t.y() - 15, 80, 18), Qt::AlignCenter, side ? QStringLiteral("R2") : QStringLiteral("L2"));
-        const Hotspot &b = PadHotspots[side ? 11 : 10];
+        const QString trigger = xbox ? (side ? QStringLiteral("RT") : QStringLiteral("LT")) : (side ? QStringLiteral("R2") : QStringLiteral("L2"));
+        p.drawText(QRectF(t.x() - 40, t.y() - 15, 80, 18), Qt::AlignCenter, trigger);
+        const Hotspot b = spot(side ? PadButton::RB : PadButton::LB);
         p.setPen(QPen(theme::Border, 1.5));
         p.setBrush(theme::Surface2);
         p.drawRoundedRect(QRectF(b.x - 56, b.y - 14, 112, 36), 14, 14);
         p.setPen(theme::Text3);
-        p.drawText(QRectF(b.x - 56, b.y - 13, 112, 20), Qt::AlignCenter, side ? QStringLiteral("R1") : QStringLiteral("L1"));
+        const QString bumper = xbox ? (side ? QStringLiteral("RB") : QStringLiteral("LB")) : (side ? QStringLiteral("R1") : QStringLiteral("L1"));
+        p.drawText(QRectF(b.x - 56, b.y - 13, 112, 20), Qt::AlignCenter, bumper);
     }
 
     QLinearGradient shade(0, 96, 0, 380);
@@ -373,71 +448,65 @@ void PadView::paintPad(QPainter &p, const QRectF &) const
     p.setBrush(shade);
     p.drawPath(padBody());
 
-    // D-pad: one plus-shaped key in a shallow round well.
-    const QPointF d(122, 166);
+    // D-pad: one plus-shaped key in a shallow round well, sized to its arms.
+    const Hotspot up = spot(PadButton::Up), down = spot(PadButton::Down);
+    const QPointF d(up.x, (up.y + down.y) / 2);
+    const qreal arm = (down.y - up.y) / 2 + up.r, thick = up.r * 2;
     p.setPen(Qt::NoPen);
     p.setBrush(theme::Surface2);
-    p.drawEllipse(d, 46, 46);
+    p.drawEllipse(d, arm + 6, arm + 6);
     QPainterPath cross;
-    cross.addRoundedRect(QRectF(d.x() - 40, d.y() - 13, 80, 26), 5, 5);
-    cross.addRoundedRect(QRectF(d.x() - 13, d.y() - 40, 26, 80), 5, 5);
+    cross.addRoundedRect(QRectF(d.x() - arm, d.y() - thick / 2, arm * 2, thick), 5, 5);
+    cross.addRoundedRect(QRectF(d.x() - thick / 2, d.y() - arm, thick, arm * 2), 5, 5);
     p.setPen(QPen(theme::Border, 1.5));
     p.setBrush(theme::Surface);
     p.drawPath(cross.simplified());
-    p.setPen(QPen(theme::Border, 1.2));
-    p.setBrush(Qt::NoBrush);
-    p.drawEllipse(d, 7, 7);
 
-    // Face buttons sit in a shallow well too.
+    // Face buttons in a shallow well.
     p.setPen(Qt::NoPen);
     p.setBrush(theme::Surface2);
     p.drawEllipse(QPointF(398, 166), 58, 58);
-
-    for (const Hotspot &h : PadHotspots) {
+    for (const Hotspot &h : spots) {
         const QPointF c(h.x, h.y);
-        switch (h.button) {
-        case PadButton::A:
-        case PadButton::B:
-        case PadButton::X:
-        case PadButton::Y: {
-            p.setPen(QPen(faceColour(h.button), 2));
+        if (isFace(h.button)) {
+            const QColor colour = faceColour(m_layout, h.button);
+            p.setPen(QPen(colour, 2));
             p.setBrush(theme::Surface);
             p.drawEllipse(c, h.r, h.r);
-            p.setPen(faceColour(h.button));
-            const char *names[] = {"A", "B", "X", "Y"};
-            p.drawText(QRectF(c.x() - h.r, c.y() - h.r, h.r * 2, h.r * 2), Qt::AlignCenter, QLatin1String(names[int(h.button)]));
-            break;
-        }
-        case PadButton::Back:
-        case PadButton::Start:
+            p.setPen(QPen(colour, 2.2));
+            if (xbox) {
+                const char *names[] = {"A", "B", "X", "Y"};
+                p.drawText(QRectF(c.x() - h.r, c.y() - h.r, h.r * 2, h.r * 2), Qt::AlignCenter, QLatin1String(names[int(h.button)]));
+            } else {
+                paintPsSymbol(p, h.button, c, h.r);
+            }
+        } else if (h.button == PadButton::Back || h.button == PadButton::Start) {
             p.setPen(QPen(theme::Border, 1.5));
             p.setBrush(theme::Surface);
             p.drawRoundedRect(QRectF(c.x() - 15, c.y() - 6, 30, 12), 6, 6);
-            break;
-        case PadButton::LS:
-        case PadButton::RS:
+        } else if (h.button == PadButton::LS || h.button == PadButton::RS) {
             p.setPen(Qt::NoPen);
             p.setBrush(theme::Surface2);
             p.drawEllipse(c, h.r + 6, h.r + 6);
             p.setPen(QPen(theme::Border, 2));
             p.setBrush(theme::Bg2);
             p.drawEllipse(c, h.r, h.r);
-            break;
-        default: break; // D-pad and shoulders are drawn above
         }
     }
     QFont small = f;
     small.setPixelSize(9);
     p.setFont(small);
     p.setPen(theme::Text3);
-    p.drawText(QRectF(203, 168, 50, 14), Qt::AlignCenter, QStringLiteral("SELECT"));
-    p.drawText(QRectF(267, 168, 50, 14), Qt::AlignCenter, QStringLiteral("START"));
+    const Hotspot back = spot(PadButton::Back), start = spot(PadButton::Start);
+    p.drawText(QRectF(back.x - 25, back.y + 8, 50, 14), Qt::AlignCenter, xbox ? QStringLiteral("VIEW") : QStringLiteral("SELECT"));
+    p.drawText(QRectF(start.x - 25, start.y + 8, 50, 14), Qt::AlignCenter, xbox ? QStringLiteral("MENU") : QStringLiteral("START"));
 }
 
-void PadView::paintHighlights(QPainter &p, const QRectF &) const
+void PadView::paintHighlights(QPainter &p) const
 {
     using drive::PadButton;
-    for (const Hotspot &h : PadHotspots) {
+    const bool picture = m_layout == Layout::Mangan200;
+    for (const Hotspot &h : hotspots(m_layout)) {
         const QPointF c(h.x, h.y);
         if (h.button == PadButton::LS || h.button == PadButton::RS) {
             const bool left = h.button == PadButton::LS;
@@ -446,24 +515,24 @@ void PadView::paintHighlights(QPainter &p, const QRectF &) const
             const double sy = !m_on ? 0 : left ? m_input.leftY : m_input.rightY;
             const double mag = std::min(1.0, std::hypot(sx, sy));
             if (m_on && m_buttons[int(h.button)]) glow(p, c, h.r * 0.9, theme::Warm);
-            // The cap follows the stick.
+            // The picture already shows the sticks at rest; only a moved stick gets a cap drawn over it.
+            if (picture && mag <= 0.08) continue;
             const QPointF tip = c + QPointF(sx, -sy) * h.r * 0.4;
             if (mag > 0.08) glow(p, tip, h.r * 0.45, theme::Accent, 0.4 + 0.6 * mag);
-            p.setPen(QPen(mag > 0.08 ? theme::Accent : theme::Border, 2));
-            p.setBrush(theme::Surface3);
+            p.setPen(QPen(mag > 0.08 ? theme::Accent : theme::Border, picture ? 4 : 2));
+            p.setBrush(picture ? m_mangan.pixelColor(int(h.x), int(h.y)) : theme::Surface3);
             p.drawEllipse(tip, h.r * 0.6, h.r * 0.6);
-            p.setPen(QPen(theme::Border, 1));
+            p.setPen(QPen(theme::Border, picture ? 2 : 1));
             p.setBrush(Qt::NoBrush);
             p.drawEllipse(tip, h.r * 0.42, h.r * 0.42);
             continue;
         }
         if (!m_on || !m_buttons[int(h.button)]) continue;
-        const bool face = h.button == PadButton::A || h.button == PadButton::B || h.button == PadButton::X || h.button == PadButton::Y;
-        glow(p, c, h.r, face ? faceColour(h.button) : theme::Accent);
+        glow(p, c, h.r, isFace(h.button) && !picture ? faceColour(m_layout, h.button) : theme::Accent);
     }
     for (int side = 0; side < 2; ++side) {
         const double v = side ? m_input.rightTrigger : m_input.leftTrigger;
-        if (m_on && v > 0.03) glow(p, TriggerCentre[side], 22, theme::Warm, v);
+        if (m_on && v > 0.03) glow(p, triggerCentre(m_layout, side), picture ? 40 : 22, theme::Warm, v);
     }
 }
 

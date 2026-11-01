@@ -1,10 +1,12 @@
 #include "ControllerView.h"
 
+#include "app/Prefs.h"
 #include "app/Theme.h"
 #include "app/Widgets.h"
 
 #include <QComboBox>
 #include <QGridLayout>
+#include <QHash>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -20,6 +22,17 @@ constexpr int TickMs = 20;
 constexpr double StickRest = 0.08;
 
 int percent(double v) { return int(std::lround(v * 100)); }
+
+/** The pad's own name for an input, when it differs from the block name. */
+QString padName(const QString &blockName, ui::PadView::Layout layout)
+{
+    using L = ui::PadView::Layout;
+    static const QHash<QString, QString> playStation{{"A", "✕"}, {"B", "○"}, {"X", "□"}, {"Y", "△"}};
+    static const QHash<QString, QString> xbox{{"L1", "LB"}, {"R1", "RB"}, {"L2", "LT"}, {"R2", "RT"}, {"Select", "View"}, {"Start", "Menu"}};
+    if (layout == L::PlayStation) return playStation.value(blockName);
+    if (layout == L::Xbox) return xbox.value(blockName);
+    return {};
+}
 
 } // namespace
 
@@ -49,6 +62,18 @@ ControllerView::ControllerView(QWidget *parent) : QWidget(parent)
     m_padPick->hide();
     connect(m_padPick, &QComboBox::activated, this, [this] { drive::Gamepad::instance().setPreferredSlot(m_padPick->currentData().toInt()); });
     head->addWidget(m_padPick, 0, Qt::AlignVCenter);
+    // Only changes the drawing and the button names shown; the blocks always use the names in the lists.
+    m_layoutPick = new QComboBox(card);
+    m_layoutPick->setToolTip(tr("How the pad is drawn"));
+    m_layoutPick->addItem(QStringLiteral("MANGAN 200"), int(ui::PadView::Layout::Mangan200));
+    m_layoutPick->addItem(tr("Generic PlayStation layout"), int(ui::PadView::Layout::PlayStation));
+    m_layoutPick->addItem(tr("Generic Xbox layout"), int(ui::PadView::Layout::Xbox));
+    m_layoutPick->setCurrentIndex(std::max(0, m_layoutPick->findData(Prefs::instance().padLayout())));
+    connect(m_layoutPick, &QComboBox::activated, this, [this] {
+        Prefs::instance().setPadLayout(m_layoutPick->currentData().toInt());
+        applyLayout();
+    });
+    head->addWidget(m_layoutPick, 0, Qt::AlignVCenter);
     v->addLayout(head);
 
     m_digitalHint = ui::label(tr("<b>The pad is in digital mode.</b> In this mode the pad itself sends the left stick as the arrows "
@@ -130,14 +155,25 @@ ControllerView::ControllerView(QWidget *parent) : QWidget(parent)
     auto &pad = drive::Gamepad::instance();
     connect(&pad, &drive::Gamepad::connectionChanged, this, &ControllerView::onPadConnection);
     onPadConnection(pad.snapshot().connected);
+    applyLayout();
     tick();
+}
+
+void ControllerView::applyLayout()
+{
+    const auto layout = ui::PadView::Layout(m_layoutPick->currentData().toInt());
+    m_pad->setLayout(layout);
+    for (InputRow &r : m_rows) {
+        const QString own = padName(r.name, layout);
+        r.chip->setText(own.isEmpty() ? r.name : QStringLiteral("%1  ·  %2").arg(r.name, own));
+    }
 }
 
 void ControllerView::addInput(QGridLayout *grid, bool chipOnRight, const QString &name, std::function<bool(const PadSnapshot &)> active,
                               std::function<QString(const PadSnapshot &)> describe)
 {
     auto *parent = grid->parentWidget();
-    InputRow r{ui::label(name, "key", parent), ui::label({}, "mono", parent), std::move(active), std::move(describe)};
+    InputRow r{name, ui::label(name, "key", parent), ui::label({}, "mono", parent), std::move(active), std::move(describe)};
     r.chip->setAlignment(Qt::AlignCenter);
     r.value->setAlignment((chipOnRight ? Qt::AlignRight : Qt::AlignLeft) | Qt::AlignVCenter);
     r.value->setMinimumWidth(110);

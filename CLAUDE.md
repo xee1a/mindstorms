@@ -44,13 +44,14 @@ The Brick (Kostka) tab explains this to users.
   - `Palette` holds the categories and flyout
 - `src/run/Runner.*`: runs a block program from the PC (one thread per stack), sending direct commands live;
   degree moves are braked by `BrickWorker::pollMoves` on the USB thread
-- `src/views/`: Program, Controller and Brick screens, and `UploadDialog`. Controller shows a drawing of the pad with every
-  input's live value, named as in the Gamepad blocks; all control is done by programs.
+- `src/views/`: Program, Controller and Brick screens, and `UploadDialog`. Controller shows the pad with every input's live
+  value, named as in the Gamepad blocks; all control is done by programs. Its dropdown picks the look (`PadView::Layout`):
+  the MANGAN 200 picture or generic PlayStation/Xbox drawings, saved in `Prefs::padLayout`.
 - `src/app/`: MainWindow, Splash, Theme (dark/light tokens plus accent hue shift), Prefs (live settings with a `changed` signal),
   SettingsDialog, FactoryResetDialog, Sounds (editor clicks, synthesised), shared widgets (`BrickArt`: the brick picture
-  `resources/images/nxt.png` with its name and battery on the screen; `PadView` and `BatteryWidget`: drawn with QPainter)
+  `resources/images/nxt.png` with its name and battery on the screen; `PadView`: the MANGAN 200 picture or a drawn layout, with per-layout hotspots; `BatteryWidget`)
 - `i18n/nxtstudio_pl.ts`: Polish translation. Source strings are English.
-- `resources/`: SVG icons, the app icon and `images/nxt.png` (the user's brick picture, background removed)
+- `resources/`: SVG icons, the app icon, `images/nxt.png` and `images/pad_mangan200.png` (the user's pictures, background removed)
 
 ## Commands
 - `.\build.ps1`: configure, build Release, run tests, then copy a runnable folder to `dist\` (windeployqt)

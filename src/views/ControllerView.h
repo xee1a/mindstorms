@@ -31,6 +31,8 @@ protected:
 private:
     /** One line in an input list: a chip with the input's name and its current value. */
     struct InputRow {
+        /** The input's name in the Gamepad blocks. */
+        QString name;
         QLabel *chip;
         QLabel *value;
         std::function<bool(const drive::PadSnapshot &)> active;
@@ -43,6 +45,8 @@ private:
                   std::function<QString(const drive::PadSnapshot &)> describe);
     void tick();
     void onPadConnection(bool connected);
+    /** Draws the chosen pad and adds its own button names (✕, LB…) next to the block names. */
+    void applyLayout();
 
     QTimer m_tick;
     QList<InputRow> m_rows;
@@ -52,4 +56,5 @@ private:
     QLabel *m_padName = nullptr;
     QLabel *m_digitalHint = nullptr;
     QComboBox *m_padPick = nullptr;
+    QComboBox *m_layoutPick = nullptr;
 };
