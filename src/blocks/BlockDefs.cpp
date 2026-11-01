@@ -121,7 +121,8 @@ QList<BlockDef> build()
               dropdown("DIR", {{Blocks::tr("clockwise"), "CW"}, {Blocks::tr("counterclockwise"), "CCW"}}), number("AMOUNT", "1"), units()});
     d << def("nxt_motor_go_to", C::Motors, S::Statement, {row(Blocks::tr("%1 turn motor %2 to position %3 degrees"))},
              {icon("rotation"), dropdown("PORT", motorPorts()), number("DEGREES", "0")},
-             Blocks::tr("Turns the motor the shortest way to an absolute position (0 = where it was last reset)."));
+             Blocks::tr("Turns the motor the shortest way to an absolute position (0 = where it was last reset). "
+                        "Within 2 degrees counts as already there, so it can run in a loop without twitching."));
     d << def("nxt_motor_power", C::Motors, S::Reporter, {row(Blocks::tr("%1 motor %2 power"))}, {icon("motor"), dropdown("PORT", motorPorts())});
     d << def("nxt_motor_running", C::Motors, S::Boolean, {row(Blocks::tr("%1 motor %2 running?"))}, {icon("motor"), dropdown("PORT", motorPorts())});
 

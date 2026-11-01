@@ -7,6 +7,7 @@
 #include <dinput.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 
 namespace drive {
@@ -18,6 +19,15 @@ constexpr int RescanIntervalMs = 1000;
 
 double stick(SHORT v) { return v < 0 ? v / 32768.0 : v / 32767.0; }
 double axis(LONG v) { return std::clamp(v < 0 ? v / 32768.0 : v / 32767.0, -1.0, 1.0); }
+
+// Sticks rarely rest at exactly 0 (cheap pads sit at about -1 %), which would keep motors humming.
+// Inside the dead zone a stick reads 0; outside it the rest of the range is stretched back to ±1.
+constexpr double StickDeadZone = 0.08;
+double deadZone(double v)
+{
+    const double a = std::abs(v);
+    return a <= StickDeadZone ? 0.0 : std::copysign(std::min(1.0, (a - StickDeadZone) / (1 - StickDeadZone)), v);
+}
 
 /**
  * Button numbers on generic DirectInput pads (DragonRise layout, used by most cheap USB pads):
@@ -215,6 +225,7 @@ void Gamepad::poll()
         pollDirectInput(snap, rescan);
     }
 
+    for (double *v : {&snap.input.leftX, &snap.input.leftY, &snap.input.rightX, &snap.input.rightY}) *v = deadZone(*v);
     const PadSnapshot previous = m_snapshot;
     m_snapshot = snap;
     if (snap.connected != wasConnected) emit connectionChanged(snap.connected);

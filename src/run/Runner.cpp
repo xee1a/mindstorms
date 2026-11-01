@@ -284,6 +284,8 @@ public:
         if (t == u"nxt_motor_go_to") {
             const int p = motorPorts(field(b, "PORT")).value(0);
             const double diff = num(b, "DEGREES") - rotation(p);
+            // Within 2 degrees counts as there: correcting smaller errors makes a motor twitch inside loops.
+            if (std::abs(diff) <= 2) return;
             int sp;
             {
                 std::lock_guard lock(m_ctx->mu);

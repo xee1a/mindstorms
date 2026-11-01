@@ -673,7 +673,7 @@ private:
             const QString id = uid();
             return p + QStringLiteral("{\n") + p +
                    QStringLiteral("    long d%1 = ns_round(%2) - MotorRotationCount(%3);\n").arg(id, num(b, "DEGREES").code, motor(f)) + p +
-                   QStringLiteral("    if (d%1 != 0) RotateMotor(%2, ns_abs(ns_speed[%3]), d%1);\n").arg(id, motor(f)).arg(motorIndex(f)) + p +
+                   QStringLiteral("    if (ns_abs(d%1) > 2) RotateMotor(%2, ns_abs(ns_speed[%3]), d%1);\n").arg(id, motor(f)).arg(motorIndex(f)) + p +
                    QStringLiteral("    ns_off(%1);\n").arg(motor(f)) + p + QStringLiteral("}\n");
         }
 

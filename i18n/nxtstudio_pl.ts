@@ -68,13 +68,13 @@
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="112" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="151" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="152" />
         <source>brake</source>
         <translation>zahamuj</translation>
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="112" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="151" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="152" />
         <source>coast</source>
         <translation>puść wolno</translation>
     </message>
@@ -89,99 +89,104 @@
         <translation>%1 wyzeruj licznik obrotów silnika %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="154" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="124" />
+        <source>Turns the motor the shortest way to an absolute position (0 = where it was last reset). Within 2 degrees counts as already there, so it can run in a loop without twitching.</source>
+        <translation>Obraca silnik najkrótszą drogą do podanego położenia (0 to miejsce ostatniego zerowania). Odchyłka do 2° liczy się jako osiągnięte położenie, więc bloczek może działać w pętli bez drgania silnika.</translation>
+    </message>
+    <message>
+        <location filename="../src/blocks/BlockDefs.cpp" line="155" />
         <source>%1 touch %2 pressed?</source>
         <translation>%1 czujnik dotyku %2 wciśnięty?</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="156" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="157" />
         <source>%1 light %2 %3</source>
         <translation>%1 światło na czujniku %2, %3</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="158" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="159" />
         <source>reflected</source>
         <translation>odbite</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="158" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="159" />
         <source>ambient</source>
         <translation>z otoczenia</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="159" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="160" />
         <source>Light level 0-100. "Reflected" turns on the sensor's red LED.</source>
         <translation>Jasność od 0 do 100. Tryb „odbite” włącza czerwoną diodę czujnika.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="160" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="161" />
         <source>%1 sound level %2</source>
         <translation>%1 poziom dźwięku na czujniku %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="162" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="163" />
         <source>%1 distance cm %2</source>
         <translation>%1 odległość w cm na czujniku %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="164" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="165" />
         <source>%1 motor %2 degrees</source>
         <translation>%1 położenie silnika %2 w stopniach</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="166" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="167" />
         <source>%1 NXT %2 button pressed?</source>
         <translation>%1 przycisk %2 na NXT wciśnięty?</translation>
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="33" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="167" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="168" />
         <source>orange</source>
         <translation>pomarańczowy</translation>
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="33" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="136" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="167" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="137" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="168" />
         <source>left</source>
         <translation>lewy</translation>
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="33" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="136" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="167" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="137" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="168" />
         <source>right</source>
         <translation>prawy</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="168" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="169" />
         <source>%1 timer seconds</source>
         <translation>%1 stoper w sekundach</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="169" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="170" />
         <source>%1 reset timer</source>
         <translation>%1 wyzeruj stoper</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="203" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="204" />
         <source>%1 wait %2 seconds</source>
         <translation>%1 czekaj %2 s</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="205" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="206" />
         <source>%1 wait for touch %2 to be %3</source>
         <translation>%1 czekaj, aż czujnik dotyku %2 zostanie %3</translation>
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="32" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="207" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="208" />
         <source>pressed</source>
         <translation>wciśnięty</translation>
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="32" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="207" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="208" />
         <source>released</source>
         <translation>zwolniony</translation>
     </message>
@@ -311,632 +316,627 @@
         <translation>%1 ustaw silnik %2 w położeniu %3°</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="124" />
-        <source>Turns the motor the shortest way to an absolute position (0 = where it was last reset).</source>
-        <translation>Obraca silnik najkrótszą drogą do podanego położenia (0 to miejsce ostatniego zerowania).</translation>
-    </message>
-    <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="125" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="126" />
         <source>%1 motor %2 power</source>
         <translation>%1 moc silnika %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="126" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="127" />
         <source>%1 motor %2 running?</source>
         <translation>%1 silnik %2 się obraca?</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="129" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="130" />
         <source>%1 move %2 for %3 %4</source>
         <translation>%1 jedź %2 przez %3 %4</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="130" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="135" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="131" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="136" />
         <source>forward</source>
         <translation>do przodu</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="130" />
-        <location filename="../src/blocks/BlockDefs.cpp" line="135" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="131" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="136" />
         <source>backward</source>
         <translation>do tyłu</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="131" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="132" />
         <source>left</source>
         <comment>direction</comment>
         <translation>w lewo</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="131" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="132" />
         <source>right</source>
         <comment>direction</comment>
         <translation>w prawo</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="133" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="134" />
         <source>Drives with the movement motors and speed set below, then stops.</source>
         <translation>Jedzie silnikami jazdy z ustawioną prędkością, a potem się zatrzymuje.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="134" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="135" />
         <source>%1 start moving %2</source>
         <translation>%1 zacznij jechać %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="137" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="138" />
         <source>%1 move with steering %2 for %3 %4</source>
         <translation>%1 jedź ze skrętem %2 przez %3 %4</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="139" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="140" />
         <source>Steering -100 spins left, 0 goes straight, 100 spins right.</source>
         <translation>Skręt -100 to obrót w miejscu w lewo, 0 – jazda prosto, 100 – obrót w miejscu w prawo.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="140" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="141" />
         <source>%1 start moving with steering %2</source>
         <translation>%1 zacznij jechać ze skrętem %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="142" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="143" />
         <source>%1 tank drive left %2 % right %3 % for %4 %5</source>
         <translation>%1 jedź jak czołg: lewy %2 %, prawy %3 % przez %4 %5</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="144" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="145" />
         <source>%1 start tank drive left %2 % right %3 %</source>
         <translation>%1 zacznij jechać jak czołg: lewy %2 %, prawy %3 %</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="146" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="147" />
         <source>%1 stop moving</source>
         <translation>%1 zatrzymaj jazdę</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="147" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="148" />
         <source>%1 set movement speed to %2 %</source>
         <translation>%1 ustaw prędkość jazdy na %2 %</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="148" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="149" />
         <source>%1 set movement motors to %2 + %3</source>
         <translation>%1 ustaw silniki jazdy: %2 + %3</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="150" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="151" />
         <source>%1 when movement stops, %2</source>
         <translation>%1 po zatrzymaniu jazdy: %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="170" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="171" />
         <source>%1 colour %2</source>
         <translation>%1 kolor na czujniku %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="171" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="172" />
         <source>NXT 2.0 colour sensor: 1 black, 2 blue, 3 green, 4 yellow, 5 red, 6 white.</source>
         <translation>Czujnik koloru z zestawu NXT 2.0: 1 – czarny, 2 – niebieski, 3 – zielony, 4 – żółty, 5 – czerwony, 6 – biały.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="172" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="173" />
         <source>%1 colour %2 is %3?</source>
         <translation>%1 kolor na czujniku %2 to %3?</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="174" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="175" />
         <source>%1 distance %2 %3 %4 cm?</source>
         <translation>%1 odległość na czujniku %2 %3 %4 cm?</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="176" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="177" />
         <source>%1 light %2 %3 %4?</source>
         <translation>%1 światło na czujniku %2 %3 %4?</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="178" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="179" />
         <source>%1 sound level %2 &gt; %3?</source>
         <translation>%1 poziom dźwięku na czujniku %2 &gt; %3?</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="180" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="181" />
         <source>%1 touch %2 bump count</source>
         <translation>%1 liczba naciśnięć czujnika dotyku %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="181" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="182" />
         <source>How many times the touch sensor was pressed and released since the program started.</source>
         <translation>Ile razy czujnik dotyku został wciśnięty i zwolniony od uruchomienia programu.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="182" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="183" />
         <source>%1 battery level mV</source>
         <translation>%1 napięcie baterii w mV</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="185" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="186" />
         <source>%1 when gamepad button %2 is pressed</source>
         <translation>%1 gdy wciśniesz przycisk pada %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="187" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="188" />
         <source>The gamepad plugged into this PC. On the NXT it works while the app is connected (USB or Bluetooth).</source>
         <translation>Pad podłączony do tego komputera. W programie wgranym na NXT działa, dopóki aplikacja jest połączona z kostką (przez USB lub Bluetooth).</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="188" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="189" />
         <source>%1 gamepad button %2 pressed?</source>
         <translation>%1 przycisk pada %2 wciśnięty?</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="189" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="190" />
         <source>%1 gamepad %2</source>
         <translation>%1 pad: %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="190" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="191" />
         <source>left stick ↔</source>
         <translation>lewa gałka ↔</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="190" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="191" />
         <source>left stick ↕</source>
         <translation>lewa gałka ↕</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="190" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="191" />
         <source>right stick ↔</source>
         <translation>prawa gałka ↔</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="191" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="192" />
         <source>right stick ↕</source>
         <translation>prawa gałka ↕</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="191" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="192" />
         <source>trigger L2</source>
         <translation>spust L2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="191" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="192" />
         <source>trigger R2</source>
         <translation>spust R2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="192" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="193" />
         <source>Sticks give -100 to 100 (right and up are positive), triggers 0 to 100.</source>
         <translation>Gałki dają wartości od -100 do 100 (w prawo i w górę – dodatnie), spusty od 0 do 100.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="193" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="194" />
         <source>%1 drive with the left stick: left motor %2 right motor %3</source>
         <translation>%1 steruj lewą gałką: lewy silnik %2, prawy silnik %3</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="195" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="196" />
         <source>Sets both motors from the left stick once. Put it inside "forever" to drive the robot with the gamepad.</source>
         <translation>Jednorazowo ustawia oba silniki według lewej gałki. Włóż ten bloczek do „zawsze”, aby sterować robotem za pomocą pada.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="196" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="197" />
         <source>%1 number in mailbox %2</source>
         <translation>%1 liczba ze skrzynki %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="197" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="198" />
         <source>The last number another brick or the PC sent to this mailbox (0 until something arrives). Only on the NXT.</source>
         <translation>Ostatnia liczba, którą inna kostka lub komputer wysłały do tej skrzynki (0, dopóki nic nie dotrze). Działa tylko w programie wgranym na NXT.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="198" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="199" />
         <source>%1 send number %2 to mailbox %3 of brick %4</source>
         <translation>%1 wyślij liczbę %2 do skrzynki %3 kostki nr %4</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="200" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="201" />
         <source>Sends over Bluetooth to a brick connected to this one (Bluetooth menu on the NXT, connection 1-3). Only on the NXT.</source>
         <translation>Wysyła liczbę przez Bluetooth do kostki połączonej z tą (menu Bluetooth na NXT, połączenie 1–3). Działa tylko w programie wgranym na NXT.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="207" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="208" />
         <source>bumped</source>
         <translation>wciśnięty i zwolniony</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="208" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="209" />
         <source>%1 wait until %2</source>
         <translation>%1 czekaj, aż %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="209" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="210" />
         <source>%1 repeat %2 times</source>
         <translation>%1 powtórz %2 razy</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="211" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="212" />
         <source>%1 forever</source>
         <translation>%1 zawsze</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="212" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="213" />
         <source>%1 repeat until %2</source>
         <translation>%1 powtarzaj, aż %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="214" />
         <location filename="../src/blocks/BlockDefs.cpp" line="215" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="216" />
         <source>if %1 then</source>
         <translation>jeżeli %1, to</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="215" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="216" />
         <source>else</source>
         <translation>w przeciwnym razie</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="217" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="218" />
         <source>%1 stop program</source>
         <translation>%1 zakończ program</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="218" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="219" />
         <source>%1 while %2</source>
         <translation>%1 podczas gdy %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="219" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="220" />
         <source>%1 wait for NXT %2 button</source>
         <translation>%1 czekaj na przycisk %2 na NXT</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="221" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="222" />
         <source>%1 wait until distance %2 %3 %4 cm</source>
         <translation>%1 czekaj, aż odległość na czujniku %2 %3 %4 cm</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="223" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="224" />
         <source>%1 wait until colour %2 is %3</source>
         <translation>%1 czekaj, aż kolor na czujniku %2 będzie %3</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="225" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="226" />
         <source>%1 do both at once</source>
         <translation>%1 wykonaj jednocześnie</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="225" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="226" />
         <source>and</source>
         <translation>oraz</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="226" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="227" />
         <source>Runs the two inner stacks at the same time and continues when both are done.</source>
         <translation>Wykonuje oba wewnętrzne skrypty w tym samym czasie i przechodzi dalej, gdy oba się zakończą.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="227" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="228" />
         <source>%1 exit loop</source>
         <translation>%1 przerwij pętlę</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="228" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="229" />
         <source>%1 stop other stacks</source>
         <translation>%1 zatrzymaj pozostałe skrypty</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="231" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="232" />
         <source>%1 play tone %2 Hz for %3 ms</source>
         <translation>%1 zagraj dźwięk %2 Hz przez %3 ms</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="233" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="234" />
         <source>%1 play note %2 for %3 beats</source>
         <translation>%1 zagraj nutę %2, ćwierćnuty: %3</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="237" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="238" />
         <source>%1 play note %2 octave %3 for %4 s</source>
         <translation>%1 zagraj nutę %2 w oktawie %3 przez %4 s</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="241" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="242" />
         <source>%1 beep</source>
         <translation>%1 zagraj krótki sygnał</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="242" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="243" />
         <source>%1 play sound %2 %3</source>
         <translation>%1 odtwórz dźwięk %2 %3</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="246" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="247" />
         <source>until done</source>
         <translation>do końca</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="246" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="247" />
         <source>and continue</source>
         <translation>i nie czekaj</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="247" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="248" />
         <source>Plays a sound file stored on the brick.</source>
         <translation>Odtwarza plik dźwiękowy zapisany na kostce.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="248" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="249" />
         <source>%1 set volume to %2 %</source>
         <translation>%1 ustaw głośność na %2 %</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="249" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="250" />
         <source>%1 change volume by %2</source>
         <translation>%1 zmień głośność o %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="250" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="251" />
         <source>%1 stop all sounds</source>
         <translation>%1 zatrzymaj wszystkie dźwięki</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="255" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="256" />
         <source>%1 show %2 on line %3</source>
         <translation>%1 wyświetl %2 w wierszu %3</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="256" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="257" />
         <source>Hello!</source>
         <translation>Cześć!</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="257" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="258" />
         <source>Writes text or a number on the brick's screen (8 lines, 16 characters each).</source>
         <translation>Wyświetla tekst lub liczbę na ekranie kostki (8 wierszy po 16 znaków).</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="258" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="259" />
         <source>%1 clear screen</source>
         <translation>%1 wyczyść ekran</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="259" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="260" />
         <source>%1 write %2 at x %3 y %4</source>
         <translation>%1 napisz %2 w punkcie x %3, y %4</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="260" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="261" />
         <source>Hi</source>
         <translation>Hej</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="261" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="262" />
         <source>Screen is 100 × 64 pixels; y = 56 is the top line.</source>
         <translation>Ekran ma 100 × 64 piksele; y = 56 to górny wiersz.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="262" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="263" />
         <source>%1 show number %2 on line %3</source>
         <translation>%1 wyświetl liczbę %2 w wierszu %3</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="264" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="265" />
         <source>%1 draw line from %2 , %3 to %4 , %5</source>
         <translation>%1 narysuj linię od %2 , %3 do %4 , %5</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="266" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="267" />
         <source>%1 draw circle at %2 , %3 radius %4</source>
         <translation>%1 narysuj okrąg o środku %2 , %3 i promieniu %4</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="268" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="269" />
         <source>%1 draw rectangle at %2 , %3 size %4 × %5</source>
         <translation>%1 narysuj prostokąt w %2 , %3 o wymiarach %4 × %5</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="270" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="271" />
         <source>%1 draw dot at %2 , %3</source>
         <translation>%1 narysuj punkt %2 , %3</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="272" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="273" />
         <source>%1 show face %2</source>
         <translation>%1 pokaż minę: %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="273" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="274" />
         <source>happy</source>
         <translation>wesoła</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="273" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="274" />
         <source>sad</source>
         <translation>smutna</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="273" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="274" />
         <source>surprised</source>
         <translation>zdziwiona</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="274" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="275" />
         <source>sleepy</source>
         <translation>śpiąca</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="274" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="275" />
         <source>angry</source>
         <translation>zła</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="275" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="276" />
         <source>Draws a simple face on the whole screen.</source>
         <translation>Rysuje prostą buźkę na całym ekranie.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="281" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="282" />
         <source>%1 and %2</source>
         <translation>%1 i %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="282" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="283" />
         <source>%1 or %2</source>
         <translation>%1 lub %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="283" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="284" />
         <source>not %1</source>
         <translation>nie %1</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="285" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="286" />
         <source>true</source>
         <translation>prawda</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="285" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="286" />
         <source>false</source>
         <translation>fałsz</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="290" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="291" />
         <source>random %1 to %2</source>
         <translation>losowa liczba od %1 do %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="291" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="292" />
         <source>limit %1 between %2 and %3</source>
         <translation>ogranicz %1 do zakresu od %2 do %3</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="294" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="295" />
         <source>abs</source>
         <translation>wartość bezwzględna</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="294" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="295" />
         <source>round</source>
         <translation>zaokrąglenie</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="294" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="295" />
         <source>floor</source>
         <translation>zaokrąglenie w dół</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="295" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="296" />
         <source>ceiling</source>
         <translation>zaokrąglenie w górę</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="297" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="298" />
         <source>%1 mod %2</source>
         <translation>reszta z dzielenia %1 przez %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="299" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="300" />
         <source>min</source>
         <translation>mniejsza z</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="299" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="300" />
         <source>max</source>
         <translation>większa z</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="300" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="301" />
         <source>%1 is between %2 and %3?</source>
         <translation>%1 jest między %2 a %3?</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="302" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="303" />
         <source>join %1 %2</source>
         <translation>połącz %1 %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="302" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="303" />
         <source>speed </source>
         <translation>prędkość </translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="303" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="304" />
         <source>length of %1</source>
         <translation>długość %1</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="307" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="308" />
         <source>set %1 to %2</source>
         <translation>ustaw %1 na %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="308" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="309" />
         <source>change %1 by %2</source>
         <translation>zmień %1 o %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="309" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="310" />
         <source>show %1 on line %2</source>
         <translation>wyświetl %1 w wierszu %2</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="310" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="311" />
         <source>Shows the variable's name and value on the NXT screen.</source>
         <translation>Wyświetla nazwę i wartość zmiennej na ekranie NXT.</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="329" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="330" />
         <source>Start</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="330" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="331" />
         <source>Motors</source>
         <translation>Silniki</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="331" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="332" />
         <source>Movement</source>
         <translation>Ruch</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="332" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="333" />
         <source>Sensors</source>
         <translation>Czujniki</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="333" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="334" />
         <source>Gamepad</source>
         <translation>Pad</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="334" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="335" />
         <source>Control</source>
         <translation>Sterowanie</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="335" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="336" />
         <source>Sound</source>
         <translation>Dźwięk</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="336" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="337" />
         <source>Display</source>
         <translation>Ekran</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="337" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="338" />
         <source>Logic</source>
         <translation>Logika</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="338" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="339" />
         <source>Math</source>
         <translation>Matematyka</translation>
     </message>
     <message>
-        <location filename="../src/blocks/BlockDefs.cpp" line="339" />
+        <location filename="../src/blocks/BlockDefs.cpp" line="340" />
         <source>Variables</source>
         <translation>Zmienne</translation>
     </message>
@@ -1740,43 +1740,43 @@
         <translation>Bloczka „%1” nie można użyć jako wartości.</translation>
     </message>
     <message>
-        <location filename="../src/run/Runner.cpp" line="494" />
+        <location filename="../src/run/Runner.cpp" line="496" />
         <source>The ultrasonic sensor only works in programs uploaded to the NXT. Use Upload to NXT instead of Run.</source>
         <translation>Czujnik ultradźwiękowy działa tylko w programach wgranych na kostkę. Zamiast „Uruchom” użyj „Wgraj na NXT”.</translation>
     </message>
     <message>
-        <location filename="../src/run/Runner.cpp" line="496" />
+        <location filename="../src/run/Runner.cpp" line="498" />
         <source>The colour sensor only works in programs uploaded to the NXT. Use Upload to NXT instead of Run.</source>
         <translation>Czujnik koloru działa tylko w programach wgranych na kostkę. Zamiast „Uruchom” użyj „Wgraj na NXT”.</translation>
     </message>
     <message>
-        <location filename="../src/run/Runner.cpp" line="499" />
+        <location filename="../src/run/Runner.cpp" line="501" />
         <source>The NXT's own buttons only work in programs uploaded to the NXT. Use Upload to NXT instead of Run.</source>
         <translation>Przyciski kostki działają tylko w programach wgranych na kostkę. Zamiast „Uruchom” użyj „Wgraj na NXT”.</translation>
     </message>
     <message>
-        <location filename="../src/run/Runner.cpp" line="504" />
+        <location filename="../src/run/Runner.cpp" line="506" />
         <source>Mailbox blocks only work when the program runs on the NXT. Use Upload to NXT instead of Run.</source>
         <translation>Bloczki skrzynek działają tylko w programach wgranych na kostkę. Zamiast „Uruchom” użyj „Wgraj na NXT”.</translation>
     </message>
     <message>
-        <location filename="../src/run/Runner.cpp" line="545" />
-        <location filename="../src/run/Runner.cpp" line="896" />
+        <location filename="../src/run/Runner.cpp" line="547" />
+        <location filename="../src/run/Runner.cpp" line="898" />
         <source>The NXT was disconnected.</source>
         <translation>Kostka NXT została odłączona.</translation>
     </message>
     <message>
-        <location filename="../src/run/Runner.cpp" line="548" />
+        <location filename="../src/run/Runner.cpp" line="550" />
         <source>No reading from the sensor on port %1. Is it plugged in?</source>
         <translation>Brak odczytu z czujnika na porcie %1. Czy jest podłączony?</translation>
     </message>
     <message>
-        <location filename="../src/run/Runner.cpp" line="755" />
+        <location filename="../src/run/Runner.cpp" line="757" />
         <source>Connect the NXT first (Brick tab).</source>
         <translation>Najpierw połącz się z kostką NXT (karta Kostka).</translation>
     </message>
     <message>
-        <location filename="../src/run/Runner.cpp" line="765" />
+        <location filename="../src/run/Runner.cpp" line="767" />
         <source>Nothing to run: start a stack with "when program starts".</source>
         <translation>Nie ma czego uruchomić: rozpocznij skrypt bloczkiem „po uruchomieniu programu”.</translation>
     </message>
