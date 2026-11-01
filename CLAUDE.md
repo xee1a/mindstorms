@@ -55,6 +55,10 @@ The Brick (Kostka) tab explains this to users.
 
 ## Commands
 - `.\build.ps1`: configure, build Release, run tests, then copy a runnable folder to `dist\` (windeployqt)
+  - Release also writes `release\NXTStudio.exe`: `tools/single-exe` (`nxtlauncher` + `nxtpack`) appends dist\ LZMS-compressed
+    to a static-CRT launcher that unpacks to `%LOCALAPPDATA%\NXT Studio\app\<hash>` once per build
+  - and `release\NXTStudio.msi` via `tools/make_msi.py` (Python 3.12 `msilib`; keep its `UPGRADE_CODE` fixed so upgrades replace old installs)
+  - Both files under `release\` are committed so people can download without building
 - `.\build.ps1 -Debug`: Debug build
 - `cmake --build build --target update_translations`: refresh the .ts file after changing UI strings
   (then translate the new entries)
@@ -75,4 +79,4 @@ The Brick (Kostka) tab explains this to users.
 ## Milestones
 1. ✅ Block editor and gamepad Drive mode over direct commands (native Qt rewrite)
 2. ✅ Run from PC over USB (Program → Run), and Upload to NXT (blocks → NXC → bundled `nbc.exe` → `.rxe` → system commands)
-3. ✅ Bluetooth (serial COM) transport. Still to do: installer
+3. ✅ Bluetooth (serial COM) transport, single-file exe and MSI installer

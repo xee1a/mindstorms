@@ -14,6 +14,15 @@ a light theme and accent colours available in the settings.
 
 Programs on the brick that use gamepad blocks read the PC's pad while the app stays connected.
 
+## Download
+No need to build it yourself. In the [`release`](release) folder:
+- **`NXTStudio.msi`**: the installer. Double-click it; it puts NXT Studio in Program Files with Start menu and
+  desktop shortcuts. Running a newer `.msi` replaces the old version; uninstall from Settings → Apps.
+- **`NXTStudio.exe`**: the whole app as one file, no install. The first start unpacks it to
+  `%LOCALAPPDATA%\NXT Studio\app` (takes a second); later starts are instant.
+
+Windows SmartScreen may warn because the files aren't signed: click *More info → Run anyway*.
+
 ## Uploading
 Block programs are turned into NXC and compiled by the bundled NBC compiler
 (`third_party/nbc`, copied to `tools\nbc.exe` next to the app). This works with the standard LEGO
@@ -37,4 +46,5 @@ Requirements:
 .\build.ps1
 ```
 
-This builds, runs the tests and puts a ready-to-run `dist\NXTStudio.exe` with its Qt DLLs.
+This builds, runs the tests and puts a ready-to-run `dist\NXTStudio.exe` with its Qt DLLs, then makes
+`release\NXTStudio.exe` (one file) and, if Python 3.12 is installed, `release\NXTStudio.msi`.

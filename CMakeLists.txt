@@ -65,6 +65,17 @@ add_custom_command(TARGET NXTStudio POST_BUILD
 # Polish UI text. `cmake --build build --target update_translations` refreshes the .ts from the sources.
 qt_add_translations(TARGETS NXTStudio TS_FILES i18n/nxtstudio_pl.ts RESOURCE_PREFIX /i18n)
 
+# One-file NXTStudio.exe for downloading: a plain Win32 launcher (static CRT, no Qt) that the packer
+# appends the whole dist\ folder to. build.ps1 runs the packer and puts the result in release\.
+add_executable(nxtlauncher WIN32 tools/single-exe/launcher.cpp tools/single-exe/Pack.h resources/app.rc)
+add_executable(nxtpack tools/single-exe/packer.cpp tools/single-exe/Pack.h)
+foreach(t nxtlauncher nxtpack)
+    set_target_properties(${t} PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" AUTOMOC OFF AUTOUIC OFF AUTORCC OFF)
+    target_compile_definitions(${t} PRIVATE UNICODE _UNICODE NOMINMAX)
+    target_link_libraries(${t} PRIVATE cabinet)
+endforeach()
+target_link_libraries(nxtlauncher PRIVATE shell32 ole32)
+
 enable_testing()
 qt_add_executable(test_core tests/test_core.cpp)
 target_link_libraries(test_core PRIVATE nxtcore Qt6::Test)

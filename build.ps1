@@ -30,3 +30,23 @@ if (-not $Debug) {
     else { Write-Warning "Visual C++ runtime not found; dist\ needs the VC++ Redistributable on other PCs." }
 }
 Write-Host "Ready: $dist\NXTStudio.exe"
+
+# The same app as one downloadable file (unpacks itself on first start), kept in the repo under release\.
+if (-not $Debug) {
+    New-Item -ItemType Directory -Force "$PSScriptRoot\release" | Out-Null
+    & "$PSScriptRoot\build\Release\nxtpack.exe" $dist "$PSScriptRoot\build\Release\nxtlauncher.exe" "$PSScriptRoot\release\NXTStudio.exe"
+    if ($LASTEXITCODE) { exit $LASTEXITCODE }
+    Write-Host "Single file: $PSScriptRoot\release\NXTStudio.exe"
+
+    # And as an installer, when a Python with msilib (3.12 or older) is around.
+    $version = (Select-String -Path "$PSScriptRoot\CMakeLists.txt" -Pattern 'project\(NXTStudio VERSION ([\d.]+)').Matches[0].Groups[1].Value
+    $hasMsilib = $false
+    if (Get-Command python -ErrorAction SilentlyContinue) {
+        & python -W ignore -c "import msilib" 2>$null
+        $hasMsilib = $LASTEXITCODE -eq 0
+    }
+    if ($hasMsilib) {
+        & python "$PSScriptRoot\tools\make_msi.py" $dist "$PSScriptRoot\release\NXTStudio.msi" $version
+        if ($LASTEXITCODE) { exit $LASTEXITCODE }
+    } else { Write-Warning "No Python 3.12 with msilib; skipping release\NXTStudio.msi." }
+}
