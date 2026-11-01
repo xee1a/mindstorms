@@ -22,4 +22,11 @@ New-Item -ItemType Directory -Force "$dist\tools" | Out-Null
 Copy-Item "$PSScriptRoot\third_party\nbc\nbc.exe" "$dist\tools\nbc.exe" -Force
 & "$QtDir\bin\windeployqt.exe" --no-compiler-runtime --no-opengl-sw --no-system-d3d-compiler --translations pl "$dist\NXTStudio.exe"
 if ($LASTEXITCODE) { exit $LASTEXITCODE }
+# The Visual C++ runtime next to the exe, so dist\ also runs on PCs without the VC++ Redistributable.
+if (-not $Debug) {
+    $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+    $crt = Get-ChildItem "$vs\VC\Redist\MSVC\*\x64\Microsoft.VC143.CRT" -Directory | Sort-Object FullName | Select-Object -Last 1
+    if ($crt) { Copy-Item "$($crt.FullName)\*.dll" $dist -Force }
+    else { Write-Warning "Visual C++ runtime not found; dist\ needs the VC++ Redistributable on other PCs." }
+}
 Write-Host "Ready: $dist\NXTStudio.exe"
