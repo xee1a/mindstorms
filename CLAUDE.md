@@ -36,6 +36,9 @@ The Brick (Kostka) tab explains this to users.
 - `src/compile/`: `NxcGenerator` turns a workspace into NXC (unit tested: every block compiles with nbc);
   `Compiler` runs the bundled `third_party/nbc/nbc.exe`. Generated helpers use the `ns_` prefix, since NXC's
   own headers define many `__` macros.
+  - HiTechnic gyro (`nxt_gyro_*` blocks, `SensorKind::Gyro`): an analog sensor read raw in light-inactive mode, rate = raw − resting
+    value (~1 °/s per unit). The program calibrates each gyro at start and a task integrates the angle; Runner does the same from
+    telemetry (coarser, ~120 ms over USB)
 - `src/blocks/`: the custom block editor on QGraphicsView
   - `BlockDefs` defines the blocks
   - `Block` handles layout, paint and JSON

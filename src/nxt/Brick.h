@@ -12,7 +12,8 @@
 
 namespace nxt {
 
-enum class SensorKind { None, Touch, Light, Ambient, Sound };
+/** Gyro is the HiTechnic gyro: its value is the raw reading (about 600 at rest, ±1 per degree per second). */
+enum class SensorKind { None, Touch, Light, Ambient, Sound, Gyro };
 
 struct SensorInfo {
     uint8_t type;

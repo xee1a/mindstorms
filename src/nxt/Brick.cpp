@@ -48,6 +48,7 @@ SensorInfo sensorInfo(SensorKind kind)
     case SensorKind::Light: return {SensorType::LightActive, SensorMode::PercentFullScale, "%"};
     case SensorKind::Ambient: return {SensorType::LightInactive, SensorMode::PercentFullScale, "%"};
     case SensorKind::Sound: return {SensorType::SoundDb, SensorMode::PercentFullScale, "dB"};
+    case SensorKind::Gyro: return {SensorType::LightInactive, SensorMode::Raw, ""};
     case SensorKind::None: break;
     }
     return {SensorType::None, SensorMode::Raw, ""};
@@ -60,6 +61,7 @@ QString sensorLabel(SensorKind kind)
     case SensorKind::Light: return QCoreApplication::translate("Sensors", "Light (reflected)");
     case SensorKind::Ambient: return QCoreApplication::translate("Sensors", "Light (ambient)");
     case SensorKind::Sound: return QCoreApplication::translate("Sensors", "Sound");
+    case SensorKind::Gyro: return QCoreApplication::translate("Sensors", "Gyro (HiTechnic)");
     case SensorKind::None: break;
     }
     return QCoreApplication::translate("Sensors", "Not used");
@@ -444,7 +446,9 @@ void BrickWorker::pollTelemetry()
                 continue;
             }
             const InputValues v = parseInputValues(request(getInputValues(uint8_t(port))));
-            m_state.sensorValues[port] = v.valid ? std::optional<int>(v.scaled) : std::nullopt;
+            // The gyro is read like NXC's SensorRaw does; the firmware's scaling is for light sensors.
+            const int reading = m_state.sensors[port] == SensorKind::Gyro ? int(v.raw) : v.scaled;
+            m_state.sensorValues[port] = v.valid ? std::optional<int>(reading) : std::nullopt;
         }
         for (int port = 0; port < 3; ++port)
             m_state.motorRotation[port] = parseOutputState(request(getOutputState(uint8_t(port)))).rotationCount;

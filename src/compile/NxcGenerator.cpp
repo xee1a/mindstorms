@@ -29,7 +29,7 @@ struct Expr {
     Type type = Type::Num;
 };
 
-enum class SensorUse { Touch, Light, Ambient, Sound, Ultrasonic, Color };
+enum class SensorUse { Touch, Light, Ambient, Sound, Ultrasonic, Color, Gyro };
 
 QString sensorName(SensorUse u)
 {
@@ -40,6 +40,7 @@ QString sensorName(SensorUse u)
     case SensorUse::Sound: return Text::tr("sound");
     case SensorUse::Ultrasonic: return Text::tr("ultrasonic");
     case SensorUse::Color: return Text::tr("colour");
+    case SensorUse::Gyro: return Text::tr("gyro");
     }
     return {};
 }
@@ -180,6 +181,24 @@ task ns_padReader()
 safecall bool ns_padPressed(int b) { return ((ns_padBtn >> b) & 1) == 1; }
 )NXC";
 
+constexpr char GyroPrelude[] = R"NXC(
+float ns_gyOff[4];
+float ns_gyAng[4];
+bool ns_gyBusy[4];
+safecall float ns_gyRate(byte p) { int raw = SensorRaw(p); return raw - ns_gyOff[p]; }
+// Averages a second of readings while the robot is still: that is the reading for "not turning".
+safecall void ns_gyCalibrate(byte p)
+{
+    ns_gyBusy[p] = true;
+    float sum = 0;
+    int raw;
+    for (int i = 0; i < 100; i++) { raw = SensorRaw(p); sum += raw; Wait(10); }
+    ns_gyOff[p] = sum / 100;
+    ns_gyAng[p] = 0;
+    ns_gyBusy[p] = false;
+}
+)NXC";
+
 class Generator {
 public:
     NxcResult run(const QJsonObject &workspace, const QString &programName)
@@ -267,6 +286,22 @@ private:
                                   "    if (ns_lightOn[p] != want) {\n        if (on) SetSensorType(p, SENSOR_TYPE_LIGHT_ACTIVE); else SetSensorType(p, SENSOR_TYPE_LIGHT_INACTIVE);\n"
                                   "        SetSensorMode(p, SENSOR_MODE_PERCENT);\n        ResetSensor(p);\n        ns_lightOn[p] = want;\n        Wait(30);\n    }\n"
                                   "    return Sensor(p);\n}\n");
+        QList<int> gyros;
+        for (auto it = m_sensors.cbegin(); it != m_sensors.cend(); ++it)
+            if (it.value() == SensorUse::Gyro) gyros << it.key();
+        if (!gyros.isEmpty()) {
+            // HiTechnic gyro: the raw reading minus its resting value is about 1 degree per second; a task adds it up into an angle.
+            out += QLatin1String(GyroPrelude);
+            out += QStringLiteral("task ns_gyroTask()\n{\n    long last = CurrentTick();\n    int raw;\n    float r;\n    while (true) {\n        Wait(5);\n"
+                                  "        long now = CurrentTick();\n        float dt = (now - last) / 1000.0;\n        last = now;\n");
+            for (int p : gyros)
+                // Readings within 1 of rest are noise; leaving them out keeps the angle from creeping while still.
+                out += QStringLiteral("        if (!ns_gyBusy[%1]) { raw = SensorRaw(S%2); r = raw - ns_gyOff[%1]; if (r > 1 || r < -1) ns_gyAng[%1] += r * dt; }\n")
+                           .arg(p)
+                           .arg(p + 1);
+            out += QStringLiteral("    }\n}\n");
+            tasks << QStringLiteral("ns_gyroTask");
+        }
         if (!m_bumpPorts.isEmpty()) {
             out += QStringLiteral("int ns_bumps[4];\ntask ns_bumpCounter()\n{\n    bool down[4];\n    while (true) {\n");
             for (int p : m_bumpPorts)
@@ -299,10 +334,16 @@ private:
                 ultrasonic = true;
                 break;
             case SensorUse::Color: out += QStringLiteral("    SetSensorColorFull(%1);\n").arg(port); break;
+            case SensorUse::Gyro:
+                out += QStringLiteral("    SetSensorType(%1, SENSOR_TYPE_LIGHT_INACTIVE);\n    SetSensorMode(%1, SENSOR_MODE_RAW);\n    ResetSensor(%1);\n").arg(port);
+                break;
             }
         }
         // Sensors need a moment after being configured; the ultrasonic one longer.
-        out += QStringLiteral("    Wait(%1);\n    ns_t0 = CurrentTick();\n").arg(ultrasonic ? 250 : 50);
+        out += QStringLiteral("    Wait(%1);\n").arg(ultrasonic ? 250 : 50);
+        // The robot is usually still when the program starts, so measure each gyro's resting value then.
+        for (int p : gyros) out += QStringLiteral("    ns_gyCalibrate(S%1);\n").arg(p + 1);
+        out += QStringLiteral("    ns_t0 = CurrentTick();\n");
         out += QStringLiteral("    Precedes(%1);\n}\n").arg(tasks.join(QStringLiteral(", ")));
         m_out = out;
     }
@@ -348,6 +389,7 @@ private:
         case SensorUse::Light: return QStringLiteral("ns_light(%1, true)").arg(port);
         case SensorUse::Ambient: return QStringLiteral("ns_light(%1, false)").arg(port);
         case SensorUse::Ultrasonic: return QStringLiteral("SensorUS(%1)").arg(port);
+        case SensorUse::Gyro: return QStringLiteral("ns_gyRate(%1)").arg(port);
         case SensorUse::Sound:
         case SensorUse::Color: return QStringLiteral("Sensor(%1)").arg(port);
         }
@@ -460,6 +502,8 @@ private:
         if (t == u"nxt_button") return bo(QStringLiteral("ButtonPressed(%1, false)").arg(nxtButton(field(b, "BUTTON"))));
         if (t == u"nxt_timer") return n(QStringLiteral("((CurrentTick() - ns_t0) / 1000.0)"));
         if (t == u"nxt_battery") return n(QStringLiteral("BatteryLevel()"));
+        if (t == u"nxt_gyro_rate") return n(sensorRead(b, SensorUse::Gyro));
+        if (t == u"nxt_gyro_angle") return n(QStringLiteral("ns_gyAng[%1]").arg(sensorPort(b, SensorUse::Gyro)));
         if (t == u"nxt_touch_count") {
             const int p = sensorPort(b, SensorUse::Touch);
             m_bumpPorts.insert(p);
@@ -712,6 +756,8 @@ private:
 
         // Sensors
         if (t == u"nxt_reset_timer") return line(QStringLiteral("ns_t0 = CurrentTick();"));
+        if (t == u"nxt_gyro_reset") return line(QStringLiteral("ns_gyAng[%1] = 0;").arg(sensorPort(b, SensorUse::Gyro)));
+        if (t == u"nxt_gyro_calibrate") return line(QStringLiteral("ns_gyCalibrate(S%1);").arg(sensorPort(b, SensorUse::Gyro) + 1));
 
         // Pad
         if (t == u"pad_drive") {
@@ -752,6 +798,8 @@ private:
             return line(QStringLiteral("until(%1 %2 %3) Wait(5);").arg(sensorRead(b, SensorUse::Ultrasonic), lessMore(b), num(b, "VALUE").code));
         if (t == u"nxt_wait_color")
             return line(QStringLiteral("until(%1 == %2) Wait(5);").arg(sensorRead(b, SensorUse::Color)).arg(field(b, "COLOR").toInt()));
+        if (t == u"nxt_wait_gyro")
+            return line(QStringLiteral("until(ns_gyAng[%1] %2 %3) Wait(5);").arg(sensorPort(b, SensorUse::Gyro)).arg(lessMore(b), num(b, "VALUE").code));
         if (t == u"nxt_repeat") {
             const QString id = uid();
             return line(QStringLiteral("long n%1 = ns_round(%2);").arg(id, num(b, "TIMES").code)) +
@@ -844,7 +892,8 @@ private:
         if (t.startsWith(u"nxt_when_")) return {};
         const QSet<QString> values{"nxt_touch_pressed", "nxt_light", "nxt_sound", "nxt_ultrasonic", "nxt_rotation", "nxt_button", "nxt_timer",
                                    "nxt_color", "nxt_color_is", "nxt_is_distance", "nxt_is_light", "nxt_is_loud", "nxt_touch_count", "nxt_battery",
-                                   "nxt_motor_power", "nxt_motor_running", "pad_axis", "pad_button", "nxt_mailbox_number"};
+                                   "nxt_motor_power", "nxt_motor_running", "pad_axis", "pad_button", "nxt_mailbox_number", "nxt_gyro_rate",
+                                   "nxt_gyro_angle"};
         if (values.contains(t) || t.startsWith(u"logic_") || t.startsWith(u"math_") || t.startsWith(u"text_") || t == u"data_variable") return {};
         throw GenError{Text::tr("The block \"%1\" can't be uploaded to the NXT yet.").arg(t)};
     }

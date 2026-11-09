@@ -181,6 +181,18 @@ QList<BlockDef> build()
     d << def("nxt_touch_count", C::Sensors, S::Reporter, {row(Blocks::tr("%1 touch %2 bump count"))}, {icon("touch"), dropdown("PORT", sensorPorts())},
              Blocks::tr("How many times the touch sensor was pressed and released since the program started."));
     d << def("nxt_battery", C::Sensors, S::Reporter, {row(Blocks::tr("%1 battery level mV"))}, {icon("battery")});
+    d << def("nxt_gyro_rate", C::Sensors, S::Reporter, {row(Blocks::tr("%1 gyro %2 turn speed °/s"))}, {icon("gyro"), dropdown("PORT", sensorPorts(), "2")},
+             Blocks::tr("HiTechnic gyro sensor: how fast the robot turns, in degrees per second (0 when still). "
+                        "Turning one way gives positive numbers, the other way negative."));
+    d << def("nxt_gyro_angle", C::Sensors, S::Reporter, {row(Blocks::tr("%1 gyro %2 angle °"))}, {icon("gyro"), dropdown("PORT", sensorPorts(), "2")},
+             Blocks::tr("How many degrees the robot has turned since the program started or the angle was reset. "
+                        "It slowly drifts, so reset it before each turn you measure."));
+    d << def("nxt_gyro_reset", C::Sensors, S::Statement, {row(Blocks::tr("%1 reset gyro %2 angle"))}, {icon("gyro"), dropdown("PORT", sensorPorts(), "2")},
+             Blocks::tr("Sets the gyro angle back to 0."));
+    d << def("nxt_gyro_calibrate", C::Sensors, S::Statement, {row(Blocks::tr("%1 calibrate gyro %2 (keep still)"))},
+             {icon("gyro"), dropdown("PORT", sensorPorts(), "2")},
+             Blocks::tr("Measures the gyro's resting value for about a second and resets the angle. The robot must not move meanwhile. "
+                        "This happens by itself when the program starts; use it again if the angle drifts a lot."));
 
     // ── Gamepad and Bluetooth ─────────────────────────
     d << def("pad_when_button", C::Gamepad, S::Hat, {row(Blocks::tr("%1 when gamepad button %2 is pressed"))},
@@ -223,6 +235,9 @@ QList<BlockDef> build()
              {icon("ultrasonic"), dropdown("PORT", sensorPorts(), "4"), dropdown("OP", lessMore()), number("VALUE", "20")});
     d << def("nxt_wait_color", C::Control, S::Statement, {row(Blocks::tr("%1 wait until colour %2 is %3"))},
              {icon("color"), dropdown("PORT", sensorPorts(), "3"), dropdown("COLOR", colours(), "5")});
+    d << def("nxt_wait_gyro", C::Control, S::Statement, {row(Blocks::tr("%1 wait until gyro %2 angle %3 %4 °"))},
+             {icon("gyro"), dropdown("PORT", sensorPorts(), "2"), dropdown("OP", lessMore(), "GT"), number("VALUE", "90")},
+             Blocks::tr("For turning by an angle: reset the gyro angle, start turning, wait here, then stop."));
     d << def("nxt_run_parallel", C::Control, S::Statement, {row(Blocks::tr("%1 do both at once")), mouth("A"), row(Blocks::tr("and")), mouth("B")},
              {icon("tasks")}, Blocks::tr("Runs the two inner stacks at the same time and continues when both are done."));
     d << def("nxt_break", C::Control, S::Cap, {row(Blocks::tr("%1 exit loop"))}, {icon("stop")});

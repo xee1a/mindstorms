@@ -128,6 +128,7 @@ private slots:
     void emptyWorkspaceIsAnError();
     void everyBlockCompiles();
     void nestedProgramCompiles();
+    void gyroTurnCompiles();
 };
 
 void TestCompile::padMessageRoundTrip()
@@ -254,6 +255,43 @@ void TestCompile::nestedProgramCompiles()
     QVERIFY2(r.error.isEmpty(), qPrintable(r.error));
     QVERIFY(r.source.contains(QLatin1String("ns_padReader")));
     QVERIFY(r.source.contains(QLatin1String("Moj robot")));
+    const QString errors = nbcErrors(nbc, r.source);
+    if (!errors.isEmpty() || !qEnvironmentVariableIsEmpty("PRINT_NXC")) qWarning().noquote() << r.source;
+    QVERIFY2(errors.isEmpty(), qPrintable(errors));
+}
+
+/** Turns 90 degrees by the HiTechnic gyro on port 2, showing the angle, with a gyro on port 3 as well. */
+constexpr char GyroTurn[] = R"JSON({"variables": [], "stacks": [
+ {"block": {"type": "nxt_when_start", "next": {"type": "nxt_gyro_reset", "fields": {"PORT": "2"},
+  "next": {"type": "nxt_move_steer_start", "fields": {"STEER": "100"},
+  "next": {"type": "nxt_wait_gyro", "fields": {"PORT": "2", "OP": "GT", "VALUE": "90"},
+  "next": {"type": "nxt_move_stop",
+  "next": {"type": "nxt_display_number", "fields": {"VALUE": "0", "LINE": "1"}, "inputs": {"VALUE": {"type": "nxt_gyro_angle", "fields": {"PORT": "2"}}},
+  "next": {"type": "nxt_gyro_calibrate", "fields": {"PORT": "3"},
+  "next": {"type": "nxt_display_number", "fields": {"VALUE": "0", "LINE": "2"}, "inputs": {"VALUE": {"type": "nxt_gyro_rate", "fields": {"PORT": "3"}}}}}}}}}}}}
+]})JSON";
+
+void TestCompile::gyroTurnCompiles()
+{
+    const auto r = compile::generateNxc(QJsonDocument::fromJson(QByteArray(GyroTurn)).object(), QStringLiteral("gyro"));
+    QVERIFY2(r.error.isEmpty(), qPrintable(r.error));
+    // Both gyros are set to raw light-sensor mode and calibrated before the stacks start.
+    QVERIFY(r.source.contains(QLatin1String("SetSensorMode(S2, SENSOR_MODE_RAW);")));
+    QVERIFY(r.source.contains(QLatin1String("SetSensorMode(S3, SENSOR_MODE_RAW);")));
+    const qsizetype main = r.source.indexOf(QLatin1String("task main()"));
+    QVERIFY(r.source.indexOf(QLatin1String("ns_gyCalibrate(S2);"), main) > main);
+    QVERIFY(r.source.indexOf(QLatin1String("ns_gyCalibrate(S3);"), main) > main);
+    QVERIFY(r.source.contains(QLatin1String("until(ns_gyAng[1] > 90)")));
+    QVERIFY(r.source.contains(QLatin1String("Precedes(ns_stack0, ns_gyroTask)")));
+
+    // A gyro and another sensor can't share a port.
+    const QJsonObject clash = QJsonDocument::fromJson(QByteArray(GyroTurn).replace("\"nxt_gyro_calibrate\", \"fields\": {\"PORT\": \"3\"}",
+                                                                 "\"nxt_wait_touch\", \"fields\": {\"PORT\": \"2\", \"STATE\": \"PRESSED\"}"))
+                .object();
+    QVERIFY(!compile::generateNxc(clash, QStringLiteral("gyro")).error.isEmpty());
+
+    const QString nbc = qEnvironmentVariable("NBC");
+    if (nbc.isEmpty() || !QFile::exists(nbc)) QSKIP("NBC not set");
     const QString errors = nbcErrors(nbc, r.source);
     if (!errors.isEmpty() || !qEnvironmentVariableIsEmpty("PRINT_NXC")) qWarning().noquote() << r.source;
     QVERIFY2(errors.isEmpty(), qPrintable(errors));

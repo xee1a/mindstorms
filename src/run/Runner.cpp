@@ -55,6 +55,12 @@ struct Context {
     QElapsedTimer timer;
     std::array<int, 4> bumps{};
     std::array<bool, 4> touchDown{};
+    /** HiTechnic gyro per port: resting reading, angle added up from telemetry, and when it was last added to. */
+    std::array<double, 4> gyroOffset{};
+    std::array<double, 4> gyroAngle{};
+    std::array<bool, 4> gyroReady{};
+    std::array<qint64, 4> gyroLast{};
+    QElapsedTimer clock; // unlike `timer`, never reset by the program
     QHash<QString, int> broadcasts;
     QHash<QString, int> busyReceivers;
     /** The PC's gamepad, copied from the UI thread. */
@@ -176,6 +182,14 @@ public:
             return field(b, "OP") == u"LT" ? v < num(b, "VALUE") : v > num(b, "VALUE");
         }
         if (t == u"nxt_is_loud") return sensor(sensorPort(field(b, "PORT")), nxt::SensorKind::Sound) > num(b, "VALUE");
+        if (t == u"nxt_gyro_rate") {
+            const int p = sensorPort(field(b, "PORT"));
+            ensureGyro(p);
+            const double v = sensor(p, nxt::SensorKind::Gyro);
+            std::lock_guard lock(m_ctx->mu);
+            return v - m_ctx->gyroOffset[p];
+        }
+        if (t == u"nxt_gyro_angle") return gyroAngle(sensorPort(field(b, "PORT")));
         if (t == u"nxt_ultrasonic" || t == u"nxt_is_distance") unsupportedSensor();
         if (t == u"nxt_color" || t == u"nxt_color_is") unsupportedColour();
         if (t == u"nxt_button") unsupportedButtons();
@@ -343,6 +357,14 @@ public:
             m_ctx->timer.restart();
             return;
         }
+        if (t == u"nxt_gyro_reset") {
+            const int p = sensorPort(field(b, "PORT"));
+            ensureGyro(p);
+            std::lock_guard lock(m_ctx->mu);
+            m_ctx->gyroAngle[p] = 0;
+            return;
+        }
+        if (t == u"nxt_gyro_calibrate") return calibrateGyro(sensorPort(field(b, "PORT")));
 
         // Control
         if (t == u"nxt_wait_seconds") return sleepMs(int(num(b, "SECONDS") * 1000));
@@ -358,6 +380,12 @@ public:
         if (t == u"nxt_wait_button") unsupportedButtons();
         if (t == u"nxt_wait_distance") unsupportedSensor();
         if (t == u"nxt_wait_color") unsupportedColour();
+        if (t == u"nxt_wait_gyro") {
+            const int p = sensorPort(field(b, "PORT"));
+            const double target = num(b, "VALUE");
+            const bool less = field(b, "OP") == u"LT";
+            return waitUntil([&] { return less ? gyroAngle(p) < target : gyroAngle(p) > target; });
+        }
         if (t == u"nxt_repeat") {
             const int times = int(std::lround(num(b, "TIMES")));
             return loop([&, i = 0]() mutable { return i++ < times; }, statement(b, "DO"));
@@ -550,6 +578,49 @@ private:
             if (t.elapsed() > 3000) throw RunError{Text::tr("No reading from the sensor on port %1. Is it plugged in?").arg(port + 1)};
             sleepMs(PollMs);
         }
+    }
+
+    /** Averages a second of gyro readings as its resting value and starts the angle at 0. The robot must be still. */
+    void calibrateGyro(int port)
+    {
+        {
+            std::lock_guard lock(m_ctx->mu);
+            m_ctx->gyroReady[port] = false;
+        }
+        sensor(port, nxt::SensorKind::Gyro);
+        sleepMs(150); // the first readings after switching the port's mode can be off
+        double sum = 0;
+        int count = 0;
+        QElapsedTimer t;
+        t.start();
+        while (t.elapsed() < 1000) {
+            sum += sensor(port, nxt::SensorKind::Gyro);
+            ++count;
+            sleepMs(20);
+        }
+        std::lock_guard lock(m_ctx->mu);
+        m_ctx->gyroOffset[port] = sum / std::max(1, count);
+        m_ctx->gyroAngle[port] = 0;
+        m_ctx->gyroLast[port] = m_ctx->clock.elapsed();
+        m_ctx->gyroReady[port] = true;
+    }
+
+    /** The first gyro block on a port calibrates it, like the start of a program on the NXT does. */
+    void ensureGyro(int port)
+    {
+        bool ready;
+        {
+            std::lock_guard lock(m_ctx->mu);
+            ready = m_ctx->gyroReady[port];
+        }
+        if (!ready) calibrateGyro(port);
+    }
+
+    double gyroAngle(int port)
+    {
+        ensureGyro(port);
+        std::lock_guard lock(m_ctx->mu);
+        return m_ctx->gyroAngle[port];
     }
 
     int rotation(int port)
@@ -770,6 +841,7 @@ QString Runner::start(const QJsonObject &workspace)
     ctx->owner = this;
     ctx->state = state;
     ctx->timer.start();
+    ctx->clock.start();
     ctx->hasEventStacks = !eventStacks.isEmpty();
     for (const QJsonValue &v : workspace.value(QStringLiteral("variables")).toArray()) ctx->vars.insert(v.toString(), 0.0);
     ctx->startStacks = int(startStacks.size());
@@ -901,6 +973,14 @@ void Runner::onBrick(const nxt::BrickState &s)
         return;
     }
     std::lock_guard lock(m_ctx->mu);
+    const qint64 now = m_ctx->clock.elapsed();
+    for (int p = 0; p < 4; ++p) {
+        // Add up the gyro's turn speed into an angle. Readings within 1 of rest are noise, left out so the angle stays put.
+        if (s.sensors[p] != nxt::SensorKind::Gyro || !s.sensorValues[p] || !m_ctx->gyroReady[p]) continue;
+        const double rate = *s.sensorValues[p] - m_ctx->gyroOffset[p];
+        if (std::abs(rate) > 1) m_ctx->gyroAngle[p] += rate * (now - m_ctx->gyroLast[p]) / 1000.0;
+        m_ctx->gyroLast[p] = now;
+    }
     for (int p = 0; p < 4; ++p) {
         // Count presses for "bump count": a press followed by a release.
         if (s.sensors[p] != nxt::SensorKind::Touch || !s.sensorValues[p]) continue;
