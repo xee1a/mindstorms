@@ -10,6 +10,8 @@ cmake -S $PSScriptRoot -B "$PSScriptRoot\build" -G "Visual Studio 17 2022" -A x6
 if ($LASTEXITCODE) { exit $LASTEXITCODE }
 cmake --build "$PSScriptRoot\build" --config $config --parallel
 if ($LASTEXITCODE) { exit $LASTEXITCODE }
+# The tests run from build\, so they need the Qt DLLs on PATH.
+$env:PATH = "$QtDir\bin;$env:PATH"
 ctest --test-dir "$PSScriptRoot\build" -C $config --output-on-failure
 if ($LASTEXITCODE) { exit $LASTEXITCODE }
 
