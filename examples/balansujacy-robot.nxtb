@@ -64,7 +64,7 @@
            "type": "data_set",
            "fields": {
             "VAR": "kierunek",
-            "VALUE": "1"
+            "VALUE": "-1"
            },
            "next": {
             "type": "nxt_clear_screen",
@@ -94,7 +94,7 @@
                 "next": {
                  "type": "nxt_gyro_calibrate",
                  "fields": {
-                  "PORT": "4"
+                  "PORT": "2"
                  },
                  "next": {
                   "type": "nxt_reset_rotation",
@@ -222,7 +222,7 @@
                                     "VALUE": {
                                      "type": "nxt_gyro_rate",
                                      "fields": {
-                                      "PORT": "4"
+                                      "PORT": "2"
                                      }
                                     }
                                    },
