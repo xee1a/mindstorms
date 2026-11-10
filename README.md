@@ -23,6 +23,10 @@ No need to build it yourself. In the [`release`](release) folder:
 
 Windows SmartScreen may warn because the files aren't signed: click *More info → Run anyway*.
 
+## Examples
+`examples\` holds ready projects to open with *Open* on the Program tab, e.g. `balansujacy-robot.nxtb`: a two-wheel
+robot (motors B and C) balancing with a HiTechnic gyro on port 4. The tuning numbers are the first blocks of the program.
+
 ## Uploading
 Block programs are turned into NXC and compiled by the bundled NBC compiler
 (`third_party/nbc`, copied to `tools\nbc.exe` next to the app). This works with the standard LEGO

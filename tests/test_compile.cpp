@@ -12,6 +12,7 @@
 #include <QProcess>
 #include <QTemporaryDir>
 #include <QTest>
+#include <functional>
 #include <memory>
 
 using namespace blocks;
@@ -129,6 +130,7 @@ private slots:
     void everyBlockCompiles();
     void nestedProgramCompiles();
     void gyroTurnCompiles();
+    void examplesCompile();
 };
 
 void TestCompile::padMessageRoundTrip()
@@ -295,6 +297,37 @@ void TestCompile::gyroTurnCompiles()
     const QString errors = nbcErrors(nbc, r.source);
     if (!errors.isEmpty() || !qEnvironmentVariableIsEmpty("PRINT_NXC")) qWarning().noquote() << r.source;
     QVERIFY2(errors.isEmpty(), qPrintable(errors));
+}
+
+/** The projects in examples/ open as saved files and upload. */
+void TestCompile::examplesCompile()
+{
+    const QDir dir(qEnvironmentVariable("EXAMPLES"));
+    const QStringList files = dir.entryList({QStringLiteral("*.nxtb")}, QDir::Files);
+    if (files.isEmpty()) QSKIP("EXAMPLES not set");
+    const QString nbc = qEnvironmentVariable("NBC");
+    for (const QString &name : files) {
+        QFile f(dir.filePath(name));
+        QVERIFY(f.open(QIODevice::ReadOnly));
+        const QJsonObject doc = QJsonDocument::fromJson(f.readAll()).object();
+        QCOMPARE(doc.value("format").toString(), QStringLiteral("nxt-studio"));
+        const QJsonObject ws = doc.value("workspace").toObject();
+        // Every block in the file must exist, or opening it would silently drop it.
+        std::function<void(const QJsonObject &)> known = [&](const QJsonObject &b) {
+            if (b.isEmpty()) return;
+            QVERIFY2(findDef(b.value("type").toString()), qPrintable(name + QStringLiteral(": ") + b.value("type").toString()));
+            for (const QJsonValue &v : b.value("inputs").toObject()) known(v.toObject());
+            for (const QJsonValue &v : b.value("statements").toObject()) known(v.toObject());
+            known(b.value("next").toObject());
+        };
+        for (const QJsonValue &s : ws.value("stacks").toArray()) known(s.toObject().value("block").toObject());
+        const auto r = compile::generateNxc(ws, doc.value("name").toString());
+        QVERIFY2(r.error.isEmpty(), qPrintable(name + QStringLiteral(": ") + r.error));
+        if (nbc.isEmpty() || !QFile::exists(nbc)) continue;
+        const QString errors = nbcErrors(nbc, r.source);
+        if (!errors.isEmpty() || !qEnvironmentVariableIsEmpty("PRINT_NXC")) qWarning().noquote() << r.source;
+        QVERIFY2(errors.isEmpty(), qPrintable(name + QStringLiteral(":\n") + errors));
+    }
 }
 
 QTEST_GUILESS_MAIN(TestCompile)
