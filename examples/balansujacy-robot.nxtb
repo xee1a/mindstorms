@@ -220,9 +220,25 @@
                                    },
                                    "inputs": {
                                     "VALUE": {
-                                     "type": "nxt_gyro_rate",
+                                     "type": "math_arithmetic",
                                      "fields": {
-                                      "PORT": "2"
+                                      "OP": "MUL",
+                                      "A": "0",
+                                      "B": "0"
+                                     },
+                                     "inputs": {
+                                      "A": {
+                                       "type": "nxt_gyro_rate",
+                                       "fields": {
+                                        "PORT": "2"
+                                       }
+                                      },
+                                      "B": {
+                                       "type": "data_variable",
+                                       "fields": {
+                                        "VAR": "kierunek"
+                                       }
+                                      }
                                      }
                                     }
                                    },
@@ -630,25 +646,9 @@
                                                 },
                                                 "inputs": {
                                                  "VALUE": {
-                                                  "type": "math_arithmetic",
+                                                  "type": "data_variable",
                                                   "fields": {
-                                                   "OP": "MUL",
-                                                   "A": "0",
-                                                   "B": "0"
-                                                  },
-                                                  "inputs": {
-                                                   "A": {
-                                                    "type": "data_variable",
-                                                    "fields": {
-                                                     "VAR": "moc"
-                                                    }
-                                                   },
-                                                   "B": {
-                                                    "type": "data_variable",
-                                                    "fields": {
-                                                     "VAR": "kierunek"
-                                                    }
-                                                   }
+                                                   "VAR": "moc"
                                                   }
                                                  }
                                                 }
