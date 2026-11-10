@@ -1,0 +1,178 @@
+{
+ "format": "nxt-studio",
+ "version": 2,
+ "name": "Test zyroskopu",
+ "workspace": {
+  "variables": [],
+  "stacks": [
+   {
+    "x": 40,
+    "y": 40,
+    "block": {
+     "type": "nxt_when_start",
+     "next": {
+      "type": "nxt_clear_screen",
+      "next": {
+       "type": "nxt_display_text",
+       "fields": {
+        "TEXT": "Trzymaj prosto",
+        "LINE": "1"
+       },
+       "next": {
+        "type": "nxt_wait_seconds",
+        "fields": {
+         "SECONDS": "1"
+        },
+        "next": {
+         "type": "nxt_gyro_calibrate",
+         "fields": {
+          "PORT": "2"
+         },
+         "next": {
+          "type": "nxt_reset_rotation",
+          "fields": {
+           "PORT": "B"
+          },
+          "next": {
+           "type": "nxt_reset_rotation",
+           "fields": {
+            "PORT": "C"
+           },
+           "next": {
+            "type": "nxt_beep",
+            "next": {
+             "type": "nxt_display_text",
+             "fields": {
+              "TEXT": "Przechyl robota",
+              "LINE": "1"
+             },
+             "next": {
+              "type": "nxt_forever",
+              "statements": {
+               "DO": {
+                "type": "nxt_display_text",
+                "fields": {
+                 "TEXT": "",
+                 "LINE": "3"
+                },
+                "inputs": {
+                 "TEXT": {
+                  "type": "text_join",
+                  "fields": {
+                   "A": "kat: ",
+                   "B": ""
+                  },
+                  "inputs": {
+                   "B": {
+                    "type": "math_single",
+                    "fields": {
+                     "OP": "ROUND",
+                     "NUM": "0"
+                    },
+                    "inputs": {
+                     "NUM": {
+                      "type": "nxt_gyro_angle",
+                      "fields": {
+                       "PORT": "2"
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                },
+                "next": {
+                 "type": "nxt_display_text",
+                 "fields": {
+                  "TEXT": "",
+                  "LINE": "4"
+                 },
+                 "inputs": {
+                  "TEXT": {
+                   "type": "text_join",
+                   "fields": {
+                    "A": "obrot: ",
+                    "B": ""
+                   },
+                   "inputs": {
+                    "B": {
+                     "type": "math_single",
+                     "fields": {
+                      "OP": "ROUND",
+                      "NUM": "0"
+                     },
+                     "inputs": {
+                      "NUM": {
+                       "type": "nxt_gyro_rate",
+                       "fields": {
+                        "PORT": "2"
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 },
+                 "next": {
+                  "type": "nxt_display_text",
+                  "fields": {
+                   "TEXT": "",
+                   "LINE": "5"
+                  },
+                  "inputs": {
+                   "TEXT": {
+                    "type": "text_join",
+                    "fields": {
+                     "A": "kola: ",
+                     "B": ""
+                    },
+                    "inputs": {
+                     "B": {
+                      "type": "math_arithmetic",
+                      "fields": {
+                       "A": "0",
+                       "OP": "ADD",
+                       "B": "0"
+                      },
+                      "inputs": {
+                       "A": {
+                        "type": "nxt_rotation",
+                        "fields": {
+                         "PORT": "B"
+                        }
+                       },
+                       "B": {
+                        "type": "nxt_rotation",
+                        "fields": {
+                         "PORT": "C"
+                        }
+                       }
+                      }
+                     }
+                    }
+                   }
+                  },
+                  "next": {
+                   "type": "nxt_wait_seconds",
+                   "fields": {
+                    "SECONDS": "0.1"
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ }
+}
