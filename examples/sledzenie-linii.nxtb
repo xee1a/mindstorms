@@ -1,0 +1,126 @@
+{
+ "format": "nxt-studio",
+ "version": 2,
+ "name": "Sledzenie linii",
+ "workspace": {
+  "variables": [
+   "szybko",
+   "wolno"
+  ],
+  "stacks": [
+   {
+    "x": 40,
+    "y": 40,
+    "block": {
+     "type": "nxt_when_start",
+     "next": {
+      "type": "data_set",
+      "fields": {
+       "VAR": "szybko",
+       "VALUE": "40"
+      },
+      "next": {
+       "type": "data_set",
+       "fields": {
+        "VAR": "wolno",
+        "VALUE": "5"
+       },
+       "next": {
+        "type": "nxt_display_text",
+        "fields": {
+         "TEXT": "Sledzenie linii",
+         "LINE": "1"
+        },
+        "next": {
+         "type": "nxt_wait_seconds",
+         "fields": {
+          "SECONDS": "0.5"
+         },
+         "next": {
+          "type": "nxt_forever",
+          "statements": {
+           "DO": {
+            "type": "nxt_if_else",
+            "inputs": {
+             "CONDITION": {
+              "type": "nxt_color_is",
+              "fields": {
+               "PORT": "3",
+               "COLOR": "1"
+              }
+             }
+            },
+            "statements": {
+             "DO": {
+              "type": "nxt_motor_on",
+              "fields": {
+               "PORT": "A",
+               "POWER": "0"
+              },
+              "inputs": {
+               "POWER": {
+                "type": "data_variable",
+                "fields": {
+                 "VAR": "szybko"
+                }
+               }
+              },
+              "next": {
+               "type": "nxt_motor_on",
+               "fields": {
+                "PORT": "C",
+                "POWER": "0"
+               },
+               "inputs": {
+                "POWER": {
+                 "type": "data_variable",
+                 "fields": {
+                  "VAR": "wolno"
+                 }
+                }
+               }
+              }
+             },
+             "ELSE": {
+              "type": "nxt_motor_on",
+              "fields": {
+               "PORT": "C",
+               "POWER": "0"
+              },
+              "inputs": {
+               "POWER": {
+                "type": "data_variable",
+                "fields": {
+                 "VAR": "szybko"
+                }
+               }
+              },
+              "next": {
+               "type": "nxt_motor_on",
+               "fields": {
+                "PORT": "A",
+                "POWER": "0"
+               },
+               "inputs": {
+                "POWER": {
+                 "type": "data_variable",
+                 "fields": {
+                  "VAR": "wolno"
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ }
+}
