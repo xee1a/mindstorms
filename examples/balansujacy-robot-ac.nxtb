@@ -1,0 +1,924 @@
+{
+ "format": "nxt-studio",
+ "version": 2,
+ "name": "Balansujacy robot AC",
+ "workspace": {
+  "variables": [
+   "kKat",
+   "kObrot",
+   "kPoz",
+   "kPredk",
+   "kKolo",
+   "kierunek",
+   "t",
+   "tPoprz",
+   "dt",
+   "surowa",
+   "dryf",
+   "obrot",
+   "kat",
+   "pozKol",
+   "pozPoprz",
+   "zmianaPoz",
+   "predkoscKol",
+   "moc",
+   "czasUpadku",
+   "kSkret",
+   "skret"
+  ],
+  "stacks": [
+   {
+    "x": 40,
+    "y": 40,
+    "block": {
+     "type": "nxt_when_start",
+     "next": {
+      "type": "data_set",
+      "fields": {
+       "VAR": "kKat",
+       "VALUE": "7.5"
+      },
+      "next": {
+       "type": "data_set",
+       "fields": {
+        "VAR": "kObrot",
+        "VALUE": "1.15"
+       },
+       "next": {
+        "type": "data_set",
+        "fields": {
+         "VAR": "kPoz",
+         "VALUE": "0.07"
+        },
+        "next": {
+         "type": "data_set",
+         "fields": {
+          "VAR": "kPredk",
+          "VALUE": "0.1"
+         },
+         "next": {
+          "type": "data_set",
+          "fields": {
+           "VAR": "kKolo",
+           "VALUE": "1.0"
+          },
+          "next": {
+           "type": "data_set",
+           "fields": {
+            "VAR": "kSkret",
+            "VALUE": "0.2"
+           },
+           "next": {
+            "type": "data_set",
+            "fields": {
+             "VAR": "kierunek",
+             "VALUE": "1"
+            },
+            "next": {
+             "type": "nxt_clear_screen",
+             "next": {
+              "type": "nxt_display_text",
+              "fields": {
+               "TEXT": "Trzymaj robota",
+               "LINE": "2"
+              },
+              "next": {
+               "type": "nxt_display_text",
+               "fields": {
+                "TEXT": "pionowo i",
+                "LINE": "3"
+               },
+               "next": {
+                "type": "nxt_display_text",
+                "fields": {
+                 "TEXT": "nieruchomo...",
+                 "LINE": "4"
+                },
+                "next": {
+                 "type": "nxt_wait_seconds",
+                 "fields": {
+                  "SECONDS": "1"
+                 },
+                 "next": {
+                  "type": "nxt_gyro_calibrate",
+                  "fields": {
+                   "PORT": "3"
+                  },
+                  "next": {
+                   "type": "nxt_reset_rotation",
+                   "fields": {
+                    "PORT": "A"
+                   },
+                   "next": {
+                    "type": "nxt_reset_rotation",
+                    "fields": {
+                     "PORT": "C"
+                    },
+                    "next": {
+                     "type": "data_set",
+                     "fields": {
+                      "VAR": "kat",
+                      "VALUE": "0"
+                     },
+                     "next": {
+                      "type": "data_set",
+                      "fields": {
+                       "VAR": "dryf",
+                       "VALUE": "0"
+                      },
+                      "next": {
+                       "type": "data_set",
+                       "fields": {
+                        "VAR": "pozPoprz",
+                        "VALUE": "0"
+                       },
+                       "next": {
+                        "type": "data_set",
+                        "fields": {
+                         "VAR": "predkoscKol",
+                         "VALUE": "0"
+                        },
+                        "next": {
+                         "type": "data_set",
+                         "fields": {
+                          "VAR": "czasUpadku",
+                          "VALUE": "0"
+                         },
+                         "next": {
+                          "type": "nxt_clear_screen",
+                          "next": {
+                           "type": "nxt_display_text",
+                           "fields": {
+                            "TEXT": "Pusc!",
+                            "LINE": "3"
+                           },
+                           "next": {
+                            "type": "nxt_beep",
+                            "next": {
+                             "type": "nxt_reset_timer",
+                             "next": {
+                              "type": "data_set",
+                              "fields": {
+                               "VAR": "tPoprz",
+                               "VALUE": "0"
+                              },
+                              "next": {
+                               "type": "nxt_forever",
+                               "statements": {
+                                "DO": {
+                                 "type": "data_set",
+                                 "fields": {
+                                  "VAR": "t",
+                                  "VALUE": "0"
+                                 },
+                                 "inputs": {
+                                  "VALUE": {
+                                   "type": "nxt_timer"
+                                  }
+                                 },
+                                 "next": {
+                                  "type": "data_set",
+                                  "fields": {
+                                   "VAR": "dt",
+                                   "VALUE": "0"
+                                  },
+                                  "inputs": {
+                                   "VALUE": {
+                                    "type": "math_arithmetic",
+                                    "fields": {
+                                     "OP": "SUB",
+                                     "A": "0",
+                                     "B": "0"
+                                    },
+                                    "inputs": {
+                                     "A": {
+                                      "type": "data_variable",
+                                      "fields": {
+                                       "VAR": "t"
+                                      }
+                                     },
+                                     "B": {
+                                      "type": "data_variable",
+                                      "fields": {
+                                       "VAR": "tPoprz"
+                                      }
+                                     }
+                                    }
+                                   }
+                                  },
+                                  "next": {
+                                   "type": "data_set",
+                                   "fields": {
+                                    "VAR": "tPoprz",
+                                    "VALUE": "0"
+                                   },
+                                   "inputs": {
+                                    "VALUE": {
+                                     "type": "data_variable",
+                                     "fields": {
+                                      "VAR": "t"
+                                     }
+                                    }
+                                   },
+                                   "next": {
+                                    "type": "data_set",
+                                    "fields": {
+                                     "VAR": "surowa",
+                                     "VALUE": "0"
+                                    },
+                                    "inputs": {
+                                     "VALUE": {
+                                      "type": "math_arithmetic",
+                                      "fields": {
+                                       "OP": "MUL",
+                                       "A": "0",
+                                       "B": "0"
+                                      },
+                                      "inputs": {
+                                       "A": {
+                                        "type": "nxt_gyro_rate",
+                                        "fields": {
+                                         "PORT": "3"
+                                        }
+                                       },
+                                       "B": {
+                                        "type": "data_variable",
+                                        "fields": {
+                                         "VAR": "kierunek"
+                                        }
+                                       }
+                                      }
+                                     }
+                                    },
+                                    "next": {
+                                     "type": "data_set",
+                                     "fields": {
+                                      "VAR": "dryf",
+                                      "VALUE": "0"
+                                     },
+                                     "inputs": {
+                                      "VALUE": {
+                                       "type": "math_arithmetic",
+                                       "fields": {
+                                        "OP": "ADD",
+                                        "A": "0",
+                                        "B": "0"
+                                       },
+                                       "inputs": {
+                                        "A": {
+                                         "type": "math_arithmetic",
+                                         "fields": {
+                                          "OP": "MUL",
+                                          "A": "0",
+                                          "B": "0.9995"
+                                         },
+                                         "inputs": {
+                                          "A": {
+                                           "type": "data_variable",
+                                           "fields": {
+                                            "VAR": "dryf"
+                                           }
+                                          }
+                                         }
+                                        },
+                                        "B": {
+                                         "type": "math_arithmetic",
+                                         "fields": {
+                                          "OP": "MUL",
+                                          "A": "0",
+                                          "B": "0.0005"
+                                         },
+                                         "inputs": {
+                                          "A": {
+                                           "type": "data_variable",
+                                           "fields": {
+                                            "VAR": "surowa"
+                                           }
+                                          }
+                                         }
+                                        }
+                                       }
+                                      }
+                                     },
+                                     "next": {
+                                      "type": "data_set",
+                                      "fields": {
+                                       "VAR": "obrot",
+                                       "VALUE": "0"
+                                      },
+                                      "inputs": {
+                                       "VALUE": {
+                                        "type": "math_arithmetic",
+                                        "fields": {
+                                         "OP": "SUB",
+                                         "A": "0",
+                                         "B": "0"
+                                        },
+                                        "inputs": {
+                                         "A": {
+                                          "type": "data_variable",
+                                          "fields": {
+                                           "VAR": "surowa"
+                                          }
+                                         },
+                                         "B": {
+                                          "type": "data_variable",
+                                          "fields": {
+                                           "VAR": "dryf"
+                                          }
+                                         }
+                                        }
+                                       }
+                                      },
+                                      "next": {
+                                       "type": "data_change",
+                                       "fields": {
+                                        "VAR": "kat",
+                                        "VALUE": "0"
+                                       },
+                                       "inputs": {
+                                        "VALUE": {
+                                         "type": "math_arithmetic",
+                                         "fields": {
+                                          "OP": "MUL",
+                                          "A": "0",
+                                          "B": "0"
+                                         },
+                                         "inputs": {
+                                          "A": {
+                                           "type": "data_variable",
+                                           "fields": {
+                                            "VAR": "obrot"
+                                           }
+                                          },
+                                          "B": {
+                                           "type": "data_variable",
+                                           "fields": {
+                                            "VAR": "dt"
+                                           }
+                                          }
+                                         }
+                                        }
+                                       },
+                                       "next": {
+                                        "type": "data_set",
+                                        "fields": {
+                                         "VAR": "pozKol",
+                                         "VALUE": "0"
+                                        },
+                                        "inputs": {
+                                         "VALUE": {
+                                          "type": "math_arithmetic",
+                                          "fields": {
+                                           "OP": "ADD",
+                                           "A": "0",
+                                           "B": "0"
+                                          },
+                                          "inputs": {
+                                           "A": {
+                                            "type": "nxt_rotation",
+                                            "fields": {
+                                             "PORT": "A"
+                                            }
+                                           },
+                                           "B": {
+                                            "type": "nxt_rotation",
+                                            "fields": {
+                                             "PORT": "C"
+                                            }
+                                           }
+                                          }
+                                         }
+                                        },
+                                        "next": {
+                                         "type": "data_set",
+                                         "fields": {
+                                          "VAR": "zmianaPoz",
+                                          "VALUE": "0"
+                                         },
+                                         "inputs": {
+                                          "VALUE": {
+                                           "type": "math_arithmetic",
+                                           "fields": {
+                                            "OP": "SUB",
+                                            "A": "0",
+                                            "B": "0"
+                                           },
+                                           "inputs": {
+                                            "A": {
+                                             "type": "data_variable",
+                                             "fields": {
+                                              "VAR": "pozKol"
+                                             }
+                                            },
+                                            "B": {
+                                             "type": "data_variable",
+                                             "fields": {
+                                              "VAR": "pozPoprz"
+                                             }
+                                            }
+                                           }
+                                          }
+                                         },
+                                         "next": {
+                                          "type": "data_set",
+                                          "fields": {
+                                           "VAR": "pozPoprz",
+                                           "VALUE": "0"
+                                          },
+                                          "inputs": {
+                                           "VALUE": {
+                                            "type": "data_variable",
+                                            "fields": {
+                                             "VAR": "pozKol"
+                                            }
+                                           }
+                                          },
+                                          "next": {
+                                           "type": "data_set",
+                                           "fields": {
+                                            "VAR": "predkoscKol",
+                                            "VALUE": "0"
+                                           },
+                                           "inputs": {
+                                            "VALUE": {
+                                             "type": "math_arithmetic",
+                                             "fields": {
+                                              "OP": "ADD",
+                                              "A": "0",
+                                              "B": "0"
+                                             },
+                                             "inputs": {
+                                              "A": {
+                                               "type": "math_arithmetic",
+                                               "fields": {
+                                                "OP": "MUL",
+                                                "A": "0",
+                                                "B": "0.75"
+                                               },
+                                               "inputs": {
+                                                "A": {
+                                                 "type": "data_variable",
+                                                 "fields": {
+                                                  "VAR": "predkoscKol"
+                                                 }
+                                                }
+                                               }
+                                              },
+                                              "B": {
+                                               "type": "math_arithmetic",
+                                               "fields": {
+                                                "OP": "MUL",
+                                                "A": "0",
+                                                "B": "0.25"
+                                               },
+                                               "inputs": {
+                                                "A": {
+                                                 "type": "math_arithmetic",
+                                                 "fields": {
+                                                  "OP": "DIV",
+                                                  "A": "0",
+                                                  "B": "0"
+                                                 },
+                                                 "inputs": {
+                                                  "A": {
+                                                   "type": "data_variable",
+                                                   "fields": {
+                                                    "VAR": "zmianaPoz"
+                                                   }
+                                                  },
+                                                  "B": {
+                                                   "type": "data_variable",
+                                                   "fields": {
+                                                    "VAR": "dt"
+                                                   }
+                                                  }
+                                                 }
+                                                }
+                                               }
+                                              }
+                                             }
+                                            }
+                                           },
+                                           "next": {
+                                            "type": "data_set",
+                                            "fields": {
+                                             "VAR": "moc",
+                                             "VALUE": "0"
+                                            },
+                                            "inputs": {
+                                             "VALUE": {
+                                              "type": "math_arithmetic",
+                                              "fields": {
+                                               "OP": "DIV",
+                                               "A": "0",
+                                               "B": "0"
+                                              },
+                                              "inputs": {
+                                               "A": {
+                                                "type": "math_arithmetic",
+                                                "fields": {
+                                                 "OP": "ADD",
+                                                 "A": "0",
+                                                 "B": "0"
+                                                },
+                                                "inputs": {
+                                                 "A": {
+                                                  "type": "math_arithmetic",
+                                                  "fields": {
+                                                   "OP": "MUL",
+                                                   "A": "0",
+                                                   "B": "0"
+                                                  },
+                                                  "inputs": {
+                                                   "A": {
+                                                    "type": "data_variable",
+                                                    "fields": {
+                                                     "VAR": "kObrot"
+                                                    }
+                                                   },
+                                                   "B": {
+                                                    "type": "data_variable",
+                                                    "fields": {
+                                                     "VAR": "obrot"
+                                                    }
+                                                   }
+                                                  }
+                                                 },
+                                                 "B": {
+                                                  "type": "math_arithmetic",
+                                                  "fields": {
+                                                   "OP": "MUL",
+                                                   "A": "0",
+                                                   "B": "0"
+                                                  },
+                                                  "inputs": {
+                                                   "A": {
+                                                    "type": "data_variable",
+                                                    "fields": {
+                                                     "VAR": "kKat"
+                                                    }
+                                                   },
+                                                   "B": {
+                                                    "type": "data_variable",
+                                                    "fields": {
+                                                     "VAR": "kat"
+                                                    }
+                                                   }
+                                                  }
+                                                 }
+                                                }
+                                               },
+                                               "B": {
+                                                "type": "data_variable",
+                                                "fields": {
+                                                 "VAR": "kKolo"
+                                                }
+                                               }
+                                              }
+                                             }
+                                            },
+                                            "next": {
+                                             "type": "data_change",
+                                             "fields": {
+                                              "VAR": "moc",
+                                              "VALUE": "0"
+                                             },
+                                             "inputs": {
+                                              "VALUE": {
+                                               "type": "math_arithmetic",
+                                               "fields": {
+                                                "OP": "MUL",
+                                                "A": "0",
+                                                "B": "0"
+                                               },
+                                               "inputs": {
+                                                "A": {
+                                                 "type": "data_variable",
+                                                 "fields": {
+                                                  "VAR": "kPoz"
+                                                 }
+                                                },
+                                                "B": {
+                                                 "type": "data_variable",
+                                                 "fields": {
+                                                  "VAR": "pozKol"
+                                                 }
+                                                }
+                                               }
+                                              }
+                                             },
+                                             "next": {
+                                              "type": "data_change",
+                                              "fields": {
+                                               "VAR": "moc",
+                                               "VALUE": "0"
+                                              },
+                                              "inputs": {
+                                               "VALUE": {
+                                                "type": "math_arithmetic",
+                                                "fields": {
+                                                 "OP": "MUL",
+                                                 "A": "0",
+                                                 "B": "0"
+                                                },
+                                                "inputs": {
+                                                 "A": {
+                                                  "type": "data_variable",
+                                                  "fields": {
+                                                   "VAR": "kPredk"
+                                                  }
+                                                 },
+                                                 "B": {
+                                                  "type": "data_variable",
+                                                  "fields": {
+                                                   "VAR": "predkoscKol"
+                                                  }
+                                                 }
+                                                }
+                                               }
+                                              },
+                                              "next": {
+                                               "type": "data_set",
+                                               "fields": {
+                                                "VAR": "moc",
+                                                "VALUE": "0"
+                                               },
+                                               "inputs": {
+                                                "VALUE": {
+                                                 "type": "math_constrain",
+                                                 "fields": {
+                                                  "VALUE": "0",
+                                                  "LOW": "-100",
+                                                  "HIGH": "100"
+                                                 },
+                                                 "inputs": {
+                                                  "VALUE": {
+                                                   "type": "data_variable",
+                                                   "fields": {
+                                                    "VAR": "moc"
+                                                   }
+                                                  }
+                                                 }
+                                                }
+                                               },
+                                               "next": {
+                                                "type": "data_set",
+                                                "fields": {
+                                                 "VAR": "skret",
+                                                 "VALUE": "0"
+                                                },
+                                                "inputs": {
+                                                 "VALUE": {
+                                                  "type": "math_arithmetic",
+                                                  "fields": {
+                                                   "OP": "MUL",
+                                                   "A": "0",
+                                                   "B": "0"
+                                                  },
+                                                  "inputs": {
+                                                   "A": {
+                                                    "type": "data_variable",
+                                                    "fields": {
+                                                     "VAR": "kSkret"
+                                                    }
+                                                   },
+                                                   "B": {
+                                                    "type": "math_arithmetic",
+                                                    "fields": {
+                                                     "OP": "SUB",
+                                                     "A": "0",
+                                                     "B": "0"
+                                                    },
+                                                    "inputs": {
+                                                     "A": {
+                                                      "type": "nxt_rotation",
+                                                      "fields": {
+                                                       "PORT": "A"
+                                                      }
+                                                     },
+                                                     "B": {
+                                                      "type": "nxt_rotation",
+                                                      "fields": {
+                                                       "PORT": "C"
+                                                      }
+                                                     }
+                                                    }
+                                                   }
+                                                  }
+                                                 }
+                                                },
+                                                "next": {
+                                                 "type": "nxt_motor_on",
+                                                 "fields": {
+                                                  "PORT": "A",
+                                                  "POWER": "0"
+                                                 },
+                                                 "inputs": {
+                                                  "POWER": {
+                                                   "type": "math_arithmetic",
+                                                   "fields": {
+                                                    "OP": "SUB",
+                                                    "A": "0",
+                                                    "B": "0"
+                                                   },
+                                                   "inputs": {
+                                                    "A": {
+                                                     "type": "data_variable",
+                                                     "fields": {
+                                                      "VAR": "moc"
+                                                     }
+                                                    },
+                                                    "B": {
+                                                     "type": "data_variable",
+                                                     "fields": {
+                                                      "VAR": "skret"
+                                                     }
+                                                    }
+                                                   }
+                                                  }
+                                                 },
+                                                 "next": {
+                                                  "type": "nxt_motor_on",
+                                                  "fields": {
+                                                   "PORT": "C",
+                                                   "POWER": "0"
+                                                  },
+                                                  "inputs": {
+                                                   "POWER": {
+                                                    "type": "math_arithmetic",
+                                                    "fields": {
+                                                     "OP": "ADD",
+                                                     "A": "0",
+                                                     "B": "0"
+                                                    },
+                                                    "inputs": {
+                                                     "A": {
+                                                      "type": "data_variable",
+                                                      "fields": {
+                                                       "VAR": "moc"
+                                                      }
+                                                     },
+                                                     "B": {
+                                                      "type": "data_variable",
+                                                      "fields": {
+                                                       "VAR": "skret"
+                                                      }
+                                                     }
+                                                    }
+                                                   }
+                                                  },
+                                                  "next": {
+                                                   "type": "nxt_if_else",
+                                                   "inputs": {
+                                                    "CONDITION": {
+                                                     "type": "logic_compare",
+                                                     "fields": {
+                                                      "OP": "GTE",
+                                                      "A": "0",
+                                                      "B": "100"
+                                                     },
+                                                     "inputs": {
+                                                      "A": {
+                                                       "type": "math_single",
+                                                       "fields": {
+                                                        "OP": "ABS",
+                                                        "NUM": "0"
+                                                       },
+                                                       "inputs": {
+                                                        "NUM": {
+                                                         "type": "data_variable",
+                                                         "fields": {
+                                                          "VAR": "moc"
+                                                         }
+                                                        }
+                                                       }
+                                                      }
+                                                     }
+                                                    }
+                                                   },
+                                                   "statements": {
+                                                    "DO": {
+                                                     "type": "data_change",
+                                                     "fields": {
+                                                      "VAR": "czasUpadku",
+                                                      "VALUE": "0"
+                                                     },
+                                                     "inputs": {
+                                                      "VALUE": {
+                                                       "type": "data_variable",
+                                                       "fields": {
+                                                        "VAR": "dt"
+                                                       }
+                                                      }
+                                                     }
+                                                    },
+                                                    "ELSE": {
+                                                     "type": "data_set",
+                                                     "fields": {
+                                                      "VAR": "czasUpadku",
+                                                      "VALUE": "0"
+                                                     }
+                                                    }
+                                                   },
+                                                   "next": {
+                                                    "type": "nxt_if",
+                                                    "inputs": {
+                                                     "CONDITION": {
+                                                      "type": "logic_compare",
+                                                      "fields": {
+                                                       "OP": "GT",
+                                                       "A": "0",
+                                                       "B": "1"
+                                                      },
+                                                      "inputs": {
+                                                       "A": {
+                                                        "type": "data_variable",
+                                                        "fields": {
+                                                         "VAR": "czasUpadku"
+                                                        }
+                                                       }
+                                                      }
+                                                     }
+                                                    },
+                                                    "statements": {
+                                                     "DO": {
+                                                      "type": "nxt_motor_stop",
+                                                      "fields": {
+                                                       "PORT": "ABC",
+                                                       "MODE": "COAST"
+                                                      },
+                                                      "next": {
+                                                       "type": "nxt_clear_screen",
+                                                       "next": {
+                                                        "type": "nxt_display_text",
+                                                        "fields": {
+                                                         "TEXT": "Upadek!",
+                                                         "LINE": "3"
+                                                        },
+                                                        "next": {
+                                                         "type": "nxt_play_tone",
+                                                         "fields": {
+                                                          "FREQ": "220",
+                                                          "DURATION": "500"
+                                                         },
+                                                         "next": {
+                                                          "type": "nxt_stop_program"
+                                                         }
+                                                        }
+                                                       }
+                                                      }
+                                                     }
+                                                    }
+                                                   }
+                                                  }
+                                                 }
+                                                }
+                                               }
+                                              }
+                                             }
+                                            }
+                                           }
+                                          }
+                                         }
+                                        }
+                                       }
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                }
+                               }
+                              }
+                             }
+                            }
+                           }
+                          }
+                         }
+                        }
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  ]
+ }
+}

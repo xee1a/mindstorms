@@ -25,7 +25,8 @@ Windows SmartScreen may warn because the files aren't signed: click *More info â
 
 ## Examples
 `examples\` holds ready projects to open with *Open* on the Program tab, e.g. `balansujacy-robot.nxtb`: a two-wheel
-robot (motors B and C) balancing with a HiTechnic gyro on port 2. The tuning numbers are the first blocks of the program.
+robot (motors B and C) balancing with a HiTechnic gyro on port 2, and `balansujacy-robot-ac.nxtb` for a robot with
+separate wheels on A and C and the gyro on port 3. The tuning numbers are the first blocks of each program.
 
 ## Uploading
 Block programs are turned into NXC and compiled by the bundled NBC compiler
