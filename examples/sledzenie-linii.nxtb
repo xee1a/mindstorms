@@ -17,13 +17,13 @@
       "type": "data_set",
       "fields": {
        "VAR": "szybko",
-       "VALUE": "40"
+       "VALUE": "45"
       },
       "next": {
        "type": "data_set",
        "fields": {
         "VAR": "wolno",
-        "VALUE": "5"
+        "VALUE": "15"
        },
        "next": {
         "type": "nxt_display_text",
