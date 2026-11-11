@@ -7,6 +7,7 @@
    "obrot",
    "jazda",
    "zasieg",
+   "zasiegLapy",
    "chwytak",
    "cel",
    "mam"
@@ -38,118 +39,98 @@
         "next": {
          "type": "data_set",
          "fields": {
-          "VAR": "chwytak",
-          "VALUE": "40"
+          "VAR": "zasiegLapy",
+          "VALUE": "10"
          },
          "next": {
           "type": "data_set",
           "fields": {
-           "VAR": "cel",
-           "VALUE": "5"
+           "VAR": "chwytak",
+           "VALUE": "40"
           },
           "next": {
            "type": "data_set",
            "fields": {
-            "VAR": "mam",
-            "VALUE": "0"
+            "VAR": "cel",
+            "VALUE": "5"
            },
            "next": {
-            "type": "nxt_move_set_motors",
+            "type": "data_set",
             "fields": {
-             "LEFT": "C",
-             "RIGHT": "A"
+             "VAR": "mam",
+             "VALUE": "0"
             },
             "next": {
-             "type": "nxt_wait_until",
-             "inputs": {
-              "CONDITION": {
-               "type": "logic_not",
-               "inputs": {
-                "A": {
-                 "type": "nxt_button",
-                 "fields": {
-                  "BUTTON": "ENTER"
+             "type": "nxt_move_set_motors",
+             "fields": {
+              "LEFT": "C",
+              "RIGHT": "A"
+             },
+             "next": {
+              "type": "nxt_wait_until",
+              "inputs": {
+               "CONDITION": {
+                "type": "logic_not",
+                "inputs": {
+                 "A": {
+                  "type": "nxt_button",
+                  "fields": {
+                   "BUTTON": "ENTER"
+                  }
                  }
                 }
                }
-              }
-             },
-             "next": {
-              "type": "nxt_clear_screen",
+              },
               "next": {
-               "type": "nxt_display_text",
-               "fields": {
-                "TEXT": "Jaka pilka?",
-                "LINE": "1"
-               },
+               "type": "nxt_clear_screen",
                "next": {
                 "type": "nxt_display_text",
                 "fields": {
-                 "TEXT": "< czerwona",
-                 "LINE": "3"
+                 "TEXT": "Jaka pilka?",
+                 "LINE": "1"
                 },
                 "next": {
                  "type": "nxt_display_text",
                  "fields": {
-                  "TEXT": "> niebieska",
-                  "LINE": "4"
+                  "TEXT": "< czerwona",
+                  "LINE": "3"
                  },
                  "next": {
                   "type": "nxt_display_text",
                   "fields": {
-                   "TEXT": "OK = start",
-                   "LINE": "6"
+                   "TEXT": "> niebieska",
+                   "LINE": "4"
                   },
                   "next": {
                    "type": "nxt_display_text",
                    "fields": {
-                    "TEXT": "Wybrano: czerw.",
-                    "LINE": "7"
+                    "TEXT": "OK = start",
+                    "LINE": "6"
                    },
                    "next": {
-                    "type": "nxt_repeat_until",
-                    "inputs": {
-                     "CONDITION": {
-                      "type": "nxt_button",
-                      "fields": {
-                       "BUTTON": "ENTER"
-                      }
-                     }
+                    "type": "nxt_display_text",
+                    "fields": {
+                     "TEXT": "Wybrano: czerw.",
+                     "LINE": "7"
                     },
-                    "statements": {
-                     "DO": {
-                      "type": "nxt_if",
-                      "inputs": {
-                       "CONDITION": {
-                        "type": "nxt_button",
-                        "fields": {
-                         "BUTTON": "LEFT"
-                        }
+                    "next": {
+                     "type": "nxt_repeat_until",
+                     "inputs": {
+                      "CONDITION": {
+                       "type": "nxt_button",
+                       "fields": {
+                        "BUTTON": "ENTER"
                        }
-                      },
-                      "statements": {
-                       "DO": {
-                        "type": "data_set",
-                        "fields": {
-                         "VAR": "cel",
-                         "VALUE": "5"
-                        },
-                        "next": {
-                         "type": "nxt_display_text",
-                         "fields": {
-                          "TEXT": "Wybrano: czerw.",
-                          "LINE": "7"
-                         }
-                        }
-                       }
-                      },
-                      "next": {
+                      }
+                     },
+                     "statements": {
+                      "DO": {
                        "type": "nxt_if",
                        "inputs": {
                         "CONDITION": {
                          "type": "nxt_button",
                          "fields": {
-                          "BUTTON": "RIGHT"
+                          "BUTTON": "LEFT"
                          }
                         }
                        },
@@ -158,340 +139,374 @@
                          "type": "data_set",
                          "fields": {
                           "VAR": "cel",
-                          "VALUE": "2"
+                          "VALUE": "5"
                          },
                          "next": {
                           "type": "nxt_display_text",
                           "fields": {
-                           "TEXT": "Wybrano: nieb.",
+                           "TEXT": "Wybrano: czerw.",
                            "LINE": "7"
                           }
                          }
                         }
                        },
                        "next": {
-                        "type": "nxt_wait_seconds",
-                        "fields": {
-                         "SECONDS": "0.02"
-                        }
-                       }
-                      }
-                     }
-                    },
-                    "next": {
-                     "type": "nxt_wait_until",
-                     "inputs": {
-                      "CONDITION": {
-                       "type": "logic_not",
-                       "inputs": {
-                        "A": {
-                         "type": "nxt_button",
+                        "type": "nxt_if",
+                        "inputs": {
+                         "CONDITION": {
+                          "type": "nxt_button",
+                          "fields": {
+                           "BUTTON": "RIGHT"
+                          }
+                         }
+                        },
+                        "statements": {
+                         "DO": {
+                          "type": "data_set",
+                          "fields": {
+                           "VAR": "cel",
+                           "VALUE": "2"
+                          },
+                          "next": {
+                           "type": "nxt_display_text",
+                           "fields": {
+                            "TEXT": "Wybrano: nieb.",
+                            "LINE": "7"
+                           }
+                          }
+                         }
+                        },
+                        "next": {
+                         "type": "nxt_wait_seconds",
                          "fields": {
-                          "BUTTON": "ENTER"
+                          "SECONDS": "0.02"
                          }
                         }
                        }
                       }
                      },
                      "next": {
-                      "type": "nxt_clear_screen",
-                      "next": {
-                       "type": "nxt_motor_for",
-                       "fields": {
-                        "PORT": "B",
-                        "POWER": "0",
-                        "AMOUNT": "0.8",
-                        "UNIT": "SECONDS"
-                       },
-                       "inputs": {
-                        "POWER": {
-                         "type": "math_arithmetic",
-                         "fields": {
-                          "A": "0",
-                          "OP": "MUL",
-                          "B": "-1"
-                         },
-                         "inputs": {
-                          "A": {
-                           "type": "data_variable",
-                           "fields": {
-                            "VAR": "chwytak"
-                           }
+                      "type": "nxt_wait_until",
+                      "inputs": {
+                       "CONDITION": {
+                        "type": "logic_not",
+                        "inputs": {
+                         "A": {
+                          "type": "nxt_button",
+                          "fields": {
+                           "BUTTON": "ENTER"
                           }
                          }
                         }
-                       },
+                       }
+                      },
+                      "next": {
+                       "type": "nxt_clear_screen",
                        "next": {
-                        "type": "nxt_repeat_until",
+                        "type": "nxt_motor_for",
+                        "fields": {
+                         "PORT": "B",
+                         "POWER": "0",
+                         "AMOUNT": "0.8",
+                         "UNIT": "SECONDS"
+                        },
                         "inputs": {
-                         "CONDITION": {
-                          "type": "logic_compare",
+                         "POWER": {
+                          "type": "math_arithmetic",
                           "fields": {
                            "A": "0",
-                           "OP": "EQ",
-                           "B": "1"
+                           "OP": "MUL",
+                           "B": "-1"
                           },
                           "inputs": {
                            "A": {
                             "type": "data_variable",
                             "fields": {
-                             "VAR": "mam"
+                             "VAR": "chwytak"
                             }
                            }
                           }
                          }
                         },
-                        "statements": {
-                         "DO": {
-                          "type": "nxt_display_text",
-                          "fields": {
-                           "TEXT": "Szukam...",
-                           "LINE": "3"
-                          },
-                          "next": {
-                           "type": "nxt_move_set_speed",
+                        "next": {
+                         "type": "nxt_repeat_until",
+                         "inputs": {
+                          "CONDITION": {
+                           "type": "logic_compare",
                            "fields": {
-                            "POWER": "0"
+                            "A": "0",
+                            "OP": "EQ",
+                            "B": "1"
                            },
                            "inputs": {
-                            "POWER": {
+                            "A": {
                              "type": "data_variable",
                              "fields": {
-                              "VAR": "obrot"
+                              "VAR": "mam"
                              }
                             }
+                           }
+                          }
+                         },
+                         "statements": {
+                          "DO": {
+                           "type": "nxt_display_text",
+                           "fields": {
+                            "TEXT": "Szukam...",
+                            "LINE": "3"
                            },
                            "next": {
-                            "type": "nxt_move_start",
+                            "type": "nxt_move_set_speed",
                             "fields": {
-                             "DIR": "RIGHT"
+                             "POWER": "0"
+                            },
+                            "inputs": {
+                             "POWER": {
+                              "type": "data_variable",
+                              "fields": {
+                               "VAR": "obrot"
+                              }
+                             }
                             },
                             "next": {
-                             "type": "nxt_wait_until",
-                             "inputs": {
-                              "CONDITION": {
-                               "type": "logic_compare",
-                               "fields": {
-                                "A": "0",
-                                "OP": "LT",
-                                "B": "0"
-                               },
-                               "inputs": {
-                                "A": {
-                                 "type": "nxt_ultrasonic",
-                                 "fields": {
-                                  "PORT": "3"
-                                 }
+                             "type": "nxt_move_start",
+                             "fields": {
+                              "DIR": "RIGHT"
+                             },
+                             "next": {
+                              "type": "nxt_wait_until",
+                              "inputs": {
+                               "CONDITION": {
+                                "type": "logic_compare",
+                                "fields": {
+                                 "A": "0",
+                                 "OP": "LT",
+                                 "B": "0"
                                 },
-                                "B": {
-                                 "type": "data_variable",
-                                 "fields": {
-                                  "VAR": "zasieg"
+                                "inputs": {
+                                 "A": {
+                                  "type": "nxt_ultrasonic",
+                                  "fields": {
+                                   "PORT": "3"
+                                  }
+                                 },
+                                 "B": {
+                                  "type": "data_variable",
+                                  "fields": {
+                                   "VAR": "zasieg"
+                                  }
                                  }
                                 }
                                }
-                              }
-                             },
-                             "next": {
-                              "type": "nxt_move_stop",
+                              },
                               "next": {
-                               "type": "nxt_display_text",
-                               "fields": {
-                                "TEXT": "Jade do pilki",
-                                "LINE": "3"
-                               },
+                               "type": "nxt_move_stop",
                                "next": {
-                                "type": "nxt_move_set_speed",
+                                "type": "nxt_display_text",
                                 "fields": {
-                                 "POWER": "0"
-                                },
-                                "inputs": {
-                                 "POWER": {
-                                  "type": "data_variable",
-                                  "fields": {
-                                   "VAR": "jazda"
-                                  }
-                                 }
+                                 "TEXT": "Jade do pilki",
+                                 "LINE": "3"
                                 },
                                 "next": {
-                                 "type": "nxt_reset_timer",
+                                 "type": "nxt_move_set_speed",
+                                 "fields": {
+                                  "POWER": "0"
+                                 },
+                                 "inputs": {
+                                  "POWER": {
+                                   "type": "data_variable",
+                                   "fields": {
+                                    "VAR": "jazda"
+                                   }
+                                  }
+                                 },
                                  "next": {
-                                  "type": "nxt_move_start",
-                                  "fields": {
-                                   "DIR": "FORWARD"
-                                  },
+                                  "type": "nxt_reset_timer",
                                   "next": {
-                                   "type": "nxt_wait_until",
-                                   "inputs": {
-                                    "CONDITION": {
-                                     "type": "logic_or",
-                                     "inputs": {
-                                      "A": {
-                                       "type": "logic_not",
-                                       "inputs": {
-                                        "A": {
-                                         "type": "nxt_color_is",
-                                         "fields": {
-                                          "PORT": "1",
-                                          "COLOR": "1"
+                                   "type": "nxt_move_start",
+                                   "fields": {
+                                    "DIR": "FORWARD"
+                                   },
+                                   "next": {
+                                    "type": "nxt_wait_until",
+                                    "inputs": {
+                                     "CONDITION": {
+                                      "type": "logic_or",
+                                      "inputs": {
+                                       "A": {
+                                        "type": "logic_compare",
+                                        "fields": {
+                                         "A": "0",
+                                         "OP": "LT",
+                                         "B": "0"
+                                        },
+                                        "inputs": {
+                                         "A": {
+                                          "type": "nxt_ultrasonic",
+                                          "fields": {
+                                           "PORT": "3"
+                                          }
+                                         },
+                                         "B": {
+                                          "type": "data_variable",
+                                          "fields": {
+                                           "VAR": "zasiegLapy"
+                                          }
                                          }
                                         }
-                                       }
-                                      },
-                                      "B": {
-                                       "type": "logic_or",
-                                       "inputs": {
-                                        "A": {
-                                         "type": "logic_compare",
-                                         "fields": {
-                                          "A": "0",
-                                          "OP": "LT",
-                                          "B": "6"
-                                         },
-                                         "inputs": {
-                                          "A": {
-                                           "type": "nxt_ultrasonic",
-                                           "fields": {
-                                            "PORT": "3"
-                                           }
-                                          }
-                                         }
+                                       },
+                                       "B": {
+                                        "type": "logic_compare",
+                                        "fields": {
+                                         "A": "0",
+                                         "OP": "GT",
+                                         "B": "3"
                                         },
-                                        "B": {
-                                         "type": "logic_compare",
-                                         "fields": {
-                                          "A": "0",
-                                          "OP": "GT",
-                                          "B": "3"
-                                         },
-                                         "inputs": {
-                                          "A": {
-                                           "type": "nxt_timer"
-                                          }
+                                        "inputs": {
+                                         "A": {
+                                          "type": "nxt_timer"
                                          }
                                         }
                                        }
                                       }
                                      }
-                                    }
-                                   },
-                                   "next": {
-                                    "type": "nxt_wait_seconds",
-                                    "fields": {
-                                     "SECONDS": "0.15"
                                     },
                                     "next": {
                                      "type": "nxt_move_stop",
                                      "next": {
-                                      "type": "nxt_wait_seconds",
+                                      "type": "nxt_display_text",
                                       "fields": {
-                                       "SECONDS": "0.2"
+                                       "TEXT": "Lapie",
+                                       "LINE": "3"
                                       },
                                       "next": {
-                                       "type": "nxt_if_else",
+                                       "type": "nxt_motor_for",
+                                       "fields": {
+                                        "PORT": "B",
+                                        "POWER": "0",
+                                        "AMOUNT": "0.8",
+                                        "UNIT": "SECONDS"
+                                       },
                                        "inputs": {
-                                        "CONDITION": {
-                                         "type": "logic_compare",
+                                        "POWER": {
+                                         "type": "data_variable",
                                          "fields": {
-                                          "A": "0",
-                                          "OP": "EQ",
-                                          "B": "0"
-                                         },
-                                         "inputs": {
-                                          "A": {
-                                           "type": "nxt_color",
-                                           "fields": {
-                                            "PORT": "1"
-                                           }
-                                          },
-                                          "B": {
-                                           "type": "data_variable",
-                                           "fields": {
-                                            "VAR": "cel"
-                                           }
-                                          }
+                                          "VAR": "chwytak"
                                          }
                                         }
                                        },
-                                       "statements": {
-                                        "DO": {
-                                         "type": "nxt_motor_for",
-                                         "fields": {
-                                          "PORT": "B",
-                                          "POWER": "0",
-                                          "AMOUNT": "0.8",
-                                          "UNIT": "SECONDS"
-                                         },
-                                         "inputs": {
-                                          "POWER": {
-                                           "type": "math_arithmetic",
-                                           "fields": {
-                                            "A": "0",
-                                            "OP": "MUL",
-                                            "B": "1"
-                                           },
-                                           "inputs": {
-                                            "A": {
-                                             "type": "data_variable",
-                                             "fields": {
-                                              "VAR": "chwytak"
-                                             }
+                                       "next": {
+                                        "type": "nxt_motor_on",
+                                        "fields": {
+                                         "PORT": "B",
+                                         "POWER": "0"
+                                        },
+                                        "inputs": {
+                                         "POWER": {
+                                          "type": "math_arithmetic",
+                                          "fields": {
+                                           "A": "0",
+                                           "OP": "MUL",
+                                           "B": "0.4"
+                                          },
+                                          "inputs": {
+                                           "A": {
+                                            "type": "data_variable",
+                                            "fields": {
+                                             "VAR": "chwytak"
                                             }
                                            }
                                           }
+                                         }
+                                        },
+                                        "next": {
+                                         "type": "nxt_wait_seconds",
+                                         "fields": {
+                                          "SECONDS": "0.3"
                                          },
                                          "next": {
-                                          "type": "nxt_motor_on",
-                                          "fields": {
-                                           "PORT": "B",
-                                           "POWER": "0"
-                                          },
+                                          "type": "nxt_if_else",
                                           "inputs": {
-                                           "POWER": {
-                                            "type": "math_arithmetic",
+                                           "CONDITION": {
+                                            "type": "logic_compare",
                                             "fields": {
                                              "A": "0",
-                                             "OP": "MUL",
-                                             "B": "0.4"
+                                             "OP": "EQ",
+                                             "B": "0"
                                             },
                                             "inputs": {
                                              "A": {
+                                              "type": "nxt_color",
+                                              "fields": {
+                                               "PORT": "1"
+                                              }
+                                             },
+                                             "B": {
                                               "type": "data_variable",
                                               "fields": {
-                                               "VAR": "chwytak"
+                                               "VAR": "cel"
                                               }
                                              }
                                             }
                                            }
                                           },
-                                          "next": {
-                                           "type": "data_set",
-                                           "fields": {
-                                            "VAR": "mam",
-                                            "VALUE": "1"
-                                           }
-                                          }
-                                         }
-                                        },
-                                        "ELSE": {
-                                         "type": "nxt_display_text",
-                                         "fields": {
-                                          "TEXT": "Zly kolor",
-                                          "LINE": "3"
-                                         },
-                                         "next": {
-                                          "type": "nxt_move_for",
-                                          "fields": {
-                                           "DIR": "BACKWARD",
-                                           "AMOUNT": "0.8",
-                                           "UNIT": "SECONDS"
-                                          },
-                                          "next": {
-                                           "type": "nxt_move_for",
-                                           "fields": {
-                                            "DIR": "RIGHT",
-                                            "AMOUNT": "0.6",
-                                            "UNIT": "SECONDS"
+                                          "statements": {
+                                           "DO": {
+                                            "type": "data_set",
+                                            "fields": {
+                                             "VAR": "mam",
+                                             "VALUE": "1"
+                                            }
+                                           },
+                                           "ELSE": {
+                                            "type": "nxt_display_text",
+                                            "fields": {
+                                             "TEXT": "Zly kolor",
+                                             "LINE": "3"
+                                            },
+                                            "next": {
+                                             "type": "nxt_motor_for",
+                                             "fields": {
+                                              "PORT": "B",
+                                              "POWER": "0",
+                                              "AMOUNT": "0.8",
+                                              "UNIT": "SECONDS"
+                                             },
+                                             "inputs": {
+                                              "POWER": {
+                                               "type": "math_arithmetic",
+                                               "fields": {
+                                                "A": "0",
+                                                "OP": "MUL",
+                                                "B": "-1"
+                                               },
+                                               "inputs": {
+                                                "A": {
+                                                 "type": "data_variable",
+                                                 "fields": {
+                                                  "VAR": "chwytak"
+                                                 }
+                                                }
+                                               }
+                                              }
+                                             },
+                                             "next": {
+                                              "type": "nxt_move_for",
+                                              "fields": {
+                                               "DIR": "BACKWARD",
+                                               "AMOUNT": "0.8",
+                                               "UNIT": "SECONDS"
+                                              },
+                                              "next": {
+                                               "type": "nxt_move_for",
+                                               "fields": {
+                                                "DIR": "RIGHT",
+                                                "AMOUNT": "0.6",
+                                                "UNIT": "SECONDS"
+                                               }
+                                              }
+                                             }
+                                            }
                                            }
                                           }
                                          }
@@ -510,54 +525,54 @@
                             }
                            }
                           }
-                         }
-                        },
-                        "next": {
-                         "type": "nxt_clear_screen",
+                         },
                          "next": {
-                          "type": "nxt_display_text",
-                          "fields": {
-                           "TEXT": "Mam pilke!",
-                           "LINE": "3"
-                          },
+                          "type": "nxt_clear_screen",
                           "next": {
                            "type": "nxt_display_text",
                            "fields": {
-                            "TEXT": "OK = pusc",
-                            "LINE": "5"
+                            "TEXT": "Mam pilke!",
+                            "LINE": "3"
                            },
                            "next": {
-                            "type": "nxt_play_note",
+                            "type": "nxt_display_text",
                             "fields": {
-                             "NOTE": "784",
-                             "BEATS": "1"
+                             "TEXT": "OK = pusc",
+                             "LINE": "5"
                             },
                             "next": {
-                             "type": "nxt_wait_button",
+                             "type": "nxt_play_note",
                              "fields": {
-                              "BUTTON": "ENTER"
+                              "NOTE": "784",
+                              "BEATS": "1"
                              },
                              "next": {
-                              "type": "nxt_motor_for",
+                              "type": "nxt_wait_button",
                               "fields": {
-                               "PORT": "B",
-                               "POWER": "0",
-                               "AMOUNT": "0.8",
-                               "UNIT": "SECONDS"
+                               "BUTTON": "ENTER"
                               },
-                              "inputs": {
-                               "POWER": {
-                                "type": "math_arithmetic",
-                                "fields": {
-                                 "A": "0",
-                                 "OP": "MUL",
-                                 "B": "-1"
-                                },
-                                "inputs": {
-                                 "A": {
-                                  "type": "data_variable",
-                                  "fields": {
-                                   "VAR": "chwytak"
+                              "next": {
+                               "type": "nxt_motor_for",
+                               "fields": {
+                                "PORT": "B",
+                                "POWER": "0",
+                                "AMOUNT": "0.8",
+                                "UNIT": "SECONDS"
+                               },
+                               "inputs": {
+                                "POWER": {
+                                 "type": "math_arithmetic",
+                                 "fields": {
+                                  "A": "0",
+                                  "OP": "MUL",
+                                  "B": "-1"
+                                 },
+                                 "inputs": {
+                                  "A": {
+                                   "type": "data_variable",
+                                   "fields": {
+                                    "VAR": "chwytak"
+                                   }
                                   }
                                  }
                                 }

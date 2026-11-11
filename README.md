@@ -28,7 +28,8 @@ Windows SmartScreen may warn because the files aren't signed: click *More info â
 robot (motors B and C) balancing with a HiTechnic gyro on port 2, and `balansujacy-robot-ac.nxtb` for a robot with
 separate wheels on A and C and the gyro on port 3. The tuning numbers are the first blocks of each program.
 `szukaj-pilki.nxtb` lets you pick red or blue on the brick, then spins until the ultrasonic sensor (port 3) sees a ball,
-drives up to it, checks its colour (port 1) and grabs it with the claw on B (wheels: right A, left C).
+drives up to it, grabs it with the claw on B and checks its colour with the sensor on the claw (port 1), letting go
+of the wrong colour (wheels: right A, left C).
 `sledzenie-linii.nxtb` follows the left edge of a black line with the NXT 2.0 colour sensor on port 3 (right wheel A, left wheel C).
 
 ## Uploading
