@@ -134,7 +134,7 @@ QList<BlockDef> build()
              Blocks::tr("Drives with the movement motors and speed set below, then stops."));
     d << def("nxt_move_start", C::Movement, S::Statement, {row(Blocks::tr("%1 start moving %2"))},
              {icon("arrow"), dropdown("DIR", {{Blocks::tr("forward"), "FORWARD"}, {Blocks::tr("backward"), "BACKWARD"},
-                                              {Blocks::tr("left"), "LEFT"}, {Blocks::tr("right"), "RIGHT"}})});
+                                              {Blocks::tr("left", "direction"), "LEFT"}, {Blocks::tr("right", "direction"), "RIGHT"}})});
     d << def("nxt_move_steer_for", C::Movement, S::Statement, {row(Blocks::tr("%1 move with steering %2 for %3 %4"))},
              {icon("steer"), number("STEER", "30"), number("AMOUNT", "1"), units()},
              Blocks::tr("Steering -100 spins left, 0 goes straight, 100 spins right."));

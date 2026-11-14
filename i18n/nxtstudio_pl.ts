@@ -146,14 +146,12 @@
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="33"/>
-        <location filename="../src/blocks/BlockDefs.cpp" line="137"/>
         <location filename="../src/blocks/BlockDefs.cpp" line="168"/>
         <source>left</source>
         <translation>lewy</translation>
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="33"/>
-        <location filename="../src/blocks/BlockDefs.cpp" line="137"/>
         <location filename="../src/blocks/BlockDefs.cpp" line="168"/>
         <source>right</source>
         <translation>prawy</translation>
@@ -344,12 +342,14 @@
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="132"/>
+        <location filename="../src/blocks/BlockDefs.cpp" line="137"/>
         <source>left</source>
         <comment>direction</comment>
         <translation>w lewo</translation>
     </message>
     <message>
         <location filename="../src/blocks/BlockDefs.cpp" line="132"/>
+        <location filename="../src/blocks/BlockDefs.cpp" line="137"/>
         <source>right</source>
         <comment>direction</comment>
         <translation>w prawo</translation>
